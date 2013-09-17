@@ -36,15 +36,16 @@ board = board page: 0 ->
     :param board: alphanumeric ID of the board.
 
   '''
-  if
-    bd, pn = data.board board page => render_template 'templates/board.html'
-      this:    bd
-      page:    page
-      board:   board
-      config:  config
-      boards:  data.boards!
-      pagenum: pn
-    otherwise => abort 404
+  bd, pn = except err => data.board board page
+                  err :: KeyError => abort 404
+
+  render_template 'templates/board.html'
+    this:    bd
+    page:    page
+    board:   board
+    config:  config
+    boards:  data.boards!
+    pagenum: pn
 
 
 check_post = title text files ->
@@ -80,8 +81,9 @@ thread_create = board ->
     files = request.files.getlist 'file'
   # A thread cannot be rejected by the database.
   # Still, we need to account for random exceptions.
-  with fnames = FileUploader files =>
-    redirect $ url_for 'thread_redirect' board $ data.create_thread board title text fnames
+  with fnames = FileUploader files => except
+    err => redirect $ url_for 'thread_redirect' board $ data.create_thread board title text fnames
+    err :: KeyError => abort 404
 
 
 thread_redirect = board thread ->
@@ -122,7 +124,7 @@ thread_reply = board thread ->
   # if the thread is too big.
   with fnames = FileUploader files => unsafe
     e => data.post_create board thread parent title (bool sage) text fnames
-    # Once again, we don't specify an error.
+    e :: KeyError      => abort 404
     e :: OverflowError => abort 403
 
   redirect $ url_for 'thread_redirect' board thread
@@ -135,13 +137,14 @@ thread_tree = board thread ->
     :param thread: numeric ID of the thread.
 
   '''
-  if
-    th = data.thread board thread => render_template 'templates/tree.html'
-      this:   th
-      board:  board
-      config: config
-      boards: data.boards!
-    otherwise => abort 404
+  th = except err => data.thread board thread
+              err :: KeyError => abort 404
+
+  render_template 'templates/tree.html'
+    this:   th
+    board:  board
+    config: config
+    boards: data.boards!
 
 
 thread_list = board thread ->
@@ -151,13 +154,14 @@ thread_list = board thread ->
     :param thread: numeric ID of the thread.
 
   '''
-  if
-    th = data.thread board thread => render_template 'templates/list.html'
-      this:   th
-      board:  board
-      config: config
-      boards: data.boards!
-    otherwise => abort 404
+  th = except err => data.thread board thread
+              err :: KeyError => abort 404
+
+  render_template 'templates/list.html'
+    this:   th
+    board:  board
+    config: config
+    boards: data.boards!
 
 
 app = Flask 'yoboard'
