@@ -30,6 +30,7 @@ Client = subclass object where
 
   __getattr__ = name ~> *: args ->
     got = False
+    cnt = 0
 
     while not got =>
       got, response = except
@@ -43,7 +44,11 @@ Client = subclass object where
             indata == b'' => raise StopIteration
 
           True, pickle.loads buffer
-        e :: StopIteration => False, None
+        e :: StopIteration =>
+          cnt += 1
+          cnt == 3 => raise $ IOError 'server keeps dropping the connection'
+          @connect @addr @port
+          False, None
 
     response :: Exception => raise response
     response
