@@ -1,24 +1,20 @@
-@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<XThread>
-@{
-  Layout = "Shared/_Layout.cshtml";
+{% extends "base.html" %}
+{% block title %}
+  {% if this.root.title %}
+    /{{ board }}/ - {{ this.root.title }}
+  {% else %}
+    /{{ board }}/ - #{{ this.root.id }}
+  {% endif %}
+{% endblock %}
 
-  ViewBag.IgnType = false;
-  ViewBag.Title   = string.IsNullOrEmpty(Model.OpPost.Title)
-    ? "/" + Model.Board.Path + "/ - #" + Model.OpPost.Number
-    : "/" + Model.Board.Path + "/ - "  + Model.OpPost.Title;
-}
 
-
-@section Options {
-  <li><a href="/@Model.Board.Path">Назад в /@Model.Board.Path/</a></li>
+{% block options %}
+  <li><a href="{{ url_for('board', board=board) }}">Назад в /{{ board }}/</a></li>
   <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Вид <b class="caret"></b></a>
     <ul class="dropdown-menu">
-      <li @(ViewBag.ViewType == "flat" ? "class='active'" : "")><a href="/@(Model.Id).flat">Списком</a></li>
-      <li @(ViewBag.ViewType == "tree" ? "class='active'" : "")><a href="/@(Model.Id).tree">Деревом</a></li>
+      <li {% if vtype == "list" %}class="active"{% endif %}><a href="{{ url_for('thread_list', board=board, thread=this.root.id) }}">Списком</a></li>
+      <li {% if vtype == "tree" %}class="active"{% endif %}><a href="{{ url_for('thread_tree', board=board, thread=this.root.id) }}">Деревом</a></li>
     </ul>
   </li>
-}
-
-
-@RenderBody()
+{% endblock %}

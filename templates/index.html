@@ -1,10 +1,9 @@
-@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<String>
-@{
-  Layout = "Shared/_Layout.cshtml";
+{% extends "base.html" %}
 
-  ViewBag.Title = Model;
-  ViewBag.Board = "";
-}
+{% block title %}
+  Йоборда
+{% endblock %}
 
-
-<p>Список борд вверху.</p>
+{% block content %}
+  <p>Список борд вверху.</p>
+{% endblock %}

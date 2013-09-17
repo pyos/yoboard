@@ -1,13 +1,9 @@
-@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<XThread>
-@{
-  Layout = "Shared/_Thread.cshtml";
+{% from "post.html" import post %}
+{% set vtype = "list" %}
+{% extends "basethread.html" %}
 
-  ViewBag.ViewType = "flat";
-}
-
-
-@Html.Partial("Post.cshtml", Model.OpPost)
-
-@foreach (var reply in Model.GetOrderedReplies()) {
-  @Html.Partial("Post.cshtml", reply)
-}
+{% block content %}
+  {% for p in posts %}
+    {{ post(p, True) }}
+  {% endfor %}
+{% endblock %}

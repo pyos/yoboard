@@ -1,9 +1,17 @@
-@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<XThread>
-@{
-  Layout = "Shared/_Thread.cshtml";
+{% extends "basethread.html" %}
+{% set vtype = "tree" %}
+{% from "post.html" import post %}
 
-  ViewBag.ViewType = "tree";
-}
+{% macro node(t) %}
+  <div class="post-view-tree">
+    {{ post(t.root, False) }}
+    
+    {% for st in t.replies %}
+      {{ node(st) }}
+    {% endfor %}
+  </div>
+{% endmacro %}
 
-
-@Html.Partial("TreeNode.cshtml", Model.GetTree())
+{% block content %}
+  {{ node(this) }}
+{% endblock %}
