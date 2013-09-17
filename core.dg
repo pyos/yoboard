@@ -2,7 +2,6 @@ import '/flask/Flask'
 import '/flask/abort'
 import '/flask/request'
 import '/flask/render_template'
-import '/flask/send_from_directory'
 import '/flask/url_for'
 import 'config'
 
@@ -19,15 +18,6 @@ root = ->
     board: ''
     config: config
     boards: data.boards!
-
-
-static = filename ->
-  '''Serve a static file.
-
-    Configure nginx, shitforbrains!
-
-  '''
-  send_from_directory config.STATIC_DIR filename
 
 
 board = board page: 0 ->
@@ -166,7 +156,6 @@ thread_list = board thread ->
 
 app = Flask 'yoboard'
 app.add_url_rule '/'                           None root
-app.add_url_rule '/static/<filename>'          None static
 app.add_url_rule '/<board>/'                   None board
 app.add_url_rule '/<board>/p<int:page>/'       None board
 app.add_url_rule '/<board>/'                   None thread_create methods: (list' 'POST')
