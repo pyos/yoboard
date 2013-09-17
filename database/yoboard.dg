@@ -1,41 +1,87 @@
 import '/math/ceil'
+import '/collections/deque'
 
 import 'config'
 import 'structs/Post'
 import 'structs/Tree'
 import 'structs/Board'
 import 'structs/Thread'
-import 'structs/ThreadPreview'
+import 'structs/IntRef'
 import 'picklerpc/Server'
 
 
 YoboardDatabase = subclass Server where
-  __init__ = @data ~> Server.__init__ self
+  __init__ = data ~> None where
+    Server.__init__ self
+    # Initial schema.
+    @data = dict
+      ids:      dict!
+      boards:   dict!
+      boardmap: dict!
+      threads:  dict!
+      posts:    dict!
+    @data.update data
 
   fn_boards = self ->
-    '''A list of all boards.
+    '''A mapping of categories to mappings of ids to board titles.
 
-      boards :: {str: [(str, str)]}
+      Client.boards :: {str: {str: str}}
 
     '''
     @data !! 'boardmap'
 
+  fn_board_increment = name ~>
+    '''Increment the post counter of a board.
+
+      Note that the database is single-threaded, thus every operation
+      is atomic. Yay!
+
+    '''
+    (@data !! 'ids' !! name += 1) - 1
+
+  fn_board_create = name title category ~>
+    '''Create a new board. No-op if one already exists.
+
+      Client.board_create :: str str str -> a
+
+    '''
+    not $ name in @data !! 'boards' =>
+      not $ category in @data !! 'boardmap' =>
+        @data !! 'boardmap' !! category = dict!
+      @data !! 'ids'      !! name             = 1
+      @data !! 'boards'   !! name             = Board name title category list!
+      @data !! 'posts'    !! name             = dict!
+      @data !! 'threads'  !! name             = dict!
+      @data !! 'boardmap' !! category !! name = title
+
+  fn_board_remove = name ~>
+    '''Remove a whole board.
+
+      Client.board_remove :: str -> a
+
+    '''
+    # 1. Remove every thread.
+    # 2. Remove data from the board map.
+    # 3. Remove (@data !! 'boards' !! name).
+    # 4. Remove the counter.
+    raise NotImplementedError
+
   fn_board = name page ~>
     '''Fetch a list of threads on a board.
 
-      board :: str -> ([ThreadPreview], int)
+      Client.board :: str -> ([Thread], int)
 
     '''
-    threads = @data !! 'boards' !! name
+    threads = (@data !! 'boards' !! name).threads
     pagecnt = int $ ceil $ len threads / config.THREADS_PER_PAGE
-    retdata = list (None where
-      start =  page      * config.THREADS_PER_PAGE
-      end   = (page + 1) * config.THREADS_PER_PAGE
-      for th in @data !! 'boards' !! name !! slice start end =>
-        # Here we convert Threads into ThreadPreviews.
-        raise NotImplementedError
-    )
-    retdata, pagecnt
+    retdata = None where
+      n = page * config.THREADS_PER_PAGE
+      for t in take config.THREADS_PER_PAGE (drop n threads) =>
+        # To reduce the amount of data transferred to the web server,
+        # reply trees are removed.
+        yield $ Thread t.root None t.latest t.skipped
+
+    list retdata, pagecnt
 
   fn_thread = board num ~>
     '''Fetch a complete thread.
@@ -51,7 +97,13 @@ YoboardDatabase = subclass Server where
       thread_create :: str str str [str] -> int
 
     '''
-    raise NotImplementedError
+    op = Post (@fn_board_increment board) title False text files 0 0 
+    th = Thread op list! list! (IntRef 0)
+    bd = @data !! 'boards' !! board
+    bd.threads.insert 0 th
+    len bd.threads > config.THREADS_PER_BOARD => bd.threads.pop -1
+    @data !! 'threads' !! board !! op.id = th
+    @data !! 'posts'   !! board !! op.id = op
 
   fn_thread_remove = board num ~>
     '''Remove a thread by id.
@@ -59,10 +111,14 @@ YoboardDatabase = subclass Server where
       thread_remove :: str int -> a
 
     '''
-    # 1. Remove from (@data !! 'boards'  !! board)
-    # 2. Remove from (@data !! 'threads' !! board)
-    # 3. Remove every post
     raise NotImplementedError
+
+    th = @data !! 'threads' !! board !! num
+    (@data !! 'threads' !! board)         !!~ num
+    (@data !! 'boards'  !! board).threads !!~ next (None where
+      for (i, t) in enumerate (@data !! 'boards' !! board).threads =>
+        if t.id == num => yield i)
+    # TODO: remove every post.
 
   fn_post = board num ~>
     '''Fetch a single post.
@@ -78,7 +134,53 @@ YoboardDatabase = subclass Server where
       post_create :: str int int str bool str [str] -> int
 
     '''
-    raise NotImplementedError
+    # First, we check `thread` and `parent.
+    # If either of these raises a KeyError, one of the
+    # values is completely invalid.
+    th = @data !! 'threads' !! board !! thread
+    pp = @data !! 'posts'   !! board !! parent
+    tl = len th.latest + th.skipped.value
+
+    # First-and-a-half, we check the thread's constraints.
+    tl >= config.POSTS_UNTIL_AUTOSAGE => sage = True
+    tl >= config.POSTS_PER_THREAD     => raise OverflowError
+
+    # Second, we trace the parenting chain to its origin.
+    # We need that info to descend into the correct tree.
+    ps  = deque!
+    pid = parent
+    while pid =>
+      ps.append pid
+      pid = (@data !! 'posts' !! board !! pid).parent
+
+    if (expected = ps.pop!) != thread =>
+      # If the tip of the tree does not match the thread ID,
+      # something got mixed up.
+      raise $ ValueError 'wrong thread' expected thread
+
+    # Third, we commence the aforementioned descend
+    # into the tree.
+    pt = th
+    while ps and (pid = ps.pop!) =>
+      # The trees are, unfortunately, ordered by creation time.
+      pt = next (None where for t in th.replies => if t.root.id == pid => yield t)
+
+    # From this point on we cannot afford to bail out.
+    # `@fn_board_increment` is the first modification.
+    po = Post (@fn_board_increment board) title sage text files thread parent
+    th.latest.append po
+    pt.replies.append $ Tree po list!
+    @data !! 'posts' !! board !! po.id = po
+
+    len th.latest > config.POSTS_ON_BOARD_PAGE =>
+      th.latest.pop 0
+      th.skipped.value += 1
+
+    not sage =>
+      (@data !! 'boards' !! board).threads !!~ next (None where
+        for (i, t) in enumerate (@data !! 'boards' !! board).threads =>
+          if t.root.id == thread => yield i)
+      (@data !! 'boards' !! board).threads.insert 0 th
 
   fn_post_remove = board num ~>
     '''Remove a post by id.

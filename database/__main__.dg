@@ -11,7 +11,10 @@ import 'config'
 import 'yoboard/YoboardDatabase'
 
 
-db   = YoboardDatabase $ with fd = open config.DATABASE 'rb' => pickle.load fd
+db = YoboardDatabase $ if
+  os.path.exists config.DATABASE => with fd = open config.DATABASE 'rb' => pickle.load fd
+  otherwise => dict!
+
 save = atexit.register $ data: db.data ->
   '''Store contents of the database in a file.
 
@@ -23,11 +26,11 @@ save = atexit.register $ data: db.data ->
   '''
   os.fork! == 0 =>
     with fd = open (config.DATABASE + '~') 'wb' => pickle.dump data fd
-    os.unlink  config.DATABASE
+    os.path.exists config.DATABASE => os.unlink config.DATABASE
     os.rename (config.DATABASE + '~') config.DATABASE
 
 # Windows has no SIGTERM.
-hasattr signal 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> save db.data
+hasattr signal 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
 
 save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.data
 # All of the saving stuff happens in a new thread. We can let

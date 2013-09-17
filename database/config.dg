@@ -12,7 +12,7 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 # This is the interval after which to dump data, as noted above.
 # (In seconds.) Once again, don't forget to sync the write buffers.
 # Also, making a backup of the database is probably a good idea.
-AUTOSYNC_INTERVAL = 15 * 60
+AUTOSYNC_INTERVAL = 15
 
 # Where to listen for connections.
 ADDRESS = '127.0.0.1'
@@ -28,6 +28,11 @@ THREADS_PER_PAGE  = 10
 # compensates for low `THREADS_PER_PAGE`, but makes
 # wiping easier and increases the likelyhood of losing a thread.
 THREADS_PER_BOARD = 10 * THREADS_PER_PAGE
+
+# No. of posts from each thread to display on the board page.
+# Increasing this number gives a better perception of the discussion,
+# but increases data throughput and may harm the UX.
+POSTS_ON_BOARD_PAGE = 4
 
 # No. of posts until the thread no longer floats up.
 # Increasing this number allows for longer discussions without

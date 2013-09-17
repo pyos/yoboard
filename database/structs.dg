@@ -1,5 +1,10 @@
-Post = None
-Tree = None
-Board = None
-Thread = None
-ThreadPreview = None
+import '/collections/namedtuple'
+
+Post   = namedtuple 'Post'   'id, title, sage, text, files, thread, parent'
+Board  = namedtuple 'Board'  'id, title, category, threads'
+Tree   = namedtuple 'Tree'   'root, replies'
+Thread = namedtuple 'Thread' 'root, replies, latest, skipped'
+IntRef = subclass object where
+  # Named tuples are not mutable, but their items are.
+  # Except for ints and strings, which we have to wrap.
+  __init__ = @value ~>

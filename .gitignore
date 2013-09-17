@@ -1,3 +1,4 @@
 *.pyc
 *.pyo
 /static/upload/*
+yoboard.databundle
