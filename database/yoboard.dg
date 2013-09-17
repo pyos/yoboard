@@ -7,13 +7,10 @@ import 'structs/Board'
 import 'structs/Thread'
 import 'structs/ThreadPreview'
 import 'picklerpc/Server'
-import 'picklerpc/Persistence'
 
 
-YoboardDatabase = subclass Persistence Server where
-  __init__ = file dump_interval ~>
-    Persistence.__init__ self file dump_interval
-    Server     .__init__ self
+YoboardDatabase = subclass Server where
+  __init__ = @data ~> Server.__init__ self
 
   fn_boards = self ->
     '''A list of all boards.

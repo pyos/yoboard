@@ -1,9 +1,8 @@
-import '/os'
 import '/pickle'
 import '/socket'
-import '/copy/deepcopy'
 
 END_OF_TRANSMISSION = b'\0\0\4\r\n'
+
 
 Server = subclass object where
   __call__ = conn ~>
@@ -48,36 +47,3 @@ Client = subclass object where
 
     response :: Exception => raise response
     response
-
-
-Persistence = subclass object where
-  '''A file-based RPC that focuses on communication between timeframes.
-
-    In other words, classes inheriting from this will have a `data`
-    attribute that is automatically restored from a file on initialization
-    and written back on destruction or at regular intervals.
-
-    TODO:: store data at intervals.
-
-  '''
-  __init__ = @file @dump_interval ~> None where @data = @load
-  __del__  = self -> @save @data
-
-  save = data ~>
-    '''Store data in a file.
-
-      Yes, this forks off a process. Make sure to copy the data.
-
-    '''
-    os.fork! == 0 =>
-      with fd = open (@file + '~') 'wb' => pickle.dump data fd
-      os.unlink @file
-      os.rename (@file + '~') @file
-
-  load = ~>
-    '''Load data from a file.
-
-      This one is blocking.
-
-    '''
-    with fd = open @file 'rb' => pickle.load fd

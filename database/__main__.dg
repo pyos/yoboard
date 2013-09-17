@@ -1,9 +1,38 @@
+import '/os'
+import '/copy'
+import '/atexit'
+import '/signal'
+import '/pickle'
+import '/threading'
+
 import '/bluelet'
 
 import 'config'
 import 'yoboard/YoboardDatabase'
 
 
-bluelet.run $
-  bluelet.server config.ADDRESS config.PORT $
-    YoboardDatabase config.DATABASE config.AUTOSYNC_INTERVAL
+db   = YoboardDatabase $ with fd = open config.DATABASE 'rb' => pickle.load fd
+save = atexit.register $ data: db.data ->
+  '''Store contents of the database in a file.
+
+    This function will be called on normal exit,
+    after an unhandled exception, or on SIGTERM.
+    It's also called with a copy of the data at
+    regular intervals.
+
+  '''
+  os.fork! == 0 =>
+    with fd = open (config.DATABASE + '~') 'wb' => pickle.dump data fd
+    os.unlink  config.DATABASE
+    os.rename (config.DATABASE + '~') config.DATABASE
+
+# Windows has no SIGTERM.
+hasattr signal 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> save db.data
+
+save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.data
+# All of the saving stuff happens in a new thread. We can let
+# Python hard-stop the copying process on shutdown.
+save_t.daemon = True
+save_t.start!
+
+bluelet.run $ bluelet.server config.ADDRESS config.PORT db
