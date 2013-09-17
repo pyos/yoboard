@@ -27,11 +27,12 @@ board = board page: 0 ->
     :param board: alphanumeric ID of the board.
 
   '''
-  bd, pn = except err => data.board board page
-                  err :: KeyError => abort 404
+  tt, bd, pn = except err => data.board board page
+                      err :: KeyError => abort 404
 
   render_template 'board.html'
     this:    bd
+    title:   tt
     page:    page
     board:   board
     config:  config

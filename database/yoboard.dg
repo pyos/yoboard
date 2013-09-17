@@ -69,19 +69,19 @@ YoboardDatabase = subclass Server where
   fn_board = name page ~>
     '''Fetch a list of threads on a board.
 
-      Client.board :: str -> ([Thread], int)
+      Client.board :: str -> (str, [Thread], int)
 
     '''
-    threads = (@data !! 'boards' !! name).threads
-    pagecnt = int $ ceil $ len threads / config.THREADS_PER_PAGE
+    board   = @data !! 'boards' !! name
+    pagecnt = int $ ceil $ len board.threads / config.THREADS_PER_PAGE
     retdata = None where
       n = page * config.THREADS_PER_PAGE
-      for t in take config.THREADS_PER_PAGE (drop n threads) =>
+      for t in take config.THREADS_PER_PAGE (drop n board.threads) =>
         # To reduce the amount of data transferred to the web server,
         # reply trees are removed.
         yield $ Thread t.root None t.latest t.skipped
 
-    list retdata, pagecnt
+    board.title, list retdata, pagecnt
 
   fn_thread = board num ~>
     '''Fetch a complete thread.
