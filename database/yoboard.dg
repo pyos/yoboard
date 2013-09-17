@@ -135,7 +135,7 @@ YoboardDatabase = subclass Server where
       post_create :: str int int str bool str [str] -> int
 
     '''
-    # First, we check `thread` and `parent.
+    # First, we check `thread` and `parent`.
     # If either of these raises a KeyError, one of the
     # values is completely invalid.
     th = @data !! 'threads' !! board !! thread
@@ -159,7 +159,7 @@ YoboardDatabase = subclass Server where
       # something got mixed up.
       raise $ ValueError 'wrong thread' expected thread
 
-    # Third, we commence the aforementioned descend
+    # Third, we commence the aforementioned descent
     # into the tree.
     pt = th
     while ps and (pid = ps.pop!) =>
