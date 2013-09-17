@@ -11,21 +11,21 @@ Server = subclass object where
     while True =>
       indata = b''
   
-      while not $ b'\0' in indata =>
-        indata  = yield $ conn.recv 1024
-        buffer += indata
+      while not $ buffer.endswith b'\0\r\n\0' =>
+        buffer += indata = yield $ conn.recv 1024
+        indata == b'' => raise StopIteration
 
-      cmd, _, buffer = buffer.partition b'\0'
+      cmd, _, buffer = buffer.partition b'\0\r\n\0'
 
       except
         e =>
           name, args = pickle.loads cmd
           response   = (getattr self ('fn_' + name)) *: args
           yield $ conn.sendall $ pickle.dumps response
-          yield $ conn.sendall $ pickle.dumps b'\0'
+          yield $ conn.sendall $ b'\0\r\n\0'
         e :: Exception =>
           yield $ conn.sendall $ pickle.dumps e
-          yield $ conn.sendall $ pickle.dumps b'\0'
+          yield $ conn.sendall $ b'\0\r\n\0'
 
 
 Client = subclass object where
@@ -40,7 +40,13 @@ Client = subclass object where
       got, response = except
         e =>
           buffer = b''
-          while not $ buffer.endswith b'\0' => buffer += @socket.recv 1024
+          @socket.sendall $ pickle.dumps (name, args)
+          @socket.sendall $ b'\0\r\n\0'
+
+          while not $ buffer.endswith b'\0\r\n\0' =>
+            buffer += indata = @socket.recv 1024
+            indata == b'' => raise IOError
+
           True, pickle.loads $ buffer !! slice None -1
         e :: IOError => False, None
 

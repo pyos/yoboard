@@ -15,7 +15,7 @@ YoboardDatabase = subclass Persistence Server where
     Persistence.__init__ self file dump_interval
     Server     .__init__ self
 
-  fn_boards = ~>
+  fn_boards = self ->
     '''A list of all boards.
 
       boards :: {str: [(str, str)]}

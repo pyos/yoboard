@@ -10,6 +10,7 @@ A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://gith
 
   * [dg](https://github.com/pyos/dg) (to compile stuff.)
   * [Flask](https://github.com/mitsuhiko/flask) (to run stuff.)
+  * [bluelet](https://github.com/sampsyo/bluelet) (to send stuff between the app and the database.)
   * imagemagick (to downscale uploaded stuff.)
   * a FreeDesktop icon theme with MIME type icons (to display something instead of stuff that cannot be downscaled.)
 
