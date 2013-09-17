@@ -1,0 +1,9 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<XThread>
+@{
+  Layout = "Shared/_Thread.cshtml";
+
+  ViewBag.ViewType = "tree";
+}
+
+
+@Html.Partial("TreeNode.cshtml", Model.GetTree())

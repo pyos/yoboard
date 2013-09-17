@@ -1,0 +1,47 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<NeChan.Model.Post>
+@{
+  var parent = Model.ParentId.Split('/')[1];
+}
+
+<div class="post media @(Model.IsOp ? "post-original" : "post-reply")" id="@Model.Number">
+  <div class="post-header media-heading">
+    <a href="/@(Model.OpPostId).@(ViewBag.ViewType)#@(Model.Number)" class="post-id">#@Model.Number</a>
+    @if (!string.IsNullOrEmpty(Model.Title)) {
+      <span class="post-title">@Model.Title</span>
+    }
+    <span class="post-timestamp">@Model.Created</span>
+    @if (Model.Sage) {
+      <span class="post-sage"></span>
+    }
+    <a class="glyphicon glyphicon-edit" title="Ответить" class="post-reply-btn" data-toggle="collapse" data-target="#post-form-@Model.Number"></a>
+  </div>
+
+  <div class="post-content clearfix">
+    @foreach (var a in Model.Attaches) {
+      <div class="post-attach pull-left">
+        <a href="/Content/Images/@a.Data">
+          <img class="media-object" style="height: 100px" src="/Content/Images/@a.Data" alt="Картинка" />
+        </a>
+      </div>
+    }
+
+    <div class="post-body media-body">
+      @if ((ViewBag.IgnType || ViewBag.ViewType == "flat") && Model.OpPostId != Model.ParentId) {
+        <a class="post-parent post-anchor" href="/@(Model.OpPostId).@(ViewBag.ViewType)#@parent" data-id="@Model.ParentId">@parent</a><br />
+      }
+      @if (string.IsNullOrEmpty(Model.HtmlBody)) {
+        @Model.Body
+      } else {
+        @Html.Raw(Model.HtmlBody);
+      }
+    </div>
+  </div>
+
+  <div class="collapse post-form" id="post-form-@Model.Number">
+    @Html.Partial("PostForm.cshtml", Tuple.Create(
+      Model.OpPostId + "." + ViewBag.ViewType,
+      Model.OpPostId,
+      Model.Id
+    ))
+  </div>
+</div>

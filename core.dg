@@ -1,0 +1,172 @@
+import '/flask/Flask'
+import '/flask/abort'
+import '/flask/request'
+import '/flask/render_template'
+import '/flask/send_from_directory'
+import '/flask/url_for'
+import 'config'
+
+data = call $ import 'database/picklerpc/Client'
+
+
+root = ->
+  '''Root directory of the module.
+
+    No options.
+
+  '''
+  render_template 'templates/index.html' 
+    board: ''
+    config: config
+    boards: data.boards
+
+
+static = filename ->
+  '''Serve a static file.
+
+    Configure nginx, shitforbrains!
+
+  '''
+  send_from_directory config.STATIC_DIR filename
+
+
+board = board page: 0 ->
+  '''Listing of threads on a board.
+
+    :param board: alphanumeric ID of the board.
+
+  '''
+  if
+    bd, pn = data.board board page => render_template 'templates/board.html'
+      this:    bd
+      page:    page
+      board:   board
+      config:  config
+      boards:  data.boards
+      pagenum: pn
+    otherwise => abort 404
+
+
+check_post = title text files ->
+  '''Ensure that a post matches certain conditions.
+
+    If not, a 400 Bad Request is returned.
+    Note that it does not specify a message; the client
+    should double-check the data before sending it.
+
+  '''
+  config.MAX_UPLOADS < len files             => abort 400
+  config.MIN_UPLOADS > len files             => abort 400
+  config.MAX_TITLE_LENGTH < len title        => abort 400
+  config.MAX_TITLE_LINES <= title.count '\n' => abort 400
+  config.MIN_TEXT_LENGTH > len text          => abort 400
+  config.MAX_TEXT_LENGTH < len text          => abort 400
+  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
+
+
+thread_create = board ->
+  '''Make a new thread.
+
+    :param board: alphanumeric ID of the board.
+
+    field `title`:: a short summary of the thread.
+    field `text`::  initial message.
+    field `file`::  any number of attachments.
+
+  '''
+  check_post
+    title = request.form.get      'title' ''
+    text  = request.form.get      'text'  ''
+    files = request.files.getlist 'file'
+  # A thread cannot be rejected by the database.
+  # Still, we need to account for random exceptions.
+  with fnames = FileUploader files =>
+    redirect $ url_for 'thread_redirect' board $ data.create_thread board title text fnames
+
+
+thread_redirect = board thread ->
+  '''Redirect to an appropriate thread view.
+
+    :param board: alphanumeric ID of the board.
+    :param thread: numeric ID of the thread.
+
+    cookie `view_type`:: type of the view to use (`tree` of `list`).
+
+  '''
+  view = request.cookies.get('view_type')
+
+  if view == 'tree' => redirect $ url_for 'thread_tree' board thread
+     otherwise      => redirect $ url_for 'thread_list' board thread
+
+
+thread_reply = board thread ->
+  '''Make a new thread.
+
+    :param board: alphanumeric ID of the board.
+    :param thread: numeric ID of the thread.
+
+    field `parent`:: the message to reply to.
+    field `title`::  a short summary of the message.
+    field `sage`::   set iff the author was displeased with the thread.
+    field `text`::   a long message.
+    field `file`::   any number of attachments.
+
+  '''
+  parent = int $ request.form !! 'parent'
+  sage   = request.form.get      'sage'  ''
+  check_post
+    title  = request.form.get      'title' ''
+    text   = request.form.get      'text'  ''
+    files  = request.files.getlist 'file'
+  # This time the database may reject the post
+  # if the thread is too big.
+  with fnames = FileUploader files => unsafe
+    e => data.post_create board thread parent title (bool sage) text fnames
+    # Once again, we don't specify an error.
+    e :: OverflowError => abort 403
+
+  redirect $ url_for 'thread_redirect' board thread
+
+
+thread_tree = board thread ->
+  '''View a thread in tree mode.
+
+    :param board: alphanumeric ID of the board.
+    :param thread: numeric ID of the thread.
+
+  '''
+  if
+    th = data.thread board thread => render_template 'templates/tree.html'
+      this:   th
+      board:  board
+      config: config
+      boards: data.boards
+    otherwise => abort 404
+
+
+thread_list = board thread ->
+  '''View a thread in list mode.
+
+    :param board: alphanumeric ID of the board.
+    :param thread: numeric ID of the thread.
+
+  '''
+  if
+    th = data.thread board thread => render_template 'templates/list.html'
+      this:   th
+      board:  board
+      config: config
+      boards: data.boards
+    otherwise => abort 404
+
+
+app = Flask 'yoboard'
+app.add_url_rule '/'                           None root
+app.add_url_rule '/static/<filename>'          None static
+app.add_url_rule '/<board>/'                   None board
+app.add_url_rule '/<board>/p<int:page>/'       None board
+app.add_url_rule '/<board>/'                   None thread_create methods: (list' 'POST')
+app.add_url_rule '/<board>/<int:thread>/'      None thread_redirect
+app.add_url_rule '/<board>/<int:thread>/'      None thread_reply methods: (list' 'POST')
+app.add_url_rule '/<board>/<int:thread>/tree/' None thread_tree
+app.add_url_rule '/<board>/<int:thread>/list/' None thread_list

@@ -1,0 +1,35 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<BoardPage>
+@{
+  Layout = "Shared/_Layout.cshtml";
+
+  ViewBag.Title    = "/" + Model.Board.Info.Path + "/ - " + Model.Board.Info.Name;
+  ViewBag.ViewType = "flat";
+  ViewBag.IgnType  = true;
+}
+
+
+<div id="board-reply-form">
+  <div class="post-form" id="board-form">
+    @Html.Partial("PostForm.cshtml", Tuple.Create(
+      Model.Board.Info.Path,
+      Model.Board.Info.Path,
+      Model.Board.Info.Path
+    ))
+  </div>
+</div>
+
+@foreach (var thread in Model.Threads) {
+  <div class="post-view-tree board-level">
+    @Html.Partial("Post.cshtml", thread.OpPost)
+
+    @if(thread.PostsMissing > 0) {
+      <p class="post-missing-notice">
+        Всего @thread.PostsTotal постов, из них @thread.PostsMissing пропущен@( thread.PostsMissing > 1 ? "о" : "") (@thread.AttachesMissing с картинками.)
+      </p>
+    }
+
+    @foreach (var reply in thread.ExpandedPosts) {
+      @Html.Partial("Post.cshtml", reply)
+    }
+  </div>
+}

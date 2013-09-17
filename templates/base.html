@@ -1,0 +1,53 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/css/bootstrap.min.css")" />
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/css/bootstrap-theme.min.css")" />
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/css/nechan.css")" />
+    <link type="text/css" rel="stylesheet" href="@Url.Content("~/Content/css/nechan-gray.css")" />
+    <title>@ViewBag.Title</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#board-list">
+          <span class="sr-only">Борды</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">@ViewBag.Title</a>
+      </div>
+
+      <div>
+        <ul class="nav navbar-nav hidden-xs">
+          @RenderSection("Options", required: false)
+        </ul>
+        <ul class="nav navbar-nav">
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown">Борды <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              @foreach (var b in ViewBag.Boards) {
+                @if (b.Info.Path == @Model.Board.Path) {
+                  <li class="active"><a href="/@b.Info.Path">@b.Info.Name</a></li>
+                } else {
+                  <li><a href="/@b.Info.Path">@b.Info.Name</a></li>
+                }
+              }
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    @RenderBody()
+
+    <script type ="text/javascript" src ="@Url.Content("~/Content/js/jquery-1.9.1.min.js")"></script>
+    <script type ="text/javascript" src ="@Url.Content("~/Content/js/jquery.cookie.js")"></script>
+    <script type ="text/javascript" src ="@Url.Content("~/Content/js/bootstrap.min.js")"></script>
+    <script type ="text/javascript" src ="@Url.Content("~/Content/js/nechan.js")"></script>
+    @RenderSection("Scripts", required: false)
+  </body>
+</html>

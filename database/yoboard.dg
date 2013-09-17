@@ -1,0 +1,92 @@
+import '/math/ceil'
+
+import 'config'
+import 'structs/Post'
+import 'structs/Tree'
+import 'structs/Board'
+import 'structs/Thread'
+import 'structs/ThreadPreview'
+import 'picklerpc/Server'
+import 'picklerpc/Persistence'
+
+
+YoboardDatabase = subclass Persistence Server where
+  fn_boards = ~>
+    '''A list of all boards.
+
+      boards :: {str: [(str, str)]}
+
+    '''
+    @data !! 'boardmap'
+
+  fn_board = name page ~>
+    '''Fetch a list of threads on a board.
+
+      board :: str -> ([ThreadPreview], int)
+
+    '''
+    threads = @data !! 'boards' !! name
+    pagecnt = int $ ceil $ len threads / config.THREADS_PER_PAGE
+    retdata = list (None where
+      start =  page      * config.THREADS_PER_PAGE
+      end   = (page + 1) * config.THREADS_PER_PAGE
+      for th in @data !! 'boards' !! name !! slice start end =>
+        # Here we convert Threads into ThreadPreviews.
+        raise NotImplementedError
+    )
+    retdata, pagecnt
+
+  fn_thread = board num ~>
+    '''Fetch a complete thread.
+
+      thread :: str int -> Thread
+
+    '''
+    @data !! 'threads' !! board !! num
+
+  fn_thread_create = board title text files ~>
+    '''Create a new thread.
+
+      thread_create :: str str str [str] -> int
+
+    '''
+    raise NotImplementedError
+
+  fn_thread_remove = board num ~>
+    '''Remove a thread by id.
+
+      thread_remove :: str int -> a
+
+    '''
+    # 1. Remove from (@data !! 'boards'  !! board)
+    # 2. Remove from (@data !! 'threads' !! board)
+    # 3. Remove every post
+    raise NotImplementedError
+
+  fn_post = board num ~>
+    '''Fetch a single post.
+
+      post :: str int -> Post
+
+    '''
+    @data !! 'posts' !! board !! num
+
+  fn_post_create = board thread parent title sage text files ~>
+    '''Create a new post.
+
+      post_create :: str int int str bool str [str] -> int
+
+    '''
+    raise NotImplementedError
+
+  fn_post_remove = board num ~>
+    '''Remove a post by id.
+
+      post_remove :: str int -> a
+
+    '''
+    # 1. Remove from the associated tree
+    # 2. Remove from the associated thread
+    # 3. Remove from (@data !! 'posts')
+    # 4. Remove files
+    raise NotImplementedError

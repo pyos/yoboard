@@ -1,0 +1,6 @@
+import 'config'
+import 'yoboard/YoboardDatabase'
+
+
+db = YoboardDatabase config.DATABASE config.AUTOSYNC_INTERVAL
+db.start config.SOCKET

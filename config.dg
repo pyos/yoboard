@@ -1,0 +1,23 @@
+import '/os'
+import '/os/path'
+
+
+# The place where CSS, JS, fonts, and uploaded attachments are.
+STATIC_DIR = path.join (path.dirname __file__) 'static'
+UPLOAD_DIR = path.join STATIC_DIR 'upload'
+
+os.makedirs STATIC_DIR exist_ok: True
+os.makedirs UPLOAD_DIR exist_ok: True
+
+# Min. and max. no files that may be attached to a message.
+# Note that there's no limit on the size of uploaded files;
+# use nginx as a proxy for that (it can limit the size of a request.)
+MIN_UPLOADS = 0
+MAX_UPLOADS = 5
+
+# Various limits on message sizes.
+MAX_TITLE_LENGTH = 100
+MAX_TITLE_LINES  = 1
+MIN_TEXT_LENGTH  = 1
+MAX_TEXT_LENGTH  = 3000
+MAX_TEXT_LINES   = 300

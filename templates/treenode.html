@@ -1,0 +1,9 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<TreeNode<NeChan.Model.Post>>
+
+<div class="post-view-tree">
+  @Html.Partial("Post.cshtml", Model.Value)
+
+  @foreach (var reply in Model.Childs) {
+    @Html.Partial("TreeNode.cshtml", reply)
+  }
+</div>

@@ -1,0 +1,13 @@
+@inherits Nancy.ViewEngines.Razor.NancyRazorViewBase<XThread>
+@{
+  Layout = "Shared/_Thread.cshtml";
+
+  ViewBag.ViewType = "flat";
+}
+
+
+@Html.Partial("Post.cshtml", Model.OpPost)
+
+@foreach (var reply in Model.GetOrderedReplies()) {
+  @Html.Partial("Post.cshtml", reply)
+}

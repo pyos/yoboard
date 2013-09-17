@@ -1,0 +1,36 @@
+## yoboard
+
+A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://github.com/mitsuhiko/flask).
+
+### FAQ
+
+#### What are the requirements?
+
+  * [dg](https://github.com/pyos/dg) (to compile stuff.)
+  * [Flask](https://github.com/mitsuhiko/flask) (to run stuff.)
+  * imagemagick (to downscale uploaded stuff.)
+  * a FreeDesktop icon theme with MIME type icons (to display something instead of stuff that cannot be downscaled.)
+
+#### What should one do with imagemagick?
+
+Install it somewhere and add it to the `PATH` environment variable.
+
+#### OK, and the icon theme?
+
+*(Note that since this stuff isn't used yet, following these steps is unnecessary.)*
+
+On Linux, install it system-wide (i.e. either in `/usr/share/icons` or in `~/.local/share/icons`).
+On other platforms, move it into the root directory of this project.
+Then, regardless of which OS you use, put its name in `config.dg`
+
+#### What about these Python modules?
+
+Ahem.
+
+#### How to start this crap?
+
+`python -m yoboard`
+
+#### What's the point?
+
+There is none.
