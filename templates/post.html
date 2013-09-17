@@ -1,12 +1,12 @@
-{% macro post(p, addlink) %}
+{% macro post(p, list_mode) %}
 {% set _thread = p.thread or p.id %}
 <div class="post media {% if p.parent == 0 %}post-original{% else %}post-reply{% endif %}" id="{{ p.id }}">
   <div class="post-header media-heading">
-    <a href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.id }}" class="post-id">{{ p.id }}</a>
+    <a href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
     {% if p.title %}
       <span class="post-title">{{ p.title }}</span>
     {% endif %}
-    <span class="post-timestamp">NO TIMESTAMP</span>
+    <span class="post-timestamp">{{ p.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</span>
     {% if p.sage %}
       <span class="post-sage"></span>
     {% endif %}
@@ -23,7 +23,7 @@
     {% endfor %}
 
     <div class="post-body media-body">
-      {% if p.parent != p.thread and addlink %}
+      {% if list_mode and p.parent != p.thread %}
         <a class="post-parent post-anchor" href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
       {% endif %}
 
