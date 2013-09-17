@@ -6,7 +6,7 @@ import '/socket'
 # The database will automatically dump stuff into this file
 # at regular intervals, as well as on shutdown.
 # Note that neglect to sync the hard drives between a save
-# an a power failure may lead to complete data loss.
+# and a power failure may lead to complete data loss.
 DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 
 # This is the interval after which to dump data, as noted above.

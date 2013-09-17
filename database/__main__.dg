@@ -33,7 +33,7 @@ save = atexit.register $ data: db.data ->
 hasattr signal 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
 
 save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.data
-# All of the saving stuff happens in a new thread. We can let
+# All of the saving stuff happens in a new process. We can let
 # Python hard-stop the copying process on shutdown.
 save_t.daemon = True
 save_t.start!
