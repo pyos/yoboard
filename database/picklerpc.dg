@@ -3,29 +3,25 @@ import '/pickle'
 import '/socket'
 import '/copy/deepcopy'
 
+END_OF_TRANSMISSION = b'\0\0\4\r\n'
 
 Server = subclass object where
   __call__ = conn ~>
-    buffer = b''
-
     while True =>
-      indata = b''
+      buffer = b''
   
-      while not $ buffer.endswith b'\0\r\n\0' =>
+      while not $ buffer.endswith END_OF_TRANSMISSION =>
         buffer += indata = yield $ conn.recv 1024
         indata == b'' => raise StopIteration
 
-      cmd, _, buffer = buffer.partition b'\0\r\n\0'
-
-      except
+      response = except
         e =>
-          name, args = pickle.loads cmd
-          response   = (getattr self ('fn_' + name)) *: args
-          yield $ conn.sendall $ pickle.dumps response
-          yield $ conn.sendall $ b'\0\r\n\0'
-        e :: Exception =>
-          yield $ conn.sendall $ pickle.dumps e
-          yield $ conn.sendall $ b'\0\r\n\0'
+          name, args = pickle.loads buffer
+          (getattr self ('fn_' + name)) *: args
+        e :: Exception => e
+
+      yield $ conn.sendall $ pickle.dumps response
+      yield $ conn.sendall $ END_OF_TRANSMISSION
 
 
 Client = subclass object where
@@ -39,16 +35,16 @@ Client = subclass object where
     while not got =>
       got, response = except
         e =>
-          buffer = b''
           @socket.sendall $ pickle.dumps (name, args)
-          @socket.sendall $ b'\0\r\n\0'
+          @socket.sendall $ END_OF_TRANSMISSION
 
-          while not $ buffer.endswith b'\0\r\n\0' =>
+          buffer = b''
+          while not $ buffer.endswith END_OF_TRANSMISSION =>
             buffer += indata = @socket.recv 1024
-            indata == b'' => raise IOError
+            indata == b'' => raise StopIteration
 
-          True, pickle.loads $ buffer !! slice None -1
-        e :: IOError => False, None
+          True, pickle.loads buffer
+        e :: StopIteration => False, None
 
     response :: Exception => raise response
     response
@@ -60,6 +56,8 @@ Persistence = subclass object where
     In other words, classes inheriting from this will have a `data`
     attribute that is automatically restored from a file on initialization
     and written back on destruction or at regular intervals.
+
+    TODO:: store data at intervals.
 
   '''
   __init__ = @file @dump_interval ~> None where @data = @load
