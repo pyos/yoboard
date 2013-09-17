@@ -18,7 +18,7 @@ root = ->
   render_template 'templates/index.html' 
     board: ''
     config: config
-    boards: data.boards
+    boards: data.boards!
 
 
 static = filename ->
@@ -42,7 +42,7 @@ board = board page: 0 ->
       page:    page
       board:   board
       config:  config
-      boards:  data.boards
+      boards:  data.boards!
       pagenum: pn
     otherwise => abort 404
 
@@ -140,7 +140,7 @@ thread_tree = board thread ->
       this:   th
       board:  board
       config: config
-      boards: data.boards
+      boards: data.boards!
     otherwise => abort 404
 
 
@@ -156,7 +156,7 @@ thread_list = board thread ->
       this:   th
       board:  board
       config: config
-      boards: data.boards
+      boards: data.boards!
     otherwise => abort 404
 
 

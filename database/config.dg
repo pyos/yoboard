@@ -15,7 +15,8 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for connections.
-SOCKET = socket.AF_UNIX, path.join (path.dirname DATABASE) 'yoboard.socket'
+ADDRESS = '127.0.0.1'
+PORT    = 9105
 
 # Maximum no. of threads on a single page.
 # Lowering this number improves performance for a single request

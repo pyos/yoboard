@@ -1,6 +1,9 @@
+import '/bluelet'
+
 import 'config'
 import 'yoboard/YoboardDatabase'
 
 
-db = YoboardDatabase config.DATABASE config.AUTOSYNC_INTERVAL
-db.start config.SOCKET
+bluelet.run $
+  bluelet.server config.ADDRESS config.PORT $
+    YoboardDatabase config.DATABASE config.AUTOSYNC_INTERVAL

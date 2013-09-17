@@ -1,0 +1,79 @@
+import '/os'
+import '/pickle'
+import '/socket'
+import '/copy/deepcopy'
+
+
+Server = subclass object where
+  __call__ = conn ~>
+    buffer = b''
+
+    while True =>
+      indata = b''
+  
+      while not $ b'\0' in indata =>
+        indata  = yield $ conn.recv 1024
+        buffer += indata
+
+      cmd, _, buffer = buffer.partition b'\0'
+
+      except
+        e =>
+          name, args = pickle.loads cmd
+          response   = (getattr self ('fn_' + name)) *: args
+          yield $ conn.sendall $ pickle.dumps response
+          yield $ conn.sendall $ pickle.dumps b'\0'
+        e :: Exception =>
+          yield $ conn.sendall $ pickle.dumps e
+          yield $ conn.sendall $ pickle.dumps b'\0'
+
+
+Client = subclass object where
+  connect = @addr @port ~>
+    @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
+    @socket.connect (@addr, @port)
+
+  __getattr__ = name ~> *: args ->
+    got = False
+
+    while not got =>
+      got, response = except
+        e =>
+          buffer = b''
+          while not $ buffer.endswith b'\0' => buffer += @socket.recv 1024
+          True, pickle.loads $ buffer !! slice None -1
+        e :: IOError => False, None
+
+    response :: Exception => raise response
+    response
+
+
+Persistence = subclass object where
+  '''A file-based RPC that focuses on communication between timeframes.
+
+    In other words, classes inheriting from this will have a `data`
+    attribute that is automatically restored from a file on initialization
+    and written back on destruction or at regular intervals.
+
+  '''
+  __init__ = @file @dump_interval ~> None where @data = @load
+  __del__  = self -> @save @data
+
+  save = data ~>
+    '''Store data in a file.
+
+      Yes, this forks off a process. Make sure to copy the data.
+
+    '''
+    os.fork! == 0 =>
+      with fd = open (@file + '~') 'wb' => pickle.dump data fd
+      os.unlink @file
+      os.rename (@file + '~') @file
+
+  load = ~>
+    '''Load data from a file.
+
+      This one is blocking.
+
+    '''
+    with fd = open @file 'rb' => pickle.load fd
