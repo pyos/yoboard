@@ -1,8 +1,10 @@
 ## yoboard
 
-A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://github.com/mitsuhiko/flask).
-
 ### FAQ
+
+#### What's this?
+
+A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://github.com/mitsuhiko/flask).
 
 #### What are the requirements?
 
@@ -29,7 +31,14 @@ Ahem.
 
 #### How to start this crap?
 
-`python -m yoboard`
+`python -m yoboard.database` in one terminal window, `python -m yoboard` in another one.
+
+#### Why doesn't it use my favorite (No)?SQL database?
+
+Point me to just one image board that is running a distributed database.
+And no, 4chan.org and 2ch.net don't count -- they're old and well-known,
+while there's a very small chance something running this crap will ever
+be that popular.
 
 #### What's the point?
 
