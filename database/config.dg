@@ -12,7 +12,7 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 # This is the interval after which to dump data, as noted above.
 # (In seconds.) Once again, don't forget to sync the write buffers.
 # Also, making a backup of the database is probably a good idea.
-AUTOSYNC_INTERVAL = 15
+AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for connections.
 ADDRESS = '127.0.0.1'
