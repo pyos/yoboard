@@ -1,0 +1,115 @@
+﻿body {
+  margin: 1em;
+}
+
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+a.glyphicon,
+.navbar a {
+  text-decoration: none;
+}
+
+.navbar {
+  margin: -1em -1em 1em -1em;
+}
+
+@media (min-width: 768px) {
+  body {
+    margin-top: 72px; /* `.navbar` is 52px high. */
+  }
+
+  .navbar {
+    position: fixed;
+    margin: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+.navbar {
+  border: none;
+  border-radius: 0;
+}
+
+.navbar .navbar-brand,
+.navbar .navbar-nav > li > a {
+  text-shadow: none;
+}
+
+.board-level {
+  /* Top-level trees. */
+  border-top: 1px solid #999;
+  padding-top: 1em;
+}
+
+.input-group {
+  margin: 0.5em 0 0.5em 0;
+}
+
+.input-group .form-control,
+.input-group-addon {
+  width: auto;
+}
+
+.post {
+  display: table;
+  margin: 2em 1em 1em 1em;
+}
+
+.post-missing-notice {
+  margin-left: 1em;  /* must align with .post */
+}
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree:not(:first-child) {
+  /* Not the first message in tree view or on a board page. */
+  padding-left: 48px;
+  /* TODO: use a background-image that would indicate the tree structure.
+   *   e.g. a line with an arrow for everything except :first-child
+   *   and a line cap for :last-child.
+   */
+}
+
+.post-title:before {
+  content: '"';
+}
+
+.post-title:after {
+  content: '"';
+}
+
+.post-title {
+  font-weight: bold;
+}
+
+.post-sage:before {
+  content: "САЖА";
+  color: #aa0000;
+  font-weight: bold;
+}
+
+.post-timestamp:before {
+  content: "@ ";
+  color: #aaaaaa;
+}
+
+.post-parent:before {
+  content: ">>";
+}
+
+.post-body {
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.board-level .post-reply .post-body {
+  max-height: 150px;
+}
+
+.post-attach + .post-body {
+  padding-left: 1em;
+}
