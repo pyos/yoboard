@@ -6,13 +6,14 @@ signal `hasattr` 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise Keyboa
 
 ### 4. Data loader.
 import '/os'
+import '/gzip'
 import '/pickle'
 import '../config'
 
 data = if
   # If this fails, the operator has to either fix corruption manually
   # or remove the database altogether.
-  os.path.exists config.DATABASE => with fd = open config.DATABASE 'rb' => pickle.load fd
+  os.path.exists config.DATABASE => with fd = gzip.open config.DATABASE 'rb' => pickle.load fd
   otherwise => dict
     ids:      dict!
     boards:   dict!
@@ -25,7 +26,7 @@ import '/atexit'
 
 save = atexit.register $ ->
   os.fork! == 0 =>
-    with fd = open (config.DATABASE + '~') 'wb' => pickle.dump data fd
+    with fd = gzip.open (config.DATABASE + '~') 'wb' => pickle.dump data fd
     os.path.exists config.DATABASE => os.unlink config.DATABASE
     os.rename (config.DATABASE + '~') config.DATABASE
 
