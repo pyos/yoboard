@@ -96,7 +96,7 @@ YoboardDatabase = subclass Server where
   fn_thread_create = board title text files ~>
     '''Create a new thread.
 
-      thread_create :: str str str [str] -> int
+      thread_create :: str str str [(str, str)] -> int
 
     '''
     op = Post (@fn_board_increment board) title False text files 0 0 datetime.now!
@@ -134,7 +134,7 @@ YoboardDatabase = subclass Server where
   fn_post_create = board thread parent title sage text files ~>
     '''Create a new post.
 
-      post_create :: str int int str bool str [str] -> int
+      post_create :: str int int str bool str [(str, str)] -> int
 
     '''
     # First, we check `thread` and `parent`.
