@@ -7,7 +7,7 @@ import '/threading'
 
 import '/bluelet'
 
-import 'config'
+import '../config'
 import 'yoboard/YoboardDatabase'
 
 
@@ -38,4 +38,4 @@ save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.d
 save_t.daemon = True
 save_t.start!
 
-bluelet.run $ bluelet.server config.ADDRESS config.PORT db
+bluelet.run $ bluelet.server config.SERVER_ADDRESS config.SERVER_PORT db

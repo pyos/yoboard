@@ -1,4 +1,2 @@
-# These may be useful for apps that use the database.
-import 'config'
-import 'structs'
-import 'picklerpc/Client'
+# Sure, namespaces don't need __init__ since Python 3.2 or 3.3.
+# I don't remember which. The point is, `runpy` can't run namespaces.

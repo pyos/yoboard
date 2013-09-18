@@ -2,7 +2,7 @@ import '/math/ceil'
 import '/datetime/datetime'
 import '/collections/deque'
 
-import 'config'
+import '../config'
 import 'structs/Post'
 import 'structs/Tree'
 import 'structs/Board'

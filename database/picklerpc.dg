@@ -1,7 +1,10 @@
 import '/pickle'
 import '/socket'
 
-END_OF_TRANSMISSION = b'\0\0\4\r\n'
+# Pickle does not lend well to streaming because
+# we have no idea where an object ends. We'll mark it
+# with this (hopefully) unique character sequence.
+END_OF_TRANSMISSION = b'\0\0\x04\r\n'
 
 
 Server = subclass object where
@@ -23,30 +26,20 @@ Server = subclass object where
 
 
 Client = subclass object where
-  connect = @addr @port ~>
+  __init__ = @addr @port ~>
+
+  reconnect = ~>
     @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
     @socket.connect (@addr, @port)
 
   __getattr__ = name ~> *: args ->
-    got = False
-    cnt = 0
+    @socket.sendall $ pickle.dumps (name, args) + END_OF_TRANSMISSION
 
-    while not got =>
-      got, response = except
-        e =>
-          @socket.sendall $ pickle.dumps (name, args) + END_OF_TRANSMISSION
+    buffer = b''
+    while not $ buffer.endswith END_OF_TRANSMISSION =>
+      buffer += indata = @socket.recv 4096
+      indata == b'' => raise $ IOError 'database connection lost'
 
-          buffer = b''
-          while not $ buffer.endswith END_OF_TRANSMISSION =>
-            buffer += indata = @socket.recv 4096
-            indata == b'' => raise StopIteration
-
-          True, pickle.loads buffer
-        e :: StopIteration =>
-          cnt += 1
-          cnt == 3 => raise $ IOError 'server keeps dropping the connection'
-          @connect @addr @port
-          False, None
-
+    response = pickle.loads buffer
     response :: Exception => raise response
     response
