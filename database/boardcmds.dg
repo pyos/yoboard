@@ -36,6 +36,11 @@ commands = data ->
   incid = name -> (RP_COUNT !! name += 1) - 1
 
   dict'
+    # :: -> ()
+    'clear_cache', ->
+      VC_BOARD.clear!
+      VC_THREAD.clear!
+
     # :: str int     -> Maybe str
     # :: str int str -> ()
     'get_cached_board', name page   -> (VC_BOARD !! name).get page
@@ -102,7 +107,7 @@ commands = data ->
       boardo.threads.insert 0 thread
       config.THREADS_PER_BOARD < len boardo.threads => boardo.threads.pop -1
 
-      VC_BOARD  !!~ board  # All pages are invalid now.
+      VC_BOARD.pop board None  # All pages are invalid now.
       RP_THREAD !! board !! root.id = thread
       RP_POST   !! board !! root.id = root
       root.id
@@ -163,6 +168,6 @@ commands = data ->
 
       # Note that not all pages have become invalid,
       # but determining which did can be too costly.
-      VC_BOARD  !!~ board
-      VC_THREAD !!~ (board, thread)
+      VC_BOARD.pop board None
+      VC_THREAD.pop (board, thread) None
       po.id
