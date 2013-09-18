@@ -60,6 +60,10 @@ POSTS_PER_THREAD = POSTS_UNTIL_AUTOSAGE + 50
 MIN_UPLOADS = 0
 MAX_UPLOADS = 5
 
+# Size of an image preview on board pages.
+# The larger this number is, the more obvious should be the consequence.
+THUMBNAIL_SIZE = 128
+
 # Various limits on message sizes.
 # As with threads, large messages allow for more active discussions
 # at the cost of database access latency.
