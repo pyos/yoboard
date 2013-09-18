@@ -166,7 +166,7 @@ YoboardDatabase = subclass Server where
     pt = th
     while ps and (pid = ps.pop!) =>
       # The trees are, unfortunately, ordered by creation time.
-      pt = next (None where for t in th.replies => if t.root.id == pid => yield t)
+      pt = next (None where for t in pt.replies => if t.root.id == pid => yield t)
 
     # From this point on we cannot afford to bail out.
     # `@fn_board_increment` is the first modification.
