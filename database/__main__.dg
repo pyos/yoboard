@@ -23,7 +23,7 @@ data = if
 ### 3. Persistence.
 import '/atexit'
 
-save = atexit.register $ data: data ->
+save = atexit.register $ ->
   '''Store contents of the database in a file.
 
     This function will be called on normal exit,
@@ -38,10 +38,9 @@ save = atexit.register $ data: data ->
     os.rename (config.DATABASE + '~') config.DATABASE
 
 ### 4. Automatic scheduled dumping.
-import '/copy'
 import '/threading'
 
-timer = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy data
+timer = threading.Timer config.AUTOSYNC_INTERVAL save
 timer.daemon = True
 timer.start!
 
