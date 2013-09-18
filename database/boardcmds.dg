@@ -73,21 +73,26 @@ commands = data ->
   
       board.title, list data, pages + bool r
 
-    # Create a new board. No-op if one already exists.
+    # Create a new board or update the old one.
     #
-    # :: str str str -> bool
+    # :: str str str -> ()
     #
     'board_create', name title category ->
-      not $ name in RP_BOARD =>
-        RP_COUNT  !! name     = 1
-        RP_BOARD  !! name     = Board name title category list!
-        RP_POST   !! name     = dict!
-        RP_THREAD !! name     = dict!
-        RP_CATMAP !! category = RP_CATMAP.get category dict!
-        RP_CATMAP !! category !! name = title
-        True
+      if
+        name in RP_BOARD =>
+          old = RP_BOARD !! name
+          RP_BOARD  !! name = Board name title category old.threads
+          RP_CATMAP !! old.category !!~ name
+        otherwise =>
+          RP_COUNT  !! name = 1
+          RP_BOARD  !! name = Board name title category list!
+          RP_POST   !! name = dict!
+          RP_THREAD !! name = dict!
+      RP_CATMAP !! category = RP_CATMAP.get category dict!
+      RP_CATMAP !! category !! name = title
+      None
 
-    # Create a new thread, returns its ID.
+    # Create a new thread, return its ID.
     #
     # :: str str str [(str, str)] -> int
     #
