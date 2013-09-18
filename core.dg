@@ -157,8 +157,8 @@ thread_reply = board thread ->
     field `file`::   any number of attachments.
 
   '''
-  parent = int $ request.form !! 'parent'
-  sage   = request.form.get      'sage'  ''
+  parent = int  $ request.form.get 'parent' thread
+  sage   = bool $ request.form.get 'sage'   False
   check_post
     title  = request.form.get      'title' ''
     text   = request.form.get      'text'  ''
@@ -167,7 +167,7 @@ thread_reply = board thread ->
   # if the thread is too big.
   fnames = pre_upload files
   except
-    e => data.post_create board thread parent title (bool sage) text fnames
+    e => data.post_create board parent title sage text fnames
     e :: KeyError      => abort 404
     e :: OverflowError => abort 403
   post_upload $ zip files fnames

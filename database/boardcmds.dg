@@ -105,60 +105,56 @@ commands = data ->
 
     # Create a new reply, return its ID.
     #
-    # :: str int int str bool str [(str, str)] -> int
+    # :: str int str bool str [(str, str)] -> int
     #
-    'post_create', board thread parent title sage text files ->
-      # First, we check `thread` and `parent`.
+    'post_create', board parent title sage text files ->
+      # First, we check `board` and `parent`.
       # If either of these raises a KeyError, one of the
       # values is completely invalid.
-      bo = RP_BOARD  !! board
-      th = RP_THREAD !! board !! thread
-      pp = RP_POST   !! board !! parent
-      tl = len th.latest + th.skipped.value
-  
-      # First-and-a-half, we check the thread's constraints.
-      tl >= config.POSTS_UNTIL_AUTOSAGE => sage = True
-      tl >= config.POSTS_PER_THREAD     => raise OverflowError
-  
+      f_board  = RP_BOARD  !! board
+      f_parent = RP_POST   !! board !! parent
+
       # Second, we trace the parenting chain to its origin.
       # We need that info to descend into the correct tree.
-      ps  = deque!
-      pid = parent
-      while pid =>
-        ps.append pid
-        pid = (RP_POST !! board !! pid).parent
-  
-      if (expected = ps.pop!) != thread =>
-        # If the tip of the tree does not match the thread ID,
-        # something got mixed up.
-        raise $ ValueError 'wrong thread' expected thread
-  
-      # Third, we commence the aforementioned descent
-      # into the tree.
-      pt = th
-      while ps and (pid = ps.pop!) =>
-        # The trees are, unfortunately, ordered by root ID.
-        # That would allow us to use binary search, if it wasn't that cumbersome.
-        pt = next (None where for t in pt.replies => if t.root.id == pid => yield t)
+      s_parents  = deque!
+      s_toplevel = f_parent
+      while s_toplevel.parent =>
+        s_parents.append s_toplevel.id
+        s_toplevel = RP_POST !! board !! s_toplevel.parent
+
+      # Third, we check the thread's constraints.
+      t_thread = RP_THREAD !! board !! s_toplevel.id
+      t_length = len t_thread.latest + t_thread.skipped.value
+      t_length >= config.POSTS_UNTIL_AUTOSAGE => sage = True
+      t_length >= config.POSTS_PER_THREAD     => raise OverflowError
+
+      # Fourth, we commence the aforementioned descent into the tree.
+      # The trees are, unfortunately, ordered by root ID.
+      # That would allow us to use binary search, if it wasn't that cumbersome.
+      f_tree = t_thread
+      while s_parents =>
+        f_pid  = s_parents.pop!
+        f_tree = next (None where for t in f_tree.replies => if t.root.id == f_pid => yield t)
   
       # From this point on we cannot afford to bail out.
-      id = RP_COUNT !! board += 1
-      po = Post id title sage (markup.parse text) files thread parent datetime.now!
-      th.latest.append po
-      pt.replies.append $ Tree po list!
-      RP_POST !! board !! po.id = po
-  
-      len th.latest > config.POSTS_ON_BOARD_PAGE =>
-        th.latest.pop 0
-        th.skipped.value += 1
-  
-      not sage =>
-        bo.threads !!~ next (None where
-          for (i, t) in enumerate bo.threads =>
-            if t.root.id == thread => yield i)
-        bo.threads.insert 0 th
+      # Not that we need to.
+      q_id  = RP_COUNT !! board += 1
+      q_obj = Post q_id title sage (markup.parse text) files s_toplevel.id parent datetime.now!
+      RP_POST !! board !! q_id = q_obj
 
-      # Note that not all pages have become invalid, but we don't care.
-      VC_BOARD.pop board None
-      VC_THREAD.pop (board, thread) None
-      po.id
+      f_tree.replies.append $ Tree q_obj list!
+      t_thread.latest.append q_obj
+
+      len t_thread.latest > config.POSTS_ON_BOARD_PAGE =>
+        t_thread.latest.pop 0
+        t_thread.skipped.value += 1
+
+      not sage =>
+        q_index = next (None where for (i, t) in enumerate f_board.threads =>
+          if t.root.id == s_toplevel.id => yield i)
+        f_board.threads !!~ q_index
+        f_board.threads.insert 0 t_thread
+
+      VC_BOARD.pop   board                 None
+      VC_THREAD.pop (board, s_toplevel.id) None
+      q_id

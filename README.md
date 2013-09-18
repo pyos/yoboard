@@ -57,10 +57,10 @@ a `Client` connected to the database. You can execute database
 commands in it; for example,
 
 ```dg
->>> # Reply to post #12 from thread #9 on board "b".
+>>> # Reply to post #12 on board "b".
 >>> # The last argument contains (filename, thumbnail name) pairs
 >>> # that both should point to files under /static/uploads/.
->>> d.create_post 'b' 9 12 sage: True 'Topic' 'Text' list!
+>>> d.create_post 'b' 12 sage: True 'Topic' 'Text' list!
 83
 >>> # That post was assigned no. 83.
 ```
