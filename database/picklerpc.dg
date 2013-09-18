@@ -1,45 +1,40 @@
-import '/pickle'
 import '/socket'
 import '/bluelet'
+import '/pickle/loads'
+import '/pickle/dumps'
 
-# Pickle does not lend well to streaming because
-# we have no idea where an object ends. We'll mark it
-# with this (hopefully) unique character sequence.
-END_OF_TRANSMISSION = b'\0\0\x04\r\n'
+NOP  = b'N'
+STOP = 46
 
 
 Server = (host, port) commands -> bluelet.server host port $ conn ->
   while True =>
-    buffer = b''
+    buffer = NOP
+    while buffer !! -1 != STOP =>
+      buffer += indata = yield $ conn.recv 8192
+      not indata => raise StopIteration
 
-    while not $ buffer.endswith END_OF_TRANSMISSION =>
-      buffer += indata = yield $ conn.recv 4096
-      indata == b'' => raise StopIteration
-
-    response = except
+    yield $ conn.sendall $ dumps $ except
       e =>
-        name, args = pickle.loads buffer
+        name, args = loads buffer
         (commands !! name) *: args
-      e :: Exception => e
-
-    yield $ conn.sendall $ pickle.dumps response + END_OF_TRANSMISSION
+      e => e
 
 
 Client = subclass object where
-  __init__ = @addr ~>
-
+  __init__  = @addr ~>
   reconnect = ~>
     @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
     @socket.connect @addr
 
   __getattr__ = name ~> *: args ->
-    @socket.sendall $ pickle.dumps (name, args) + END_OF_TRANSMISSION
+    @socket.sendall $ dumps (name, args)
 
-    buffer = b''
-    while not $ buffer.endswith END_OF_TRANSMISSION =>
-      buffer += indata = @socket.recv 4096
-      indata == b'' => raise $ IOError 'database connection lost'
+    buffer = NOP
+    while buffer !! -1 != STOP =>
+      buffer += indata = @socket.recv 8192
+      not indata => raise $ IOError 'database connection lost'
 
-    response = pickle.loads buffer
+    response = loads buffer
     response :: Exception => raise response
     response
