@@ -110,6 +110,20 @@ a.glyphicon,
   white-space: pre-line;
 }
 
+blockquote {
+  border-left: 2px solid;
+  /* Twice as small as bootstrap defaults. */
+  padding: 5px 10px;
+  margin: 0 0 10px;
+}
+
+blockquote p {
+  /* Bootstrap makes paragraphs in quotes bigger for some reason. */
+  line-height: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .board-level .post-reply .post-body {
   max-height: 150px;
 }

@@ -57,9 +57,14 @@ a {
   color: #004a99;
 }
 
+blockquote {
+  color: #779922;
+}
+
 /* Manni style for Pygments.
  * Source: https://github.com/richleland/pygments-css/blob/master/manni.css
  */
+pre, code { background-color: #f5f5f5; color: #333333; border: 1px solid #cccccc }
 .highlight .hll { background-color: #ffffcc }
 .highlight .c { color: #0099FF; font-style: italic } /* Comment */
 .highlight .err { color: #AA0000; background-color: #FFAAAA } /* Error */
