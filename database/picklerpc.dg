@@ -1,5 +1,6 @@
 import '/pickle'
 import '/socket'
+import '/bluelet'
 
 # Pickle does not lend well to streaming because
 # we have no idea where an object ends. We'll mark it
@@ -7,22 +8,21 @@ import '/socket'
 END_OF_TRANSMISSION = b'\0\0\x04\r\n'
 
 
-Server = subclass object where
-  __call__ = conn ~>
-    while True =>
-      buffer = b''
-  
-      while not $ buffer.endswith END_OF_TRANSMISSION =>
-        buffer += indata = yield $ conn.recv 4096
-        indata == b'' => raise StopIteration
+Server = (host, port) commands -> bluelet.server host port $ conn ->
+  while True =>
+    buffer = b''
 
-      response = except
-        e =>
-          name, args = pickle.loads buffer
-          (getattr self ('fn_' + name)) *: args
-        e :: Exception => e
+    while not $ buffer.endswith END_OF_TRANSMISSION =>
+      buffer += indata = yield $ conn.recv 4096
+      indata == b'' => raise StopIteration
 
-      yield $ conn.sendall $ pickle.dumps response + END_OF_TRANSMISSION
+    response = except
+      e =>
+        name, args = pickle.loads buffer
+        (commands !! name) *: args
+      e :: Exception => e
+
+    yield $ conn.sendall $ pickle.dumps response + END_OF_TRANSMISSION
 
 
 Client = subclass object where

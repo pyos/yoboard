@@ -1,21 +1,29 @@
-import '/os'
-import '/copy'
-import '/atexit'
+### 1. SIGTERM.
 import '/signal'
+
+# On UNIX, we need to convert it into an exception to make sure atexit runs.
+signal `hasattr` 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
+
+### 2. Data loader.
+import '/os'
 import '/pickle'
-import '/threading'
-
-import '/bluelet'
-
 import '../config'
-import 'yoboard/YoboardDatabase'
 
-
-db = YoboardDatabase $ if
+data = if
+  # If this fails, the operator has to either fix corruption manually
+  # or remove the database altogether.
   os.path.exists config.DATABASE => with fd = open config.DATABASE 'rb' => pickle.load fd
-  otherwise => dict!
+  otherwise => dict
+    ids:      dict!
+    boards:   dict!
+    boardmap: dict!
+    threads:  dict!
+    posts:    dict!
 
-save = atexit.register $ data: db.data ->
+### 3. Persistence.
+import '/atexit'
+
+save = atexit.register $ data: data ->
   '''Store contents of the database in a file.
 
     This function will be called on normal exit,
@@ -29,13 +37,17 @@ save = atexit.register $ data: db.data ->
     os.path.exists config.DATABASE => os.unlink config.DATABASE
     os.rename (config.DATABASE + '~') config.DATABASE
 
-# Windows has no SIGTERM.
-hasattr signal 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
+### 4. Automatic scheduled dumping.
+import '/copy'
+import '/threading'
 
-save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.data
-# All of the saving stuff happens in a new process. We can let
-# Python hard-stop the copying process on shutdown.
-save_t.daemon = True
-save_t.start!
+timer = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy data
+timer.daemon = True
+timer.start!
 
-bluelet.run $ bluelet.server addr port db where addr, port = config.SERVER_ADDRESS
+### 5. The socket server.
+import '/bluelet'
+import 'picklerpc/Server'
+import 'boardcmds/commands'
+
+bluelet.run $ Server config.SERVER_ADDRESS $ commands data

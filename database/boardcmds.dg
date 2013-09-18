@@ -1,0 +1,145 @@
+import '/math/ceil'
+import '/datetime/datetime'
+import '/collections/deque'
+
+import 'Post'
+import 'Tree'
+import 'Board'
+import 'Thread'
+import 'IntRef'
+import '../config'
+import '../markup'
+
+
+commands = data ->
+  # References to various repositories.
+  #
+  # :: {str: object}
+  #
+  RP_COUNT  = data !! 'ids'
+  RP_BOARD  = data !! 'boards'
+  RP_CATMAP = data !! 'boardmap'
+  RP_THREAD = data !! 'threads'
+  RP_POST   = data !! 'posts'
+
+  # Increment the post counter of a board.
+  #
+  # incid :: str -> int
+  #
+  incid = name -> (RP_COUNT !! name += 1) - 1
+
+  dict'
+    # Fetch a {category: {id: title}} dict of boards.
+    #
+    # :: -> {str: {str: str}}
+    #
+    'boards', -> RP_CATMAP
+
+    # Fetch a list of threads on a board.
+    # Also returns the title of the board and the number of pages.
+    #
+    # :: str int -> (str, [Thread], int)
+    #
+    'board', name page ->
+      board    = RP_BOARD !! name
+      pages, r = len board.threads `divmod` config.THREADS_PER_PAGE
+
+      data = None where
+        n = page * config.THREADS_PER_PAGE
+        for t in take config.THREADS_PER_PAGE (drop n board.threads) =>
+          # To reduce the amount of data transferred to the web server,
+          # reply trees are removed.
+          yield $ Thread t.root None t.latest t.skipped
+  
+      board.title, list data, pages + bool r
+
+    # Fetch a complete thread.
+    #
+    # :: str int -> Thread
+    #
+    'thread', board num -> RP_THREAD !! board !! num
+
+    # Create a new board. No-op if one already exists.
+    #
+    # :: str str str -> bool
+    #
+    'board_create', name title category ->
+      not $ name in RP_BOARD =>
+        RP_COUNT  !! name     = 1
+        RP_BOARD  !! name     = Board name title category list!
+        RP_POST   !! name     = dict!
+        RP_THREAD !! name     = dict!
+        RP_CATMAP !! category = RP_CATMAP.get category dict!
+        RP_CATMAP !! category !! name = title
+        True
+
+    # Create a new thread. Returns its ID.
+    #
+    # :: str str str [(str, str)] -> int
+    #
+    'thread_create', board title text files ->
+      boardo = RP_BOARD !! board
+      root   = Post (incid board) title False (markup.parse text) files 0 0 datetime.now!
+      thread = Thread root list! list! (IntRef 0)
+
+      boardo.threads.insert 0 thread
+      config.THREADS_PER_BOARD < len boardo.threads => boardo.threads.pop -1
+
+      RP_THREAD !! board !! root.id = thread
+      RP_POST   !! board !! root.id = root
+      root.id
+
+    # Create a new reply, return its ID.
+    #
+    # :: str int int str bool str [(str, str)] -> int
+    #
+    'post_create', board thread parent title sage text files ->
+      # First, we check `thread` and `parent`.
+      # If either of these raises a KeyError, one of the
+      # values is completely invalid.
+      bo = RP_BOARD  !! board
+      th = RP_THREAD !! board !! thread
+      pp = RP_POST   !! board !! parent
+      tl = len th.latest + th.skipped.value
+  
+      # First-and-a-half, we check the thread's constraints.
+      tl >= config.POSTS_UNTIL_AUTOSAGE => sage = True
+      tl >= config.POSTS_PER_THREAD     => raise OverflowError
+  
+      # Second, we trace the parenting chain to its origin.
+      # We need that info to descend into the correct tree.
+      ps  = deque!
+      pid = parent
+      while pid =>
+        ps.append pid
+        pid = (RP_POST !! board !! pid).parent
+  
+      if (expected = ps.pop!) != thread =>
+        # If the tip of the tree does not match the thread ID,
+        # something got mixed up.
+        raise $ ValueError 'wrong thread' expected thread
+  
+      # Third, we commence the aforementioned descent
+      # into the tree.
+      pt = th
+      while ps and (pid = ps.pop!) =>
+        # The trees are, unfortunately, ordered by creation time.
+        pt = next (None where for t in pt.replies => if t.root.id == pid => yield t)
+  
+      # From this point on we cannot afford to bail out.
+      # `@fn_board_increment` is the first modification.
+      po = Post (incid board) title sage (markup.parse text) files thread parent datetime.now!
+      th.latest.append po
+      pt.replies.append $ Tree po list!
+      RP_POST !! board !! po.id = po
+  
+      len th.latest > config.POSTS_ON_BOARD_PAGE =>
+        th.latest.pop 0
+        th.skipped.value += 1
+  
+      not sage =>
+        bo.threads !!~ next (None where
+          for (i, t) in enumerate bo.threads =>
+            if t.root.id == thread => yield i)
+        bo.threads.insert 0 th
+      po.id

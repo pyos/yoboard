@@ -1,2 +1,18 @@
-# Sure, namespaces don't need __init__ since Python 3.2 or 3.3.
-# I don't remember which. The point is, `runpy` can't run namespaces.
+import '/collections/namedtuple'
+
+
+IntRef = subclass object where
+  # Named tuples are not mutable, but their items are.
+  # Except for ints and strings, which we have to wrap.
+  __init__ = @value ~>
+  __repr__ = self   -> '<{!r}>'.format @value
+  # Normally, pickle serializes the whole dict.
+  # This is, obviously, redundant.
+  __setstate__ = @value ~>
+  __getstate__ = self   -> @value
+
+
+Post   = namedtuple 'Post'    'id, title, sage, text, files, thread, parent, timestamp'
+Board  = namedtuple 'Board'   'id, title, category, threads'
+Tree   = namedtuple 'Tree'    'root, replies'
+Thread = namedtuple 'Thread'  'root, replies, latest, skipped'
