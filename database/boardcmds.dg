@@ -1,6 +1,7 @@
 import '/math/ceil'
 import '/datetime/datetime'
 import '/collections/deque'
+import '/collections/defaultdict'
 
 import 'Post'
 import 'Tree'
@@ -12,15 +13,21 @@ import '../markup'
 
 
 commands = data ->
-  # References to various repositories.
-  #
-  # :: {str: object}
-  #
-  RP_COUNT  = data !! 'ids'
-  RP_BOARD  = data !! 'boards'
-  RP_CATMAP = data !! 'boardmap'
-  RP_THREAD = data !! 'threads'
-  RP_POST   = data !! 'posts'
+  # Cutting corners wherever possible.
+  # Using these cells instead of `data` allows us
+  # to replace a dict lookup with two pointer lookups.
+  RP_COUNT  = data !! 'ids'       # :: {str: int}
+  RP_BOARD  = data !! 'boards'    # :: {str: Board}
+  RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
+  RP_THREAD = data !! 'threads'   # :: {str: {int: Thread}}
+  RP_POST   = data !! 'posts'     # :: {str: {int: Post}}
+
+  # Volatile cache containers.
+  # These are in the database because that
+  #   1. allows flask workers to share cache;
+  #   2. makes invalidating them easier.
+  VC_BOARD  = defaultdict dict  # :: {str: {int: str}}
+  VC_THREAD = defaultdict dict  # :: {(str, int): {str: str}}
 
   # Increment the post counter of a board.
   #
@@ -29,6 +36,16 @@ commands = data ->
   incid = name -> (RP_COUNT !! name += 1) - 1
 
   dict'
+    # :: str int     -> Maybe str
+    # :: str int str -> ()
+    'get_cached_board', name page   -> (VC_BOARD !! name).get page
+    'set_cached_board', name page x -> (VC_BOARD !! name).__setitem__ page x
+
+    # :: str int str     -> Maybe str
+    # :: str int str str -> ()
+    'get_cached_thread', board num vt   -> (VC_THREAD !! (board, num)).get vt
+    'set_cached_thread', board num vt x -> (VC_THREAD !! (board, num)).__setitem__ vt x
+
     # Fetch a {category: {id: title}} dict of boards.
     #
     # :: -> {str: {str: str}}
@@ -85,6 +102,7 @@ commands = data ->
       boardo.threads.insert 0 thread
       config.THREADS_PER_BOARD < len boardo.threads => boardo.threads.pop -1
 
+      VC_BOARD  !!~ board  # All pages are invalid now.
       RP_THREAD !! board !! root.id = thread
       RP_POST   !! board !! root.id = root
       root.id
@@ -142,4 +160,9 @@ commands = data ->
           for (i, t) in enumerate bo.threads =>
             if t.root.id == thread => yield i)
         bo.threads.insert 0 th
+
+      # Note that not all pages have become invalid,
+      # but determining which did can be too costly.
+      VC_BOARD  !!~ board
+      VC_THREAD !!~ (board, thread)
       po.id

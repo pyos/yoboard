@@ -90,17 +90,19 @@ board = board page: 0 ->
     :param board: alphanumeric ID of the board.
 
   '''
-  tt, bd, pn = except err => data.board board page
-                      err :: KeyError => abort 404
-
-  render_template 'board.html'
-    this:    bd
-    title:   tt
-    page:    page
-    board:   board
-    config:  config
-    boards:  data.boards!
-    pagenum: pn
+  data.get_cached_board board page or
+    tt, bd, pn = except err => data.board board page
+                        err :: KeyError => abort 404
+    result = render_template 'board.html'
+      this:    bd
+      title:   tt
+      page:    page
+      board:   board
+      config:  config
+      boards:  data.boards!
+      pagenum: pn
+    data.set_cached_board board page result
+    result
 
 
 thread_create = board ->
@@ -179,14 +181,16 @@ thread_tree = board thread ->
     :param thread: numeric ID of the thread.
 
   '''
-  th = except err => data.thread board thread
-              err :: KeyError => abort 404
-
-  render_template 'tree.html'
-    this:   th
-    board:  board
-    config: config
-    boards: data.boards!
+  data.get_cached_thread board thread 0 or
+    th = except err => data.thread board thread
+                err :: KeyError => abort 404
+    result = render_template 'tree.html'
+      this:   th
+      board:  board
+      config: config
+      boards: data.boards!
+    data.set_cached_thread board thread 0 result
+    result
 
 
 thread_list = board thread ->
@@ -196,20 +200,21 @@ thread_list = board thread ->
     :param thread: numeric ID of the thread.
 
   '''
-  as_list = None
-  as_list = t ->
-    yield t.root
-    for q in t.replies => yield from: (as_list q)
-
-  th = except err => data.thread board thread
-              err :: KeyError => abort 404
-
-  render_template 'list.html'
-    this:   th
-    posts: (sorted $ as_list th)
-    board:  board
-    config: config
-    boards: data.boards!
+  data.get_cached_thread board thread 1 or
+    as_list = None
+    as_list = t ->
+      yield t.root
+      for q in t.replies => yield from: (as_list q)
+    th = except err => data.thread board thread
+                err :: KeyError => abort 404
+    result = render_template 'list.html'
+      this:   th
+      posts: (sorted $ as_list th)
+      board:  board
+      config: config
+      boards: data.boards!
+    data.set_cached_thread board thread 1 result
+    result
 
 
 data = Client config.CLIENT_ADDRESS
