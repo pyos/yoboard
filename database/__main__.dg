@@ -1,10 +1,10 @@
-### 1. SIGTERM.
+### 5. SIGTERM.
 import '/signal'
 
 # On UNIX, we need to convert it into an exception to make sure atexit runs.
 signal `hasattr` 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
 
-### 2. Data loader.
+### 4. Data loader.
 import '/os'
 import '/pickle'
 import '../config'
@@ -24,29 +24,22 @@ data = if
 import '/atexit'
 
 save = atexit.register $ ->
-  '''Store contents of the database in a file.
-
-    This function will be called on normal exit,
-    after an unhandled exception, or on SIGTERM.
-    It's also called with a copy of the data at
-    regular intervals.
-
-  '''
   os.fork! == 0 =>
     with fd = open (config.DATABASE + '~') 'wb' => pickle.dump data fd
     os.path.exists config.DATABASE => os.unlink config.DATABASE
     os.rename (config.DATABASE + '~') config.DATABASE
 
-### 4. Automatic scheduled dumping.
+### 2. Automatic scheduled dumping.
 import '/threading'
 
 timer = threading.Timer config.AUTOSYNC_INTERVAL save
 timer.daemon = True
 timer.start!
 
-### 5. The socket server.
+### 1. The socket server.
 import '/bluelet'
 import 'picklerpc/Server'
 import 'boardcmds/commands'
 
 bluelet.run $ Server config.SERVER_ADDRESS $ commands data
+### We have liftoff.

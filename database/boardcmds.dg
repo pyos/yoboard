@@ -1,4 +1,3 @@
-import '/math/ceil'
 import '/datetime/datetime'
 import '/collections/deque'
 import '/collections/defaultdict'
@@ -51,11 +50,10 @@ commands = data ->
     'get_cached_thread', board num vt   -> (VC_THREAD !! (board, num)).get vt
     'set_cached_thread', board num vt x -> (VC_THREAD !! (board, num)).__setitem__ vt x
 
-    # Fetch a {category: {id: title}} dict of boards.
-    #
-    # :: -> {str: {str: str}}
-    #
-    'boards', -> RP_CATMAP
+    # ::         -> {str: {str: str}}
+    # :: str int -> Thread
+    'boards',           -> RP_CATMAP
+    'thread', board num -> RP_THREAD !! board !! num
 
     # Fetch a list of threads on a board.
     # Also returns the title of the board and the number of pages.
@@ -75,12 +73,6 @@ commands = data ->
   
       board.title, list data, pages + bool r
 
-    # Fetch a complete thread.
-    #
-    # :: str int -> Thread
-    #
-    'thread', board num -> RP_THREAD !! board !! num
-
     # Create a new board. No-op if one already exists.
     #
     # :: str str str -> bool
@@ -95,7 +87,7 @@ commands = data ->
         RP_CATMAP !! category !! name = title
         True
 
-    # Create a new thread. Returns its ID.
+    # Create a new thread, returns its ID.
     #
     # :: str str str [(str, str)] -> int
     #

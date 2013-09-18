@@ -3,8 +3,8 @@ import '/bluelet'
 import '/pickle/loads'
 import '/pickle/dumps'
 
-NOP  = b'N'
-STOP = 46
+NOP  = b'N'  # Same as `b''`, but with a defined `!! -1`.
+STOP = 46    # End of a single pickled object.
 
 
 Server = (host, port) commands -> bluelet.server host port $ conn ->
