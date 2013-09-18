@@ -1,23 +1,26 @@
 import '/socket'
-import '/bluelet'
-import '/pickle/loads'
-import '/pickle/dumps'
 import '/select/select'
+import '/pickle/dumps'
+import '/pickle/Unpickler'
 
-can_read = sock -> bool $ fst $ select (list' sock) list! list! 0
 
+Server = addr commands ->
+  server = socket.socket socket.AF_INET socket.SOCK_STREAM
+  server.bind addr
+  server.listen 10
+  read = dict' (server, None)
 
-Server = (host, port) commands -> bluelet.server host port $ conn ->
-  while True =>
-    buffer = yield $ conn.recv 8192
-    while can_read conn.sock => buffer += yield $ conn.recv 8192
+  while True => for s in select read list! list! !! 0 => if
+    s is server =>
+      sock = fst server.accept!
+      read !! sock = Unpickler $ sock.makefile 'rb' buffering: 8192
 
-    response = except
+    otherwise => except
       e =>
-        name, args = loads buffer
-        (commands !! name) *: args
-      e => e
-    yield $ conn.sendall $ dumps response
+        name, args = (read !! s).load!
+        s.sendall $ dumps $ (commands !! name) *: args
+      e :: EOFError  => read !!~ s
+      e :: Exception => s.sendall $ dumps e
 
 
 Client = subclass object where
@@ -25,12 +28,10 @@ Client = subclass object where
   reconnect = ~>
     @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
     @socket.connect @addr
+    @loader = Unpickler $ @socket.makefile 'rb' buffering: 8192
 
   __getattr__ = name ~> *: args ->
     @socket.sendall $ dumps (name, args)
-    buffer = @socket.recv 8192
-    while can_read @socket => buffer += @socket.recv 8192
-
-    response = loads buffer
+    response = @loader.load!
     response :: Exception => raise response
     response

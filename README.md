@@ -17,7 +17,6 @@ Y.O.B.A = Youth-oriented, Bydlo-approved (e.g. Call of Duty.)
 
   * [dg](https://github.com/pyos/dg) (to compile stuff.)
   * [Flask](https://github.com/mitsuhiko/flask) (to run stuff.)
-  * [bluelet](https://github.com/sampsyo/bluelet) (to send stuff between the app and the database.)
   * imagemagick (to downscale uploaded stuff.)
   * a FreeDesktop icon theme with MIME type icons (to display something instead of stuff that cannot be downscaled.)
 

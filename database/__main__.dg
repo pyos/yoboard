@@ -38,9 +38,9 @@ timer.daemon = True
 timer.start!
 
 ### 1. The socket server.
-import '/bluelet'
 import 'picklerpc/Server'
 import 'boardcmds/commands'
 
-bluelet.run $ Server config.SERVER_ADDRESS $ commands data
+except e => Server config.SERVER_ADDRESS $ commands data
+       e :: KeyboardInterrupt => exit 0
 ### We have liftoff.
