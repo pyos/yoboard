@@ -33,6 +33,8 @@ Ahem.
 #### How to start this crap?
 
 `python -m yoboard.database` in one terminal window, `python -m yoboard` in another one.
+The latter can be replaced with `gunicorn yoboard.core:app`, if you're feeling
+especially hipster-y. A properly configured `nginx` is recommended to serve files from /static/.
 
 #### Why doesn't it use my favorite (No)?SQL database?
 
@@ -40,6 +42,27 @@ Point me to just one image board that is running a distributed database.
 And no, 4chan.org and 2ch.net don't count -- they're old and well-known,
 while there's a very small chance something running this crap will ever
 be that popular.
+
+#### Is there a local client for that database?
+
+`python -m yoboard.database.cli` starts a dg REPL with `d` being
+a `Client` connected to the database. You can execute database
+commands in it; for example,
+
+```dg
+>>> # Reply to post #12 from thread #9 on board "b".
+>>> # The last argument contains (filename, thumbnail name) pairs
+>>> # that both should point to files under /static/uploads/.
+>>> d.create_post 'b' 9 12 sage: True 'Topic' 'Text' list!
+83
+>>> # That post was assigned no. 83.
+```
+
+#### No, I meant `select * from threads where amount_of_bullshit > 9000`
+
+The database is extremely specialized, with atomic operations being
+the ones made by image board clients. If you really want to go deeper,
+shut the database server down and unpickle the database file.
 
 #### What's the point?
 
