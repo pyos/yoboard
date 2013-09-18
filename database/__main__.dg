@@ -38,4 +38,4 @@ save_t = threading.Timer config.AUTOSYNC_INTERVAL $ -> save $ copy.deepcopy db.d
 save_t.daemon = True
 save_t.start!
 
-bluelet.run $ bluelet.server config.SERVER_ADDRESS config.SERVER_PORT db
+bluelet.run $ bluelet.server addr port db where addr, port = config.SERVER_ADDRESS

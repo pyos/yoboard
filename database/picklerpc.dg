@@ -26,11 +26,11 @@ Server = subclass object where
 
 
 Client = subclass object where
-  __init__ = @addr @port ~>
+  __init__ = @addr ~>
 
   reconnect = ~>
     @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
-    @socket.connect (@addr, @port)
+    @socket.connect @addr
 
   __getattr__ = name ~> *: args ->
     @socket.sendall $ pickle.dumps (name, args) + END_OF_TRANSMISSION

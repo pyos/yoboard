@@ -24,10 +24,8 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for database connections.
-SERVER_ADDRESS = '127.0.0.1'
-CLIENT_ADDRESS = '127.0.0.1'
-SERVER_PORT    = 9105
-CLIENT_PORT    = 9105
+CLIENT_ADDRESS = '127.0.0.1', 9105
+SERVER_ADDRESS = '127.0.0.1', 9105
 
 # Maximum no. of threads on a single page.
 # Lowering this number improves performance for a single request
@@ -63,6 +61,8 @@ MIN_UPLOADS = 0
 MAX_UPLOADS = 5
 
 # Various limits on message sizes.
+# As with threads, large messages allow for more active discussions
+# at the cost of database access latency.
 MAX_TITLE_LENGTH = 100
 MAX_TITLE_LINES  = 1
 MIN_TEXT_LENGTH  = 1
