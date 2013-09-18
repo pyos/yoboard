@@ -8,3 +8,8 @@ IntRef = subclass object where
   # Named tuples are not mutable, but their items are.
   # Except for ints and strings, which we have to wrap.
   __init__ = @value ~>
+  __repr__ = self   -> '<{!r}>'.format @value
+  # Normally, pickle serializes the whole dict.
+  # This is, obviously, redundant.
+  __setstate__ = @value ~>
+  __getstate__ = self   -> @value

@@ -54,6 +54,7 @@ YoboardDatabase = subclass Server where
       @data !! 'posts'    !! name             = dict!
       @data !! 'threads'  !! name             = dict!
       @data !! 'boardmap' !! category !! name = title
+      True
 
   fn_board_remove = name ~>
     '''Remove a whole board.
@@ -105,6 +106,7 @@ YoboardDatabase = subclass Server where
     len bd.threads > config.THREADS_PER_BOARD => bd.threads.pop -1
     @data !! 'threads' !! board !! op.id = th
     @data !! 'posts'   !! board !! op.id = op
+    op.id
 
   fn_thread_remove = board num ~>
     '''Remove a thread by id.
@@ -182,6 +184,7 @@ YoboardDatabase = subclass Server where
         for (i, t) in enumerate (@data !! 'boards' !! board).threads =>
           if t.root.id == thread => yield i)
       (@data !! 'boards' !! board).threads.insert 0 th
+    True
 
   fn_post_remove = board num ~>
     '''Remove a post by id.
