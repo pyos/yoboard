@@ -2,23 +2,22 @@ import '/socket'
 import '/bluelet'
 import '/pickle/loads'
 import '/pickle/dumps'
+import '/select/select'
 
-NOP  = b'N'  # Same as `b''`, but with a defined `!! -1`.
-STOP = 46    # End of a single pickled object.
+can_read = sock -> bool $ fst $ select (list' sock) list! list! 0
 
 
 Server = (host, port) commands -> bluelet.server host port $ conn ->
   while True =>
-    buffer = NOP
-    while buffer !! -1 != STOP =>
-      buffer += indata = yield $ conn.recv 8192
-      not indata => raise StopIteration
+    buffer = yield $ conn.recv 8192
+    while can_read conn.sock => buffer += yield $ conn.recv 8192
 
-    yield $ conn.sendall $ dumps $ except
+    response = except
       e =>
         name, args = loads buffer
         (commands !! name) *: args
       e => e
+    yield $ conn.sendall $ dumps response
 
 
 Client = subclass object where
@@ -29,11 +28,8 @@ Client = subclass object where
 
   __getattr__ = name ~> *: args ->
     @socket.sendall $ dumps (name, args)
-
-    buffer = NOP
-    while buffer !! -1 != STOP =>
-      buffer += indata = @socket.recv 8192
-      not indata => raise $ IOError 'database connection lost'
+    buffer = @socket.recv 8192
+    while can_read @socket => buffer += @socket.recv 8192
 
     response = loads buffer
     response :: Exception => raise response
