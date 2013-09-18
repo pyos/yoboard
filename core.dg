@@ -100,7 +100,7 @@ thread_create = board ->
   # Still, we need to account for random exceptions.
   fnames = pre_upload files
   thread = except
-    err => data.create_thread board title text fnames
+    err => data.thread_create board title text fnames
     err :: KeyError => abort 404
   post_upload $ zip files fnames
   redirect $ url_for 'thread_redirect' board: board thread: thread
