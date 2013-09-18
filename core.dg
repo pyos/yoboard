@@ -4,9 +4,8 @@ import '/flask/redirect'
 import '/flask/request'
 import '/flask/render_template'
 import '/flask/url_for'
+import 'database'
 import 'config'
-
-data = call $ import 'database/picklerpc/Client'
 
 
 check_post = title text files ->
@@ -192,7 +191,11 @@ thread_list = board thread ->
     boards: data.boards!
 
 
-app = Flask 'yoboard' template_folder: config.TEMPLATE_DIR
+data = database.Client!
+app  = Flask 'yoboard' template_folder: config.TEMPLATE_DIR
+app.before_first_request $ ->
+  data.connect database.config.ADDRESS database.config.PORT
+
 app.add_url_rule '/'                           None root
 app.add_url_rule '/<board>/'                   None board
 app.add_url_rule '/<board>/p<int:page>/'       None board
