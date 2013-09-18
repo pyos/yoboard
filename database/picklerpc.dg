@@ -10,7 +10,7 @@ Server = subclass object where
       buffer = b''
   
       while not $ buffer.endswith END_OF_TRANSMISSION =>
-        buffer += indata = yield $ conn.recv 1024
+        buffer += indata = yield $ conn.recv 4096
         indata == b'' => raise StopIteration
 
       response = except
@@ -19,8 +19,7 @@ Server = subclass object where
           (getattr self ('fn_' + name)) *: args
         e :: Exception => e
 
-      yield $ conn.sendall $ pickle.dumps response
-      yield $ conn.sendall $ END_OF_TRANSMISSION
+      yield $ conn.sendall $ pickle.dumps response + END_OF_TRANSMISSION
 
 
 Client = subclass object where
@@ -35,12 +34,11 @@ Client = subclass object where
     while not got =>
       got, response = except
         e =>
-          @socket.sendall $ pickle.dumps (name, args)
-          @socket.sendall $ END_OF_TRANSMISSION
+          @socket.sendall $ pickle.dumps (name, args) + END_OF_TRANSMISSION
 
           buffer = b''
           while not $ buffer.endswith END_OF_TRANSMISSION =>
-            buffer += indata = @socket.recv 1024
+            buffer += indata = @socket.recv 4096
             indata == b'' => raise StopIteration
 
           True, pickle.loads buffer
