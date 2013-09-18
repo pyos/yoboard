@@ -10,7 +10,8 @@ A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://gith
 
 ![YOBA face](http://lurkmore.so/images/8/8d/1238521509967.png)
 
-yoboard = yoba | board.
+YOBoard = Y.O.B.A. | image board.
+Y.O.B.A = Youth-oriented, Bydlo-approved (e.g. Call of Duty.)
 
 #### What are the requirements?
 
