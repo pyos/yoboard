@@ -1,6 +1,6 @@
-{% from "post.html" import post %}
-{% set vtype = "list" %}
 {% extends "basethread.html" %}
+{% set vtype = "list" %}
+{% from "post.html" import post with context %}
 
 {% block content %}
   {% for p in posts %}

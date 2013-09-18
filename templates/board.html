@@ -1,5 +1,5 @@
-{% from "post.html" import post, post_form %}
 {% extends "base.html" %}
+{% from "post.html" import post, post_form with context %}
 
 {% block title %}
   /{{ board }}/ - {{ title }}

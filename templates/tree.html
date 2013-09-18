@@ -1,6 +1,6 @@
 {% extends "basethread.html" %}
 {% set vtype = "tree" %}
-{% from "post.html" import post %}
+{% from "post.html" import post with context %}
 
 {% macro node(t) %}
   <div class="post-view-tree">
