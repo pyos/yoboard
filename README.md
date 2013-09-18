@@ -6,6 +6,12 @@
 
 A simple CRUD in [dg](https://github.com/pyos/dg) that uses [Flask](https://github.com/mitsuhiko/flask).
 
+#### Why's it called like that? Does it have something to do with douchebags?
+
+![YOBA face](http://lurkmore.so/images/8/8d/1238521509967.png)
+
+yoboard = yoba | board.
+
 #### What are the requirements?
 
   * [dg](https://github.com/pyos/dg) (to compile stuff.)
