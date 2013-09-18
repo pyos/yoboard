@@ -9,6 +9,49 @@ import 'config'
 data = call $ import 'database/picklerpc/Client'
 
 
+check_post = title text files ->
+  '''Ensure that a post matches certain conditions.
+
+    If not, a 400 Bad Request is returned.
+    Note that it does not specify a message; the client
+    should double-check the data before sending it.
+
+  '''
+  config.MAX_UPLOADS < len files             => abort 400
+  config.MIN_UPLOADS > len files             => abort 400
+  config.MAX_TITLE_LENGTH < len title        => abort 400
+  config.MAX_TITLE_LINES <= title.count '\n' => abort 400
+  config.MIN_TEXT_LENGTH > len text          => abort 400
+  config.MAX_TEXT_LENGTH < len text          => abort 400
+  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
+
+
+pre_upload = files ->
+  '''Generate a list of safe filenames for uploads.
+
+    TODO
+
+    pre_upload :: [File] -> [(str, str)]
+
+  '''
+  if len files == 1 and (head files).filename == '' and (head files).content_length == 0 =>
+    # Flask has a tendency to insert that if no files were submitted.
+    files.pop 0
+
+  files => abort 503
+
+
+post_upload = fpairs ->
+  '''Store the files in a local filesystem & generate thumbnails.
+
+    TODO (before pre_upload)
+
+    post_upload :: [(File, (str, str))] -> ()
+
+  '''
+  NotImplemented
+
+
 root = ->
   '''Root directory of the module.
 
@@ -40,23 +83,6 @@ board = board page: 0 ->
     pagenum: pn
 
 
-check_post = title text files ->
-  '''Ensure that a post matches certain conditions.
-
-    If not, a 400 Bad Request is returned.
-    Note that it does not specify a message; the client
-    should double-check the data before sending it.
-
-  '''
-  config.MAX_UPLOADS < len files             => abort 400
-  config.MIN_UPLOADS > len files             => abort 400
-  config.MAX_TITLE_LENGTH < len title        => abort 400
-  config.MAX_TITLE_LINES <= title.count '\n' => abort 400
-  config.MIN_TEXT_LENGTH > len text          => abort 400
-  config.MAX_TEXT_LENGTH < len text          => abort 400
-  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
-
-
 thread_create = board ->
   '''Make a new thread.
 
@@ -73,10 +99,12 @@ thread_create = board ->
     files = request.files.getlist 'file'
   # A thread cannot be rejected by the database.
   # Still, we need to account for random exceptions.
-  with fnames = FileUploader files => except
-    err => redirect $ url_for 'thread_redirect' board: board thread:
-      data.create_thread board title text fnames
+  fnames = pre_upload files
+  thread = except
+    err => data.create_thread board title text fnames
     err :: KeyError => abort 404
+  post_upload $ zip files fnames
+  redirect $ url_for 'thread_redirect' board: board thread: thread
 
 
 thread_redirect = board thread ->
@@ -95,7 +123,7 @@ thread_redirect = board thread ->
 
 
 thread_reply = board thread ->
-  '''Make a new thread.
+  '''Make a new message.
 
     :param board: alphanumeric ID of the board.
     :param thread: numeric ID of the thread.
@@ -115,11 +143,12 @@ thread_reply = board thread ->
     files  = request.files.getlist 'file'
   # This time the database may reject the post
   # if the thread is too big.
-  with fnames = FileUploader files => unsafe
+  fnames = pre_upload files
+  except
     e => data.post_create board thread parent title (bool sage) text fnames
     e :: KeyError      => abort 404
     e :: OverflowError => abort 403
-
+  post_upload $ zip files fnames
   redirect $ url_for 'thread_redirect' board: board thread: thread
 
 
@@ -148,14 +177,16 @@ thread_list = board thread ->
 
   '''
   as_list = None
-  as_list = t -> foldl (+) (list' t.root) (map as_list t.replies)
+  as_list = t ->
+    yield t.root
+    for q in t.replies => yield from: (as_list q)
 
   th = except err => data.thread board thread
               err :: KeyError => abort 404
 
   render_template 'list.html'
     this:   th
-    posts: (as_list th)
+    posts: (sorted $ as_list th)
     board:  board
     config: config
     boards: data.boards!
