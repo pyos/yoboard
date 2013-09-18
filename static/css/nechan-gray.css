@@ -57,6 +57,11 @@ blockquote {
   color: #779922;
 }
 
+.spoiler {
+  background: black;
+  color: white;
+}
+
 /* Manni style for Pygments.
  * Source: https://github.com/richleland/pygments-css/blob/master/manni.css
  */

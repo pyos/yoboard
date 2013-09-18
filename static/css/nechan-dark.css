@@ -1,4 +1,4 @@
-﻿body {
+body {
   background: #050505;
   color: #eee;
 }
@@ -49,6 +49,11 @@ blockquote {
 .input-group-addon {
   background-color: #333;
   border-color: #444;
+}
+
+.spoiler {
+  background: #900;
+  color: white;
 }
 
 /* Wombat style for Pygments.

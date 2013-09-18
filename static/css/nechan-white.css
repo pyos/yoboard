@@ -1,4 +1,4 @@
-﻿.post-missing-notice {
+.post-missing-notice {
   color: #666;
 }
 
@@ -12,6 +12,11 @@ blockquote {
 
 .post-timestamp {
   color: #333333;
+}
+
+.spoiler {
+  background: black;
+  color: white;
 }
 
 /* Pygments stylesheet, courtesy of GitHub, Inc. */
