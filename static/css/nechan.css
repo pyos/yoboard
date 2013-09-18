@@ -1,4 +1,4 @@
-﻿body {
+body {
   margin: 1em;
 }
 
@@ -104,6 +104,10 @@ a.glyphicon,
 .post-body {
   max-height: 200px;
   overflow: hidden;
+}
+
+.post-body p {
+  white-space: pre-line;
 }
 
 .board-level .post-reply .post-body {

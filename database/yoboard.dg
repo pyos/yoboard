@@ -9,6 +9,7 @@ import 'structs/Board'
 import 'structs/Thread'
 import 'structs/IntRef'
 import 'picklerpc/Server'
+import 'yobamarkup/parse'
 
 
 YoboardDatabase = subclass Server where
@@ -99,7 +100,7 @@ YoboardDatabase = subclass Server where
       thread_create :: str str str [(str, str)] -> int
 
     '''
-    op = Post (@fn_board_increment board) title False text files 0 0 datetime.now!
+    op = Post (@fn_board_increment board) title False (parse text) files 0 0 datetime.now!
     th = Thread op list! list! (IntRef 0)
     bd = @data !! 'boards' !! board
     bd.threads.insert 0 th
@@ -170,7 +171,7 @@ YoboardDatabase = subclass Server where
 
     # From this point on we cannot afford to bail out.
     # `@fn_board_increment` is the first modification.
-    po = Post (@fn_board_increment board) title sage text files thread parent datetime.now!
+    po = Post (@fn_board_increment board) title sage (parse text) files thread parent datetime.now!
     th.latest.append po
     pt.replies.append $ Tree po list!
     @data !! 'posts' !! board !! po.id = po

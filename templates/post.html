@@ -27,12 +27,12 @@
         <a class="post-parent post-anchor" href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
       {% endif %}
 
-      <p>{{ p.text }}</p>
+      {{ p.text|safe }}
     </div>
   </div>
 
   <div class="collapse post-form" id="post-form-{{ p.id }}">
-    {{ post_form(url_for('thread_reply', board=board, thread=_thread), _thread, p.id) }}
+    {{ post_form(url_for('thread_redirect', board=board, thread=_thread), _thread, p.id) }}
   </div>
 </div>
 {% endmacro %}
