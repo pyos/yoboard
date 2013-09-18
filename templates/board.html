@@ -27,4 +27,11 @@
       {% endfor %}
     </div>
   {% endfor %}
+
+  <div class="basement">
+    <ul class="pager">
+      {% if page %}<li class="previous"><a href="{{ url_for('board', board=board, page=page - 1) }}">&larr; Новые</li>{% endif %}
+      {% if page < pagenum - 1 %}<li class="next"><a href="{{ url_for('board', board=board, page=page + 1) }}">Старые &rarr;</li>{% endif %}
+    </ul>
+  </div>
 {% endblock %}
