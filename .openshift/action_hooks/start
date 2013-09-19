@@ -1,4 +1,11 @@
 #!/bin/bash
 PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/python3.3 -m repo.database &
-PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/gunicorn -D -p $OPENSHIFT_TMP_DIR/gunicorn.pid -w 4 -b 127.0.0.1:8080 repo.core:app
+PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/gunicorn \
+  --daemon \
+  --pid $OPENSHIFT_TMP_DIR/gunicorn.pid \
+  --workers 4 \
+  --bind 127.0.0.1:8080 \
+  --error-logfile  $OPENSHIFT_DIY_LOG_DIR/gunicorn.error.log
+  --access-logfile $OPENSHIFT_DIY_LOG_DIR/gunicorn.access.log
+  repo.core:app
 echo %1 > $OPENSHIFT_TMP_DIR/yoboard.database.pid
