@@ -43,7 +43,7 @@ i_subst = dict'
   'deleted',   '<del>'                  `wrapped` '</del>'
   'spoiler',   '<span class="spoiler">' `wrapped` '</span>'
   'code',      m _ -> '<code>{}</code>'.format $ m.group 'codecontent'
-  'generic',   m _ -> '<a href="{}">{}</a>'.format $ m.group 0
+  'generic',   m _ -> '<a href="{0}">{0}</a>'.format $ m.group 0
   'namedlink', m _ -> '<a href="{}">{}</a>'.format (m.group 'linktarget') (m.group 'linktitle')
   'escape',    m _ -> m.group 'escaped'
   'text',      m _ -> m.group 0
