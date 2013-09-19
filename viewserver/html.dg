@@ -78,7 +78,7 @@ root = ->
     No options.
 
   '''
-  render_template 'index.html' 
+  render_template 'base.html'
     board: ''
     config: config
     boards: data.boards!
