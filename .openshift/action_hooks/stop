@@ -1,18 +1,9 @@
 #!/bin/bash
-source $OPENSHIFT_CARTRIDGE_SDK_BASH
-
 killps() {
   kill `ps -ef | grep $1 | grep -v grep | awk '{ print $2 }'`
 }
 
-# The logic to stop your application should be put in this script.
-if [ -f "$OPENSHIFT_TMP_DIR/yoboard.database.pid" ]
-then
-    cat $OPENSHIFT_TMP_DIR/yoboard.database.pid
-    killps 'repo.database'                      >/dev/null 2>&1
-    killps 'nginx: master process'              >/dev/null 2>&1
-    kill $(cat $OPENSHIFT_TMP_DIR/gunicorn.pid) >/dev/null 2>&1
-    rm $OPENSHIFT_TMP_DIR/yoboard.database.pid
-else
-    client_result "Application is already stopped"
-fi
+killps 'repo.database'                      >/dev/null 2>&1
+killps 'nginx: master process'              >/dev/null 2>&1
+kill $(cat $OPENSHIFT_TMP_DIR/gunicorn.pid) >/dev/null 2>&1
+
