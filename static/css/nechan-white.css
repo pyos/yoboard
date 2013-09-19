@@ -1,3 +1,7 @@
+hr {
+  border-color: #ddd;
+}
+
 .post-missing-notice {
   color: #666;
 }

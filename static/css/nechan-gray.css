@@ -7,6 +7,10 @@ a {
   color: #f60;
 }
 
+hr {
+  border-color: #ccc;
+}
+
 .navbar {
   background: #333;
 }
