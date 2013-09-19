@@ -73,3 +73,18 @@ shut the database server down and unpickle the database file.
 #### What's the point?
 
 There is none.
+
+#### How to install it on an OpenShift node?
+
+First, build the prerequisites and install them into `$OPENSHIFT_DATA_DIR`:
+
+  * nginx
+  * Python 3.3
+  * setuptools and pip
+
+Second, configure your nginx and name the configuration file "nginx.conf.template".
+`$OPENSHIFT_IP`, `$OPENSHIFT_PORT`, `$OPENSHIFT_REPO_DIR` and `$OPENSHIFT_TMP_DIR`
+environment variables may be used in the template.
+An example can be found in `.openshift/action_hooks/nginx.conf.template`.
+
+Third, tweak `config.dg` and push this repo to your OpenShift node. It should start up fine.
