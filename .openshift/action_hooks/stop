@@ -6,6 +6,6 @@ killps() {
 if [ -f "$OPENSHIFT_TMP_DIR/gunicorn.pid" ]
 then
   killps 'repo.database'                      >/dev/null 2>&1
-  killps 'nginx: master process'              >/dev/null 2>&1
+  killps 'nginx'                              >/dev/null 2>&1
   kill $(cat $OPENSHIFT_TMP_DIR/gunicorn.pid) >/dev/null 2>&1
 fi

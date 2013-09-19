@@ -87,4 +87,8 @@ Second, configure your nginx and name the configuration file "nginx.conf.templat
 environment variables may be used in the template.
 An example can be found in `.openshift/action_hooks/nginx.conf.template`.
 
-Third, tweak `config.dg` and push this repo to your OpenShift node. It should start up fine.
+Third, push this repo to your OpenShift node, then stop the app.
+
+Fourth, copy /static/ and the database to `$OPENSHIFT_DATA_DIR` and tweak `config.dg` and `nginx.conf.template` accordingly.
+
+Fifth, start the app.
