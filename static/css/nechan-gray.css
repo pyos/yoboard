@@ -12,8 +12,7 @@ a {
 }
 
 .navbar .navbar-brand,
-.navbar .navbar-nav > li > a,
-.navbar .navbar-nav .open .dropdown-menu > li > a {
+.navbar .navbar-nav > li > a {
   color: #ddd;
 }
 
@@ -21,18 +20,33 @@ a {
 .navbar .navbar-nav > li:hover > a,
 .navbar .navbar-nav > .open > a,
 .navbar .navbar-nav > .open:hover > a,
-.navbar .navbar-nav > .open:focus > a,
-.navbar .navbar-nav .open .dropdown-menu > li:hover > a {
+.navbar .navbar-nav > .open:focus > a {
   background-color: #3b3b3b;
   color: #fff;
 }
 
 .navbar .navbar-nav > .active > a,
-.navbar .navbar-nav > .active:hover > a,
-.navbar .navbar-nav .open .dropdown-menu > .active > a,
-.navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
+.navbar .navbar-nav > .active:hover > a {
   background-color: #444;
   color: #fff;
+}
+
+@media (max-width: 767px) {
+  .navbar .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
+    background: #444;
+  }
+
+  .navbar .navbar-nav .open .dropdown-menu > li:hover > a {
+    background: #3b3b3b;
+  }
+
+  .navbar .navbar-nav .open .dropdown-menu > li > a,
+  .navbar .navbar-nav .open .dropdown-menu > li:hover > a,
+  .navbar .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
+    color: #fff;
+  }
 }
 
 .post-view-tree > .post:not(:first-child),
