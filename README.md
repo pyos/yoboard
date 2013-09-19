@@ -44,8 +44,8 @@ Ahem.
   4. Run `python -m yoboard.database` in one window.
   5. Run `python -m yoboard.viewserver` in another.
 
-Note that while the Flask dev server is OK, using load-balancing servers
-such as [gunicorn](http://gunicorn.org/) is recommended.
+Note that while the Flask dev server is OK, using load-balancing servers such as
+[gunicorn](http://gunicorn.org/) is recommended. The WSGI app is at `yoboard.viewserver:app`.
 
 #### Why doesn't it use my favorite (No)?SQL database?
 
