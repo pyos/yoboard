@@ -89,6 +89,15 @@ a.glyphicon,
   overflow: hidden;
 }
 
+.board-level .post-reply .post-body {
+  max-height: 150px;
+}
+
+.post-collapse-btn,
+.post-expand-btn {
+  display: none;
+}
+
 .post-body p {
   white-space: pre-line;
 }
@@ -107,8 +116,8 @@ blockquote p {
   font-weight: inherit;
 }
 
-.board-level .post-reply .post-body {
-  max-height: 150px;
+.post-attach {
+  margin-bottom: 10px;
 }
 
 .post-attach + .post-body {

@@ -10,7 +10,9 @@
     {% if p.sage %}
       <span class="post-sage"></span>
     {% endif %}
-    <a class="glyphicon glyphicon-edit" title="Ответить" class="post-reply-btn" data-toggle="collapse" data-target="#post-form-{{ p.id }}"></a>
+    <a class="glyphicon glyphicon-edit post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"></a>
+    <a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Развернуть"></a>
+    <a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Свернуть"></a>
   </div>
 
   <div class="post-content clearfix">
