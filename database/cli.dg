@@ -7,8 +7,8 @@ builtins.__dict__.update $ dict
   Board:  (import 'Board')
   Thread: (import 'Thread')
   IntRef: (import 'IntRef')
+  markup: (import 'markup')
   config: (import '../config')
-  markup: (import '../markup')
 
 builtins.d = Client config.CLIENT_ADDRESS
 builtins.d.reconnect

@@ -7,8 +7,8 @@ import 'Tree'
 import 'Board'
 import 'Thread'
 import 'IntRef'
+import 'markup'
 import '../config'
-import '../markup'
 
 
 commands = data ->
