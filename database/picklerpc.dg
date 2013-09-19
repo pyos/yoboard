@@ -6,7 +6,7 @@ import '/pickle/Unpickler'
 
 Server = (family, proto, *addr) commands ->
   server = socket.socket family proto
-  server.bind $ tuple addr
+  server.bind $ if (len addr == 1 => head addr) (otherwise => tuple addr)
   server.listen 10
   read = dict' (server, None)
 
@@ -27,7 +27,7 @@ Client = subclass object where
   __init__  = (@family, @proto, * @addr) ~>
   reconnect = ~>
     @socket = socket.socket @family @proto
-    @socket.connect $ tuple @addr
+    @socket.connect $ if (len @addr == 1 => head @addr) (otherwise => tuple @addr)
     @loader = Unpickler $ @socket.makefile 'rb' buffering: 8192
 
   __getattr__ = name ~> *: args ->
