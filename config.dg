@@ -8,8 +8,8 @@ STATIC_DIR   = path.join (path.dirname __file__) 'static'
 TEMPLATE_DIR = path.join (path.dirname __file__) 'templates'
 UPLOAD_DIR   = path.join STATIC_DIR 'upload'
 
-os.makedirs STATIC_DIR exist_ok: True
-os.makedirs UPLOAD_DIR exist_ok: True
+os.makedirs STATIC_DIR 0o0755 exist_ok: True
+os.makedirs UPLOAD_DIR 0o0755 exist_ok: True
 
 # A file to use for persistent storage.
 # This file should be in a writable location.
