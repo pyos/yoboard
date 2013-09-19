@@ -38,9 +38,14 @@ Ahem.
 
 #### How to start this crap?
 
-`python -m yoboard.database` in one terminal window, `python -m yoboard.viewserver` in another one.
-The latter can be replaced with `gunicorn yoboard.viewserver:app`, if you're feeling
-especially hipster-y. A properly configured `nginx` is recommended to serve files from /static/.
+  1. Tweak `config.dg`.
+  2. Create directories pointed to by `STORAGE_DIR` and `UPLOAD_DIR`.
+  3. Configure nginx to serve `/static/` from `STATIC_DIR`, `/static/upload/` from `UPLOAD_DIR`, and proxy everything else to `127.0.0.1:5000`.
+  4. Run `python -m yoboard.database` in one window.
+  5. Run `python -m yoboard.viewserver` in another.
+
+Note that while the Flask dev server is OK, using load-balancing servers
+such as [gunicorn](http://gunicorn.org/) is recommended.
 
 #### Why doesn't it use my favorite (No)?SQL database?
 

@@ -1,5 +1,3 @@
 *.pyc
 *.pyo
-/static/upload/*
-yoboard.databundle
-db.socket
+/store

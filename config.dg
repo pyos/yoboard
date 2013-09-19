@@ -1,15 +1,13 @@
-import '/os'
-import '/socket'
 import '/os/path'
+ROOT_DIR     = path.dirname __file__
+TEMPLATE_DIR = path.join ROOT_DIR    'templates'  # /templates of the repo
+STATIC_DIR   = path.join ROOT_DIR    'static'     # /static of the repo
+STORAGE_DIR  = path.join ROOT_DIR    'store'      # where to store server-specific data
+UPLOAD_DIR   = path.join STORAGE_DIR 'upload'
 
+path.isdir STORAGE_DIR or raise (ValueError 'not a directory' STORAGE_DIR)
+path.isdir UPLOAD_DIR  or raise (ValueError 'not a directory' UPLOAD_DIR)
 
-# The place where CSS, JS, fonts, and uploaded attachments are.
-STATIC_DIR   = path.join (path.dirname __file__) 'static'
-TEMPLATE_DIR = path.join (path.dirname __file__) 'templates'
-UPLOAD_DIR   = path.join STATIC_DIR 'upload'
-
-os.makedirs STATIC_DIR 0o0755 exist_ok: True
-os.makedirs UPLOAD_DIR 0o0755 exist_ok: True
 
 # A file to use for persistent storage.
 # This file should be in a writable location.
@@ -17,7 +15,7 @@ os.makedirs UPLOAD_DIR 0o0755 exist_ok: True
 # at regular intervals, as well as on shutdown.
 # Note that neglect to sync the hard drives between a save
 # and a power failure may lead to complete data loss.
-DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
+DATABASE = path.join STORAGE_DIR 'data-bundle'
 
 # This is the interval after which to dump data, as noted above.
 # (In seconds.) Once again, don't forget to sync the write buffers.
@@ -25,13 +23,14 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for database connections.
-CLIENT_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join (path.dirname __file__) 'db.socket'
-SERVER_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join (path.dirname __file__) 'db.socket'
+import '/socket'
+CLIENT_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
+SERVER_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
 
 # Maximum no. of threads on a single page.
 # Lowering this number improves performance for a single request
 # at the cost of requiring more requests to see the whole board.
-THREADS_PER_PAGE  = 10
+THREADS_PER_PAGE = 10
 
 # Maximum no. of threads on a board.
 # Lowering this number decreases memory footprint and
