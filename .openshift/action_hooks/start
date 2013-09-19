@@ -1,11 +1,20 @@
 #!/bin/bash
+cat $OPENSHIFT_DATA_DIR/conf/nginx.conf.template      | \
+  sed "s/\$OPENSHIFT_IP/$OPENSHIFT_INTERNAL_IP/g"     | \
+  sed "s/\$OPENSHIFT_PORT/$OPENSHIFT_INTERNAL_PORT/g" | \
+  sed "s/\$OPENSHIFT_REPO_DIR/$OPENSHIFT_REPO_DIR/g"  | \
+  sed "s/\$OPENSHIFT_TMP_DIR/$OPENSHIFT_TMP_DIR/g"
+
 PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/python3.3 -m repo.database &
 PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/gunicorn \
   --daemon \
   --pid $OPENSHIFT_TMP_DIR/gunicorn.pid \
   --workers 4 \
-  --bind $OPENSHIFT_DIY_IP:8080 \
+  --bind unix:$OPENSHIFT_TMP_DIR/gunicorn.socket \
   --error-logfile  $OPENSHIFT_DIY_LOG_DIR/gunicorn.error.log  \
   --access-logfile $OPENSHIFT_DIY_LOG_DIR/gunicorn.access.log \
   repo.core:app
+
+nohup $OPENSHIFT_DATA_DIR/sbin/nginx > $OPENSHIFT_DIY_LOG_DIR/nginx.log 2>&1 &
+
 echo %1 > $OPENSHIFT_TMP_DIR/yoboard.database.pid
