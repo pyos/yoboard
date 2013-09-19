@@ -38,8 +38,8 @@ Ahem.
 
 #### How to start this crap?
 
-`python -m yoboard.database` in one terminal window, `python -m yoboard` in another one.
-The latter can be replaced with `gunicorn yoboard.core:app`, if you're feeling
+`python -m yoboard.database` in one terminal window, `python -m yoboard.viewserver` in another one.
+The latter can be replaced with `gunicorn yoboard.viewserver:app`, if you're feeling
 especially hipster-y. A properly configured `nginx` is recommended to serve files from /static/.
 
 #### Why doesn't it use my favorite (No)?SQL database?

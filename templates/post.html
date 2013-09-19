@@ -2,7 +2,7 @@
 {% set _thread = p.thread or p.id %}
 <div class="post media {% if p.parent == 0 %}post-original{% else %}post-reply{% endif %}" id="{{ p.id }}">
   <div class="post-header media-heading">
-    <a href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
+    <a href="{{ url_for('html.thread_redirect', board=board, thread=_thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
     {% if p.title %}
       <span class="post-title">{{ p.title }}</span>
     {% endif %}
@@ -24,7 +24,7 @@
 
     <div class="post-body media-body">
       {% if list_mode and p.parent != p.thread %}
-        <a class="post-parent post-anchor" href="{{ url_for('thread_redirect', board=board, thread=_thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
+        <a class="post-parent post-anchor" href="{{ url_for('html.thread_redirect', board=board, thread=_thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
       {% endif %}
 
       {{ p.text|safe }}
@@ -32,7 +32,7 @@
   </div>
 
   <div class="collapse post-form" id="post-form-{{ p.id }}">
-    {{ post_form(url_for('thread_redirect', board=board, thread=_thread), _thread, p.id) }}
+    {{ post_form(url_for('html.thread_redirect', board=board, thread=_thread), _thread, p.id) }}
   </div>
 </div>
 {% endmacro %}

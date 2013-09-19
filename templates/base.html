@@ -31,7 +31,7 @@
             <a class="dropdown-toggle" data-toggle="dropdown">{{ car }} <b class="caret"></b></a>
             <ul class="dropdown-menu">
               {% for bid, bnam in cdr|dictsort %}
-                <li{% if bid == board %} class="active"{% endif %}><a href="{{ url_for('board', board=bid) }}">/{{ bid }}/ - {{ bnam }}</a></li>
+                <li{% if bid == board %} class="active"{% endif %}><a href="{{ url_for('html.board', board=bid) }}">/{{ bid }}/ - {{ bnam }}</a></li>
               {% endfor %}
             </ul>
           </li>

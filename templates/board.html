@@ -7,13 +7,13 @@
 
 {% block options %}
   {% if page %}
-    <li><a href="{{ url_for('board', board=board, page=page - 1) }}">&laquo;</a></li>
+    <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
   {% else %}
     <li class="disabled"><a>&laquo;</a></li>
   {% endif %}
   <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
   {% if page < pagenum - 1 %}
-    <li><a href="{{ url_for('board', board=board, page=page + 1) }}">&raquo;</a></li>
+    <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
   {% else %}
     <li class="disabled"><a>&raquo;</a></li>
   {% endif %}
@@ -22,7 +22,7 @@
 {% block content %}
   <div id="board-reply-form">
     <div class="post-form" id="board-form">
-      {{ post_form(url_for('thread_create', board=board), 0, 0) }}
+      {{ post_form(url_for('html.thread_create', board=board), 0, 0) }}
     </div>
   </div>
 

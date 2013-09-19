@@ -1,0 +1,10 @@
+import '/flask/Flask'
+import '../config'
+import '../database/picklerpc/Client'
+
+data = Client config.CLIENT_ADDRESS
+app  = Flask __name__ template_folder: config.TEMPLATE_DIR static_folder: config.STATIC_DIR
+app.before_first_request $ -> data.reconnect
+app.register_blueprint   $ import 'html/mod'
+#app.register_blueprint  $ import 'json/mod'
+#app.register_blueprint  $ import 'admin/mod'
