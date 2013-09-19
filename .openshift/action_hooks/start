@@ -16,5 +16,3 @@ PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/gunicorn \
   repo.core:app
 
 nohup $OPENSHIFT_DATA_DIR/sbin/nginx > $OPENSHIFT_DIY_LOG_DIR/nginx.log 2>&1 &
-
-echo %1 > $OPENSHIFT_TMP_DIR/yoboard.database.pid
