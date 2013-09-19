@@ -1,5 +1,4 @@
 #!/bin/bash
-# The logic to start up your application should be put in this
-# script. The application will work only if it binds to
-# $OPENSHIFT_DIY_IP:8080
-nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_DIY_IP $OPENSHIFT_REPO_DIR/diy > $OPENSHIFT_DIY_DIR/logs/server.log 2>&1 &
+PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/python3.3 -m repo.database &
+PYTHONPATH=$OPENSHIFT_REPO_DIR/.. $OPENSHIFT_DATA_DIR/bin/gunicorn -D -p $OPENSHIFT_TMP_DIR/gunicorn.pid -w 4 -b 127.0.0.1:8080 repo.core:app
+echo %1 > $OPENSHIFT_TMP_DIR/yoboard.database.pid

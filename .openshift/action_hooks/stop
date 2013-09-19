@@ -2,9 +2,11 @@
 source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
 # The logic to stop your application should be put in this script.
-if [ -z "$(ps -ef | grep testrubyserver.rb | grep -v grep)" ]
+if [ -f "$OPENSHIFT_TMP_DIR/yoboard.database.pid" ]
 then
-    client_result "Application is already stopped"
+    kill $(cat $OPENSHIFT_TMP_DIR/yoboard.database.pid) >/dev/null 2>&1
+    kill $(cat $OPENSHIFT_TMP_DIR/gunicorn.pid) >/dev/null 2>&1
+    rm $OPENSHIFT_TMP_DIR/yoboard.database.pid
 else
-    kill `ps -ef | grep testrubyserver.rb | grep -v grep | awk '{ print $2 }'` > /dev/null 2>&1
+    client_result "Application is already stopped"
 fi
