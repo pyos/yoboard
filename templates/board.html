@@ -2,7 +2,21 @@
 {% from "post.html" import post, post_form with context %}
 
 {% block title %}
-  /{{ board }}/ - {{ title }}
+  {{ title }}
+{% endblock %}
+
+{% block options %}
+  {% if page %}
+    <li><a href="{{ url_for('board', board=board, page=page - 1) }}">&laquo;</a></li>
+  {% else %}
+    <li class="disabled"><a>&laquo;</a></li>
+  {% endif %}
+  <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
+  {% if page < pagenum - 1 %}
+    <li><a href="{{ url_for('board', board=board, page=page + 1) }}">&raquo;</a></li>
+  {% else %}
+    <li class="disabled"><a>&raquo;</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -27,11 +41,4 @@
       {% endfor %}
     </div>
   {% endfor %}
-
-  <div class="basement">
-    <ul class="pager">
-      {% if page %}<li class="previous"><a href="{{ url_for('board', board=board, page=page - 1) }}">&larr; Новые</a></li>{% endif %}
-      {% if page < pagenum - 1 %}<li class="next"><a href="{{ url_for('board', board=board, page=page + 1) }}">Старые &rarr;</a></li>{% endif %}
-    </ul>
-  </div>
 {% endblock %}
