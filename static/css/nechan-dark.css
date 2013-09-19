@@ -14,7 +14,8 @@ a {
 }
 
 .navbar .navbar-brand,
-.navbar .navbar-nav > li > a {
+.navbar .navbar-nav > li > a,
+.navbar .navbar-nav .open .dropdown-menu > li > a {
   color: #ddd;
   text-shadow: none;
 }
@@ -23,13 +24,16 @@ a {
 .navbar .navbar-nav > li:hover > a,
 .navbar .navbar-nav > .open > a,
 .navbar .navbar-nav > .open:hover > a,
-.navbar .navbar-nav > .open:focus > a {
+.navbar .navbar-nav > .open:focus > a,
+.navbar .navbar-nav .open .dropdown-menu > li:hover > a {
   background-color: #2a2a2a;
   color: #fff;
 }
 
 .navbar .navbar-nav > .active > a,
-.navbar .navbar-nav > .active:hover > a {
+.navbar .navbar-nav > .active:hover > a,
+.navbar .navbar-nav .open .dropdown-menu > .active > a,
+.navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
   background-color: #333;
   color: #fff;
 }
