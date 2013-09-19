@@ -21,9 +21,6 @@
       </div>
 
       <div class="collapse navbar-collapse" id="board-list">
-        <ul class="nav navbar-nav hidden-xs">
-          {% block options %}{% endblock %}
-        </ul>
         <ul class="nav navbar-nav">
          {% for car, cdr in boards|dictsort %}
           <li class="dropdown">
@@ -35,6 +32,9 @@
             </ul>
           </li>
          {% endfor %}
+        </ul>
+        <ul class="nav navbar-nav hidden-xs">
+          {% block options %}{% endblock %}
         </ul>
       </div>
     </nav>
