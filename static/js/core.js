@@ -28,4 +28,8 @@ $(function () {
       });
     }
   });
+
+  $(".post-reply-btn").click(function () {
+    $(".post-form:not(.collapse):not(#board-form):not(" + $(this).attr("data-target") + ")").collapse("hide");
+  });
 });
