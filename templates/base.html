@@ -17,10 +17,10 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">{{ self.title() }}</a>
+        <a class="navbar-brand">Йобач</a>
       </div>
 
-      <div>
+      <div class="collapse navbar-collapse" id="board-list">
         <ul class="nav navbar-nav hidden-xs">
           {% block options %}{% endblock %}
         </ul>
@@ -39,6 +39,7 @@
       </div>
     </nav>
 
+    <h1 id="page-title">{{ self.title() }}</h1>
     {% block content %}{% endblock %}
 
     <script type ="text/javascript" src ="/static/js/jquery-2.0.3.min.js"></script>
