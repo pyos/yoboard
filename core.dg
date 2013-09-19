@@ -218,7 +218,7 @@ thread_list = board thread ->
 
 
 data = Client config.CLIENT_ADDRESS
-app  = Flask 'yoboard' template_folder: config.TEMPLATE_DIR
+app  = Flask 'yoboard' template_folder: config.TEMPLATE_DIR static_folder: config.STATIC_DIR
 app.before_first_request $ -> data.reconnect
 app.add_url_rule '/'                           None root
 app.add_url_rule '/<board>/'                   None board
