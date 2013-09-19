@@ -1,4 +1,5 @@
 import '/os'
+import '/socket'
 import '/os/path'
 
 
@@ -24,8 +25,8 @@ DATABASE = path.join (path.dirname __file__) 'yoboard.databundle'
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for database connections.
-CLIENT_ADDRESS = '127.0.0.1', 9105
-SERVER_ADDRESS = '127.0.0.1', 9105
+CLIENT_ADDRESS = socket.AF_INET, socket.SOCK_STREAM, '127.0.0.1', 9105
+SERVER_ADDRESS = socket.AF_INET, socket.SOCK_STREAM, '127.0.0.1', 9105
 
 # Maximum no. of threads on a single page.
 # Lowering this number improves performance for a single request

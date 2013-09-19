@@ -4,9 +4,9 @@ import '/pickle/dumps'
 import '/pickle/Unpickler'
 
 
-Server = addr commands ->
-  server = socket.socket socket.AF_INET socket.SOCK_STREAM
-  server.bind addr
+Server = (family, proto, *addr) commands ->
+  server = socket.socket family proto
+  server.bind $ tuple addr
   server.listen 10
   read = dict' (server, None)
 
@@ -24,10 +24,10 @@ Server = addr commands ->
 
 
 Client = subclass object where
-  __init__  = @addr ~>
+  __init__  = (@family, @proto, * @addr) ~>
   reconnect = ~>
-    @socket = socket.socket socket.AF_INET socket.SOCK_STREAM
-    @socket.connect @addr
+    @socket = socket.socket @family @proto
+    @socket.connect $ tuple @addr
     @loader = Unpickler $ @socket.makefile 'rb' buffering: 8192
 
   __getattr__ = name ~> *: args ->
