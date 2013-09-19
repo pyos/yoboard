@@ -14,23 +14,6 @@ a.glyphicon,
 
 .navbar {
   margin: -1em -1em 1em -1em;
-}
-
-@media (min-width: 768px) {
-  body {
-    margin-top: 72px; /* `.navbar` is 52px high. */
-  }
-
-  .navbar {
-    position: fixed;
-    margin: 0;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
-}
-
-.navbar {
   border: none;
   border-radius: 0;
 }
@@ -38,12 +21,6 @@ a.glyphicon,
 .navbar .navbar-brand,
 .navbar .navbar-nav > li > a {
   text-shadow: none;
-}
-
-.board-level {
-  /* Top-level trees. */
-  border-top: 1px solid #999;
-  padding-top: 1em;
 }
 
 .input-group {
@@ -62,6 +39,12 @@ a.glyphicon,
 
 .post-missing-notice {
   margin-left: 1em;  /* must align with .post */
+}
+
+.board-level {
+  /* Top-level trees. */
+  border-top: 1px solid #999;
+  padding-top: 1em;
 }
 
 .post-view-tree > .post:not(:first-child),
