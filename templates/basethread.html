@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}
   {% if this.root.title %}
-    /{{ board }}/ - {{ this.root.title }}
+    {{ this.root.title }}
   {% else %}
-    /{{ board }}/ - #{{ this.root.id }}
+    Трад #{{ this.root.id }}
   {% endif %}
 {% endblock %}
 
