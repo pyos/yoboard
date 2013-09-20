@@ -44,9 +44,9 @@ and on shutdown.
 
 ```dg
 $ python -m yoboard.database.cli
->>> d.create_board 'b' 'Random' 'Adult'
->>> d.create_board 'g' 'Technology' 'Thematic'
->>> d.create_thread 'b' 'First thread' 'This is the message.' $ list' ('1.png', '1.thumb.png')
+>>> d.board_create 'b' 'Random' 'Adult'
+>>> d.board_create 'g' 'Technology' 'Thematic'
+>>> d.thread_create 'b' 'First thread' 'This is the message.' $ list' ('1.png', '1.thumb.png')
 1
 ```
 
