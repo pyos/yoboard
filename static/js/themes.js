@@ -1,51 +1,35 @@
 "use strict";
 
-
-var theme_prefix  = "/static/css/nechan-";
-var theme_postfix = ".css";
-var theme_default = "photon";
-var themes = {
-  "bootstrap": "white",
-  "photon":    "gray",
-  "neutron":   "dark"
-};
+var current = $.cookie("style") || "photon";
+var themes  = {"bootstrap": "white",
+               "photon":    "gray",
+               "neutron":   "dark"};
 
 
-var inject_style = function (name) {
-  var style = themes[name] || themes[theme_default];
-
-  return $("<link />").attr("type", "text/css")
-                      .attr("rel", "stylesheet")
-                      .attr("href", theme_prefix + style + theme_postfix)
-                      .appendTo("head");
-};
+var theme_get = function (name) {
+  return "/static/css/nechan-" + (themes[name] || themes["photon"]) + ".css";
+}
 
 
-var injected = inject_style($.cookie("style"));
+var injected = $("<link type='text/css' rel='stylesheet' />")
+  .attr("href", theme_get(current))
+  .appendTo("head");
 
 
 $(function () {
   var options = $("#view-options");
-  var current = $.cookie("style");
 
-  if (!themes[current]) {
-    current = theme_default;
-  };
+  for (var k in themes) {
+    var container = $("<li />").attr("class", "board-style-type");
+    var child     = $("<a  />").attr("data-style", k).text(k).click(function () {
+      current = $(this).attr("data-style");
+      injected.attr("href", theme_get(current));
+      $(".board-style-type").removeClass("active");
+      $(this).parent().addClass("active");
+      $.cookie("style", current, { "expires": 365, "path": "/" });
+    });
 
-  if (options.length) {
-    for (var k in themes) {
-      var container = $("<li />").attr("class", "board-style-type");
-      var child     = $("<a  />").attr("data-style", k).text(k).click(function () {
-        var name = $(this).attr("data-style");
-        injected.remove();
-        injected = inject_style(name);
-        $(".board-style-type").removeClass("active");
-        $(this).parent().addClass("active");
-        $.cookie("style", name, { "expires": 365, "path": "/" });
-      });
-
-      container.append(child).appendTo(options);
-      if (k == current) container.addClass("active");
-    };
+    container.append(child).appendTo(options);
+    if (k == current) container.addClass("active");
   };
 });
