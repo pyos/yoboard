@@ -19,10 +19,10 @@ import '/werkzeug/exceptions/HTTPException'
 onerror = code -> err -> page, code where page = render_template 'error.html'
   err:        err
   hascode:   (err :: HTTPException)
-  traceback: (map    ((fn, a, b, c) -> path.relpath fn config.ROOT_DIR, a, b, c)
-              filter ((fn, _, _, _) -> fn.startswith config.ROOT_DIR) $ extract_tb err.__traceback__)
   config:     config
   boards:     dict!
+  untrace:   (e -> map    ((fn, a, b, c) -> path.relpath fn config.ROOT_DIR, a, b, c)
+                   filter ((fn, _, _, _) -> fn.startswith config.ROOT_DIR) $ extract_tb e.__traceback__)
 
 app.register_error_handler 400 $ onerror 400
 app.register_error_handler 403 $ onerror 403
