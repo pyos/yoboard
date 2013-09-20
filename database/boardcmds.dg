@@ -1,3 +1,4 @@
+import '/os'
 import '/datetime/datetime'
 import '/collections/deque'
 import '/collections/defaultdict'
@@ -11,6 +12,11 @@ import 'markup'
 import '../config'
 
 
+remove_uploads = obj -> for (fn, thumb) in obj.files =>
+  os.unlink $ os.path.join config.UPLOAD_DIR fn
+  os.unlink $ os.path.join config.UPLOAD_DIR thumb
+
+
 commands = data ->
   # Cutting corners wherever possible.
   # Using these cells instead of `data` allows us
@@ -18,7 +24,7 @@ commands = data ->
   RP_COUNT  = data !! 'ids'       # :: {str: int}
   RP_BOARD  = data !! 'boards'    # :: {str: Board}
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
-  RP_POST   = data !! 'posts'     # :: {str: {int: Post}}
+  RP_POSTS  = data !! 'posts'     # :: {str: {int: Post}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
   # Volatile cache containers.
   # These are in the database because that
@@ -26,6 +32,15 @@ commands = data ->
   #   2. makes invalidating them easier.
   VC_BOARD  = defaultdict dict  # :: {str: {int: str}}
   VC_THREAD = defaultdict dict  # :: {(str, int): {str: str}}
+
+  post_cleanup = None
+  post_cleanup = board num ->
+    postobj   = (RP_POSTS !! board).pop num
+    treeobj   = (RP_TREES !! board).pop num
+    threadobj = (RP_TREES !! board).get postobj.thread None
+    remove_uploads postobj
+    if threadobj and (threadobj.latest !! 0).id <= num => threadobj.latest.remove postobj
+    for subtree in treeobj.replies => post_cleanup board subtree.root.id
 
   dict'
     # :: -> ()
@@ -44,9 +59,14 @@ commands = data ->
     'set_cached_thread', board num vt x -> (VC_THREAD !! (board, num)).__setitem__ vt x
 
     # ::         -> {str: {str: str}}
-    # :: str int -> Thread
+    # :: str int -> Post
+    # :: str int -> Either Thread Tree
     'boards',           -> RP_CATMAP
-    'thread', board num -> RP_TREES !! board !! num
+    'post',   board num -> RP_POSTS !! board !! num
+    'thread', board num ->
+      th = RP_TREES !! board !! num
+      th :: Tree => raise KeyError
+      th
 
     # Fetch a list of threads on a board.
     # Also returns the title of the board and the number of pages.
@@ -79,7 +99,7 @@ commands = data ->
         otherwise =>
           RP_COUNT !! name = 0
           RP_BOARD !! name = Board name title category list!
-          RP_POST  !! name = dict!
+          RP_POSTS !! name = dict!
           RP_TREES !! name = dict!
       RP_CATMAP !! category = RP_CATMAP.get category dict!
       RP_CATMAP !! category !! name = title
@@ -96,11 +116,13 @@ commands = data ->
       thread = Thread root list! list! (IntRef 0)
 
       boardo.threads.insert 0 thread
-      config.THREADS_PER_BOARD < len boardo.threads => boardo.threads.pop -1
+      config.THREADS_PER_BOARD < len boardo.threads =>
+        cn = boardo.threads.pop -1
+        post_cleanup board cn.root.id
 
       VC_BOARD.pop board None  # All pages are invalid now.
       RP_TREES !! board !! rootid = thread
-      RP_POST  !! board !! rootid = root
+      RP_POSTS !! board !! rootid = root
       rootid
 
     # Create a new reply, return its ID.
@@ -109,7 +131,7 @@ commands = data ->
     #
     'post_create', board parent title sage text files ->
       boardobj  = RP_BOARD !! board
-      parentobj = RP_POST  !! board !! parent
+      parentobj = RP_POSTS !! board !! parent
       treeobj   = RP_TREES !! board !! parent
       threadobj = RP_TREES !! board !! parentobj.thread
 
@@ -121,7 +143,7 @@ commands = data ->
       postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now!
       curtree = Tree postobj list!
 
-      RP_POST  !! board !! postid = postobj
+      RP_POSTS !! board !! postid = postobj
       RP_TREES !! board !! postid = curtree
       treeobj.replies.append curtree
       threadobj.latest.append postobj
@@ -137,3 +159,27 @@ commands = data ->
       VC_BOARD.pop   board                  None
       VC_THREAD.pop (board, postobj.thread) None
       postid
+
+    # :: str -> ()
+    'board_remove', name ->
+      board = RP_BOARD.pop name
+      for p in (RP_POSTS !! name).values! => remove_uploads p
+      RP_CATMAP !! board.category !!~ name
+      RP_CATMAP !! board.category or RP_CATMAP !!~ board.category
+      RP_POSTS !!~ name
+      RP_TREES !!~ name
+      RP_COUNT !!~ name
+      VC_BOARD.pop name None
+      VC_THREAD.clear!
+
+    # :: str int -> ()
+    'post_remove', board num ->
+      curtree = RP_TREES !! board !! num
+      if curtree :: Thread => (RP_BOARD !! board).threads.remove curtree
+         otherwise =>
+           treeobj = RP_TREES !! board !! curtree.root.parent
+           treeobj.replies.remove curtree
+
+      post_cleanup board num
+      VC_BOARD.pop   board                       None
+      VC_THREAD.pop (board, curtree.root.thread) None
