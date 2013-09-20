@@ -27,11 +27,12 @@ pre_upload = title text files ->
   config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
 
   list xs where xs = None where for f in files => if f.filename =>
-    yield (str (int time!) + '.full.' + uuid4!.hex, if
-      f.mimetype.startswith 'image/' => str (int time!) + '.min.' + uuid4!.hex
-      # Can't downscale that, have to use a FreeDesktop icon.
-      # Sadly, icon loader is not implemented yet.
-      otherwise => raise Exception)
+    yield $ tuple'
+      str (int time!) + '.full.' + uuid4!.hex
+      if f.mimetype.startswith 'image/' => str (int time!) + '.min.' + uuid4!.hex
+         # Can't downscale that, will use a glyphicon instead.
+         otherwise => None
+      f.mimetype
 
 
 post_upload = files fnames ->
@@ -40,14 +41,13 @@ post_upload = files fnames ->
     post_upload :: [File] [(str, str)] -> ()
 
   '''
-  for (file, (fn, tn)) in zip (filter (x -> x.filename) files) fnames =>
-    ftg = os.path.join config.UPLOAD_DIR fn
-    ttg = os.path.join config.UPLOAD_DIR tn
-
-    file.save ftg
-    file.mimetype.startswith 'image/' => except
-      err => Popen $ list' 'convert' ftg '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) ttg
-      err => None
+  for (file, (fn, tn, *_)) in zip (filter (x -> x.filename) files) fnames =>
+    fp = os.path.join config.UPLOAD_DIR fn
+    file.save fp
+    file.mimetype.startswith 'image/' =>
+      tp = os.path.join config.UPLOAD_DIR tn
+      except e => Popen $ list' 'convert' fp '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) tp
+             e => None
 
 
 root = ->

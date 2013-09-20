@@ -15,10 +15,10 @@
   </div>
 
   <div class="post-content clearfix">
-    {% for (fn, thumb) in p.files %}
+    {% for file in p.files %}
       <div class="post-attach pull-left">
-        <a href="/static/upload/{{ fn }}">
-          <img class="media-object" src="/static/upload/{{ thumb }}" />
+        <a href="/static/upload/{{ file[0] }}">
+          <img class="media-object" src="/static/upload/{{ file[1] }}" />
         </a>
       </div>
     {% endfor %}
