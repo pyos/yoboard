@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}
+  {% if not hascode %}
+    {{ err.__class__.__name__ }}:
+  {% endif %}
+  {{ err }}
+{% endblock %}
+
+
+{% block content %}
+  ...
+{% endblock %}

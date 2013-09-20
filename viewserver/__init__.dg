@@ -1,4 +1,7 @@
 import '/flask/Flask'
+import '/flask/render_template'
+import '/werkzeug/exceptions/HTTPException'
+
 import '../config'
 import '../database/picklerpc/Client'
 
@@ -8,3 +11,10 @@ app.before_first_request $ -> data.reconnect
 app.register_blueprint   $ import 'html/mod'
 #app.register_blueprint  $ import 'json/mod'
 #app.register_blueprint  $ import 'admin/mod'
+
+app.config !! 'TRAP_HTTP_EXCEPTIONS' = True
+app.register_error_handler Exception $ err ->
+  hascode = err :: HTTPException
+  render_template 'error.html' e: err hascode: hascode config: config boards: dict!, if
+    hascode   => err.code
+    otherwise => 500
