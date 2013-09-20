@@ -1,8 +1,7 @@
 {% macro post(p, list_mode) %}
-{% set _thread = p.thread or p.id %}
 <div class="post media {% if p.parent == 0 %}post-original{% else %}post-reply{% endif %}" id="{{ p.id }}">
   <div class="post-header media-heading">
-    <a href="{{ url_for('html.thread_redirect', board=board, thread=_thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
+    <a href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
     {% if p.title %}
       <span class="post-title">{{ p.title }}</span>
     {% endif %}
@@ -25,8 +24,8 @@
     {% endfor %}
 
     <div class="post-body media-body">
-      {% if list_mode and p.parent != p.thread %}
-        <a class="post-parent post-anchor" href="{{ url_for('html.thread_redirect', board=board, thread=_thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
+      {% if list_mode and p.parent and p.parent != p.thread %}
+        <a class="post-parent post-anchor" href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
       {% endif %}
 
       {{ p.text|safe }}
@@ -34,14 +33,13 @@
   </div>
 
   <div class="collapse post-form" id="post-form-{{ p.id }}">
-    {{ post_form(url_for('html.thread_redirect', board=board, thread=_thread), _thread, p.id) }}
+    {{ post_form(url_for('html.thread_redirect', board=board, thread=p.thread), p.id) }}
   </div>
 </div>
 {% endmacro %}
 
-{% macro post_form(url, thread, parent) %}
+{% macro post_form(url, parent) %}
 <form method="post" role="form" enctype="multipart/form-data" action="{{ url }}">
-  <input type="hidden" name="thread" value="{{ thread }}" />
   <input type="hidden" name="parent" value="{{ parent }}" />
 
   <div class="input-group">
@@ -61,7 +59,7 @@
   </div>
 
   <div class="input-group">
-    <input type="submit" value="{% if thread == 0 %}Создать тред{% else %}Ответить{% endif %}" />
+    <input type="submit" value="{% if parent %}Ответить{% else %}Создать тред{% endif %}" />
   </div>
 </form>
 {% endmacro %}

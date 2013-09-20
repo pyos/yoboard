@@ -18,8 +18,8 @@ commands = data ->
   RP_COUNT  = data !! 'ids'       # :: {str: int}
   RP_BOARD  = data !! 'boards'    # :: {str: Board}
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
-  RP_THREAD = data !! 'threads'   # :: {str: {int: Thread}}
   RP_POST   = data !! 'posts'     # :: {str: {int: Post}}
+  RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
   # Volatile cache containers.
   # These are in the database because that
   #   1. allows flask workers to share cache;
@@ -46,7 +46,7 @@ commands = data ->
     # ::         -> {str: {str: str}}
     # :: str int -> Thread
     'boards',           -> RP_CATMAP
-    'thread', board num -> RP_THREAD !! board !! num
+    'thread', board num -> RP_TREES !! board !! num
 
     # Fetch a list of threads on a board.
     # Also returns the title of the board and the number of pages.
@@ -77,10 +77,10 @@ commands = data ->
           RP_BOARD  !! name = Board name title category old.threads
           RP_CATMAP !! old.category !!~ name
         otherwise =>
-          RP_COUNT  !! name = 0
-          RP_BOARD  !! name = Board name title category list!
-          RP_POST   !! name = dict!
-          RP_THREAD !! name = dict!
+          RP_COUNT !! name = 0
+          RP_BOARD !! name = Board name title category list!
+          RP_POST  !! name = dict!
+          RP_TREES !! name = dict!
       RP_CATMAP !! category = RP_CATMAP.get category dict!
       RP_CATMAP !! category !! name = title
       None
@@ -92,15 +92,15 @@ commands = data ->
     'thread_create', board title text files ->
       boardo = RP_BOARD !! board
       rootid = RP_COUNT !! board += 1
-      root   = Post rootid title False (markup.parse text) files 0 0 datetime.now!
+      root   = Post rootid title False (markup.parse text) files rootid 0 datetime.now!
       thread = Thread root list! list! (IntRef 0)
 
       boardo.threads.insert 0 thread
       config.THREADS_PER_BOARD < len boardo.threads => boardo.threads.pop -1
 
       VC_BOARD.pop board None  # All pages are invalid now.
-      RP_THREAD !! board !! root.id = thread
-      RP_POST   !! board !! root.id = root
+      RP_TREES !! board !! rootid = thread
+      RP_POST  !! board !! rootid = root
       rootid
 
     # Create a new reply, return its ID.
@@ -108,53 +108,32 @@ commands = data ->
     # :: str int str bool str [(str, str)] -> int
     #
     'post_create', board parent title sage text files ->
-      # First, we check `board` and `parent`.
-      # If either of these raises a KeyError, one of the
-      # values is completely invalid.
-      f_board  = RP_BOARD  !! board
-      f_parent = RP_POST   !! board !! parent
+      boardobj  = RP_BOARD !! board
+      parentobj = RP_POST  !! board !! parent
+      treeobj   = RP_TREES !! board !! parent
+      threadobj = RP_TREES !! board !! parentobj.thread
 
-      # Second, we trace the parenting chain to its origin.
-      # We need that info to descend into the correct tree.
-      s_parents  = deque!
-      s_toplevel = f_parent
-      while s_toplevel.parent =>
-        s_parents.append s_toplevel.id
-        s_toplevel = RP_POST !! board !! s_toplevel.parent
+      threadlen = len threadobj.latest + threadobj.skipped.value
+      threadlen >= config.POSTS_UNTIL_AUTOSAGE => sage = True
+      threadlen >= config.POSTS_PER_THREAD     => raise OverflowError
 
-      # Third, we check the thread's constraints.
-      t_thread = RP_THREAD !! board !! s_toplevel.id
-      t_length = len t_thread.latest + t_thread.skipped.value
-      t_length >= config.POSTS_UNTIL_AUTOSAGE => sage = True
-      t_length >= config.POSTS_PER_THREAD     => raise OverflowError
+      postid  = RP_COUNT !! board += 1
+      postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now!
+      curtree = Tree postobj list!
 
-      # Fourth, we commence the aforementioned descent into the tree.
-      # The trees are, unfortunately, ordered by root ID.
-      # That would allow us to use binary search, if it wasn't that cumbersome.
-      f_tree = t_thread
-      while s_parents =>
-        f_pid  = s_parents.pop!
-        f_tree = next (None where for t in f_tree.replies => if t.root.id == f_pid => yield t)
-  
-      # From this point on we cannot afford to bail out.
-      # Not that we need to.
-      q_id  = RP_COUNT !! board += 1
-      q_obj = Post q_id title sage (markup.parse text) files s_toplevel.id parent datetime.now!
-      RP_POST !! board !! q_id = q_obj
+      RP_POST  !! board !! postid = postobj
+      RP_TREES !! board !! postid = curtree
+      treeobj.replies.append curtree
+      threadobj.latest.append postobj
 
-      f_tree.replies.append $ Tree q_obj list!
-      t_thread.latest.append q_obj
-
-      len t_thread.latest > config.POSTS_ON_BOARD_PAGE =>
-        t_thread.latest.pop 0
-        t_thread.skipped.value += 1
+      len threadobj.latest > config.POSTS_ON_BOARD_PAGE =>
+        threadobj.latest.pop 0
+        threadobj.skipped.value += 1
 
       not sage =>
-        q_index = next (None where for (i, t) in enumerate f_board.threads =>
-          if t.root.id == s_toplevel.id => yield i)
-        f_board.threads !!~ q_index
-        f_board.threads.insert 0 t_thread
+        boardobj.threads.remove   threadobj
+        boardobj.threads.insert 0 threadobj
 
-      VC_BOARD.pop   board                 None
-      VC_THREAD.pop (board, s_toplevel.id) None
-      q_id
+      VC_BOARD.pop   board                  None
+      VC_THREAD.pop (board, postobj.thread) None
+      postid

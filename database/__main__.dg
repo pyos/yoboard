@@ -18,7 +18,7 @@ data = if
     ids:      dict!
     boards:   dict!
     boardmap: dict!
-    threads:  dict!
+    trees:    dict!
     posts:    dict!
 
 ### 3. Persistence.
