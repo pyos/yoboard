@@ -12,12 +12,10 @@ import 'data'
 import 'config'
 
 
-check_post = title text files fnames ->
-  '''Ensure that a post matches certain conditions.
+pre_upload = title text files ->
+  '''Ensure that a post is valid & make a list of safe filenames.
 
-    If not, a 400 Bad Request is returned.
-    Note that it does not specify a message; the client
-    should double-check the data before sending it.
+    pre_upload :: str str [File] -> [(str, str)]
 
   '''
   config.NOT_EMPTY and not (text or files)   => abort 400
@@ -26,39 +24,27 @@ check_post = title text files fnames ->
   config.MAX_TEXT_LENGTH < len text          => abort 400
   config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
 
+  list xs where xs = None where for f in files => if f.filename =>
+    fn  = uuid4!.hex
+    ext = if '.' in f.filename => '.' + f.filename.rpartition '.' !! 2
+             otherwise         => ''
 
-pre_upload = files ->
-  '''Generate a list of safe filenames for uploads.
-
-    pre_upload :: [File] -> [(str, str)]
-
-  '''
-  list xs where xs = None where
-    for f in files !! slice None => if
-      f.content_length == 0 and f.filename == '' =>
-        # Flask has a tendency to insert that if no files were submitted.
-        files.remove f
-      otherwise =>
-        fn  = uuid4!.hex
-        ext = if '.' in f.filename => '.' + f.filename.rpartition '.' !! 2
-                 otherwise         => ''
-
-        yield (fn + ext, if
-          # TODO: check if imagemagick is installed.
-          f.mimetype.startswith 'image/' => fn + '.thumb' + ext
-          # Can't downscale that, have to use a FreeDesktop icon.
-          # Sadly, icon loader is not implemented yet.
-          otherwise => raise Exception
-        )
+    yield (fn + ext, if
+      # TODO: check if imagemagick is installed.
+      f.mimetype.startswith 'image/' => fn + '.thumb' + ext
+      # Can't downscale that, have to use a FreeDesktop icon.
+      # Sadly, icon loader is not implemented yet.
+      otherwise => raise Exception
+    )
 
 
-post_upload = fpairs ->
+post_upload = files fnames ->
   '''Store the files in a local filesystem & generate thumbnails.
 
-    post_upload :: [(File, (str, str))] -> ()
+    post_upload :: [File] [(str, str)] -> ()
 
   '''
-  for (file, (fn, tn)) in fpairs =>
+  for (file, (fn, tn)) in zip (filter (x -> x.filename) files) fnames =>
     ftg = os.path.join config.UPLOAD_DIR fn
     ttg = os.path.join config.UPLOAD_DIR tn
 
@@ -71,11 +57,6 @@ post_upload = fpairs ->
 
 
 root = ->
-  '''Root directory of the module.
-
-    No options.
-
-  '''
   render_template 'base.html'
     board: ''
     config: config
@@ -83,11 +64,6 @@ root = ->
 
 
 board = board page: 0 ->
-  '''Listing of threads on a board.
-
-    :param board: alphanumeric ID of the board.
-
-  '''
   data.get_cached_board board page or
     tt, bd, pn = except err => data.board board page
                         err :: KeyError => abort 404
@@ -106,45 +82,24 @@ board = board page: 0 ->
 thread_create = board ->
   '''Make a new thread.
 
-    :param board: alphanumeric ID of the board.
-
     field `title`:: a short summary of the thread.
     field `text`::  initial message.
     field `file`::  any number of attachments.
 
   '''
-  check_post
+  fnames = pre_upload
     title  = request.form.get      'title' ''
     text   = request.form.get      'text'  ''
     files  = request.files.getlist 'file'
-    fnames = pre_upload files
-  thread = except
-    err => data.thread_create board title text fnames
-    err :: KeyError => abort 404
-  post_upload $ zip files fnames
+
+  except err => thread = data.thread_create board title text fnames
+         err :: KeyError => abort 404
+         err is None     => post_upload files fnames
   redirect $ url_for 'html.thread_redirect' board: board thread: thread
-
-
-thread_redirect = board thread ->
-  '''Redirect to an appropriate thread view.
-
-    :param board: alphanumeric ID of the board.
-    :param thread: numeric ID of the thread.
-
-    cookie `view_type`:: type of the view to use (`tree` of `list`).
-
-  '''
-  view = request.cookies.get('view_type')
-
-  if view == 'tree' => redirect $ url_for 'html.thread_tree' board: board thread: thread
-     otherwise      => redirect $ url_for 'html.thread_list' board: board thread: thread
 
 
 thread_reply = board thread ->
   '''Make a new message.
-
-    :param board: alphanumeric ID of the board.
-    :param thread: numeric ID of the thread.
 
     field `parent`:: the message to reply to.
     field `title`::  a short summary of the message.
@@ -155,27 +110,27 @@ thread_reply = board thread ->
   '''
   parent = int  $ request.form.get 'parent' thread
   sage   = bool $ request.form.get 'sage'   False
-  check_post
+  fnames = pre_upload
     title  = request.form.get      'title' ''
     text   = request.form.get      'text'  ''
     files  = request.files.getlist 'file'
-    fnames = pre_upload files
 
-  except
-    e => data.post_create board parent title sage text fnames
-    e :: KeyError      => abort 404
-    e :: OverflowError => abort 403
-  post_upload $ zip files fnames
+  except e => data.post_create board parent title sage text fnames
+         e :: KeyError      => abort 404
+         e :: OverflowError => abort 403
+         e is None          => post_upload files fnames
   redirect $ url_for 'html.thread_redirect' board: board thread: thread
 
 
+thread_redirect = board thread ->
+  view = request.cookies.get 'view_type'
+
+  redirect $ url_for board: board thread: thread $ if
+    view == 'tree' => 'html.thread_tree'
+    otherwise      => 'html.thread_list'
+
+
 thread_tree = board thread ->
-  '''View a thread in tree mode.
-
-    :param board: alphanumeric ID of the board.
-    :param thread: numeric ID of the thread.
-
-  '''
   data.get_cached_thread board thread 0 or
     th = except err => data.thread board thread
                 err :: KeyError => abort 404
@@ -189,12 +144,6 @@ thread_tree = board thread ->
 
 
 thread_list = board thread ->
-  '''View a thread in list mode.
-
-    :param board: alphanumeric ID of the board.
-    :param thread: numeric ID of the thread.
-
-  '''
   data.get_cached_thread board thread 1 or
     as_list = None
     as_list = t ->
@@ -217,7 +166,7 @@ mod.add_url_rule '/'                           None root
 mod.add_url_rule '/<board>/'                   None board
 mod.add_url_rule '/<board>/p<int:page>/'       None board
 mod.add_url_rule '/<board>/'                   None thread_create methods: (list' 'POST')
+mod.add_url_rule '/<board>/<int:thread>/'      None thread_reply  methods: (list' 'POST')
 mod.add_url_rule '/<board>/<int:thread>/'      None thread_redirect
-mod.add_url_rule '/<board>/<int:thread>/'      None thread_reply methods: (list' 'POST')
 mod.add_url_rule '/<board>/<int:thread>/tree/' None thread_tree
 mod.add_url_rule '/<board>/<int:thread>/list/' None thread_list
