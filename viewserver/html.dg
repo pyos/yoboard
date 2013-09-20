@@ -12,7 +12,7 @@ import 'data'
 import 'config'
 
 
-check_post = title text files ->
+check_post = title text files fnames ->
   '''Ensure that a post matches certain conditions.
 
     If not, a 400 Bad Request is returned.
@@ -20,6 +20,7 @@ check_post = title text files ->
     should double-check the data before sending it.
 
   '''
+  config.NOT_EMPTY and not (text or files)   => abort 400
   config.MAX_UPLOADS < len files             => abort 400
   config.MIN_UPLOADS > len files             => abort 400
   config.MAX_TITLE_LENGTH < len title        => abort 400
@@ -116,12 +117,10 @@ thread_create = board ->
 
   '''
   check_post
-    title = request.form.get      'title' ''
-    text  = request.form.get      'text'  ''
-    files = request.files.getlist 'file'
-  # A thread cannot be rejected by the database.
-  # Still, we need to account for random exceptions.
-  fnames = pre_upload files
+    title  = request.form.get      'title' ''
+    text   = request.form.get      'text'  ''
+    files  = request.files.getlist 'file'
+    fnames = pre_upload files
   thread = except
     err => data.thread_create board title text fnames
     err :: KeyError => abort 404
@@ -163,9 +162,8 @@ thread_reply = board thread ->
     title  = request.form.get      'title' ''
     text   = request.form.get      'text'  ''
     files  = request.files.getlist 'file'
-  # This time the database may reject the post
-  # if the thread is too big.
-  fnames = pre_upload files
+    fnames = pre_upload files
+
   except
     e => data.post_create board parent title sage text fnames
     e :: KeyError      => abort 404

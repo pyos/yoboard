@@ -66,6 +66,7 @@ THUMBNAIL_SIZE = 128
 # at the cost of database access latency.
 MAX_TITLE_LENGTH = 100
 MAX_TITLE_LINES  = 1
-MIN_TEXT_LENGTH  = 1
+MIN_TEXT_LENGTH  = 0
 MAX_TEXT_LENGTH  = 3000
 MAX_TEXT_LINES   = 300
+NOT_EMPTY        = True  # a post must have some text and/or files
