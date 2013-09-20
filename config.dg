@@ -51,12 +51,6 @@ POSTS_UNTIL_AUTOSAGE = 500
 # though that'd be considered a poor UX.
 POSTS_PER_THREAD = POSTS_UNTIL_AUTOSAGE + 50
 
-# Min. and max. no files that may be attached to a message.
-# Note that there's no limit on the size of uploaded files;
-# use nginx as a proxy for that (it can limit the size of a request.)
-MIN_UPLOADS = 0
-MAX_UPLOADS = 5
-
 # Size of an image preview on board pages.
 # The larger this number is, the more obvious should be the consequence.
 THUMBNAIL_SIZE = 128
@@ -65,8 +59,9 @@ THUMBNAIL_SIZE = 128
 # As with threads, large messages allow for more active discussions
 # at the cost of database access latency.
 MAX_TITLE_LENGTH = 100
-MAX_TITLE_LINES  = 1
-MIN_TEXT_LENGTH  = 0
 MAX_TEXT_LENGTH  = 3000
 MAX_TEXT_LINES   = 300
+# Note that there's no limit on the size of uploaded files;
+# use nginx as a proxy for that (it can limit the size of a request.)
+MAX_UPLOADS      = 5
 NOT_EMPTY        = True  # a post must have some text and/or files

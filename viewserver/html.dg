@@ -22,10 +22,7 @@ check_post = title text files fnames ->
   '''
   config.NOT_EMPTY and not (text or files)   => abort 400
   config.MAX_UPLOADS < len files             => abort 400
-  config.MIN_UPLOADS > len files             => abort 400
   config.MAX_TITLE_LENGTH < len title        => abort 400
-  config.MAX_TITLE_LINES <= title.count '\n' => abort 400
-  config.MIN_TEXT_LENGTH > len text          => abort 400
   config.MAX_TEXT_LENGTH < len text          => abort 400
   config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
 
