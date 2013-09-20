@@ -1,6 +1,5 @@
 import '/flask/Flask'
 import '/flask/render_template'
-import '/werkzeug/exceptions/HTTPException'
 
 import '../config'
 import '../database/picklerpc/Client'
@@ -12,9 +11,20 @@ app.register_blueprint   $ import 'html/mod'
 #app.register_blueprint  $ import 'json/mod'
 #app.register_blueprint  $ import 'admin/mod'
 
-app.config !! 'TRAP_HTTP_EXCEPTIONS' = True
-app.register_error_handler Exception $ err ->
-  hascode = err :: HTTPException
-  render_template 'error.html' e: err hascode: hascode config: config boards: dict!, if
-    hascode   => err.code
-    otherwise => 500
+import '/os/path'
+import '/traceback/extract_tb'
+import '/werkzeug/exceptions/HTTPException'
+
+
+onerror = code -> err -> page, code where page = render_template 'error.html'
+  err:        err
+  hascode:   (err :: HTTPException)
+  traceback: (map    ((fn, a, b, c) -> path.relpath fn config.ROOT_DIR, a, b, c)
+              filter ((fn, _, _, _) -> fn.startswith config.ROOT_DIR) $ extract_tb err.__traceback__)
+  config:     config
+  boards:     dict!
+
+app.register_error_handler 400 $ onerror 400
+app.register_error_handler 403 $ onerror 403
+app.register_error_handler 404 $ onerror 404
+app.register_error_handler 500 $ onerror 500

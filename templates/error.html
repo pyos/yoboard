@@ -1,12 +1,22 @@
 {% extends "base.html" %}
 {% block title %}
-  {% if not hascode %}
-    {{ err.__class__.__name__ }}:
+  {% if hascode %}
+    {{ err }}
+  {% else %}
+    500: Internal Server Error
   {% endif %}
-  {{ err }}
 {% endblock %}
 
 
 {% block content %}
-  ...
+  <samp class="highlight">
+    {% if not hascode %}
+    <span class="err">{{ err.__class__.__name__ }}</span>: {{ err }}<br />
+    {% endif %}
+    {% for (filename, lineno, coname, line) in traceback %}
+    <span class="gh">in</span> <span class="sc">{{ filename }}</span>
+    <span class="gh">line</span> <span class="mi">{{ lineno }}</span>,
+    `{{ coname }}`: <span class="go">{{ line }}</span><br />
+    {% endfor %}
+  </samp>
 {% endblock %}
