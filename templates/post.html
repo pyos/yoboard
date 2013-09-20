@@ -18,7 +18,11 @@
     {% for file in p.files %}
       <div class="post-attach pull-left">
         <a href="/static/upload/{{ file[0] }}">
-          <img class="media-object" src="/static/upload/{{ file[1] }}" />
+          {% if file[1] %}
+            <img class="media-object" src="/static/upload/{{ file[1] }}" />
+          {% else %}
+            <span class="media-object" data-media-mime="{{ file[2] }}"></span>
+          {% endif %}
         </a>
       </div>
     {% endfor %}

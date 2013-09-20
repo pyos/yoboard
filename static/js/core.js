@@ -29,4 +29,42 @@ $(function () {
   $(".post-reply-btn").click(function () {
     $(".post-form:not(.collapse):not(#board-form):not(" + $(this).attr("data-target") + ")").collapse("hide");
   });
+
+  var mimes = {
+    "application": ["list-alt", "executable"]
+  , "application/ecmascript": ["list-alt", "JS source"]
+  , "application/gzip": ["compressed", "gz archive"]
+  , "application/javascript": ["list-alt", "JS source"]
+  , "application/json": ["list-alt", "JSON data"]
+  , "application/msword": ["align-justify", "Word document"]
+  , "application/octet-stream": ["file", "unknown type"]
+  , "application/ogg": ["volume-up", "OGG media"]
+  , "application/pdf": ["align-justify", "PDF"]
+  , "application/postscript": ["align-justify", "PostScript"]
+  , "application/rtf": ["align-justify", "rich text"]
+  , "application/vnd.ms-word": ["align-justify", "Word document"]
+  , "application/vnd.ms-excel": ["align-justify", "spreadsheet"]
+  , "application/vnd.ms-powerpoint": ["align-justify", "presentation"]
+  , "application/x-7z-compressed": ["compressed", "7z archive"]
+  , "application/x-rar-compressed": ["compressed", "Roshal ARchive"]
+  , "application/x-tar-compressed": ["compressed", "Tape ARchive"]
+  , "application/zip": ["compressed", "zip archive"]
+  , "audio": ["volume-up", "audio"]
+  , "image": ["picture", "image"]
+  , "text": ["align-justify", "plain text"]
+  , "text/css": ["list-alt", "CSS"]
+  , "text/html": ["list-alt", "HTML document"]
+  , "text/javascript": ["list-alt", "JS source"]
+  , "text/xml": ["list-alt", "XML data"]
+  , "video": ["film", "video"]
+  };
+
+  $("[data-media-mime]").each(function (num) {
+    var self = $(this);
+    var type = self.attr("data-media-mime");
+    var data = mimes[type] || mimes[type.split("/")[0]] || ["file", "unknown type"];
+    $("<span />").addClass("glyphicon")
+                 .addClass("glyphicon-" + data[0])
+                 .prependTo(self.text(data[1]));
+  });
 });
