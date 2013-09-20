@@ -1,12 +1,14 @@
 import '/os'
+import '/time/time'
 import '/uuid/uuid4'
+import '/subprocess/Popen'
+
 import '/flask/Blueprint'
 import '/flask/abort'
 import '/flask/redirect'
 import '/flask/request'
 import '/flask/render_template'
 import '/flask/url_for'
-import '/subprocess/Popen'
 
 import 'data'
 import 'config'
@@ -19,23 +21,17 @@ pre_upload = title text files ->
 
   '''
   config.NOT_EMPTY and not (text or files)   => abort 400
-  config.MAX_UPLOADS < len files             => abort 400
+  config.MAX_UPLOADS      < len files        => abort 400
   config.MAX_TITLE_LENGTH < len title        => abort 400
-  config.MAX_TEXT_LENGTH < len text          => abort 400
+  config.MAX_TEXT_LENGTH  < len text         => abort 400
   config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
 
   list xs where xs = None where for f in files => if f.filename =>
-    fn  = uuid4!.hex
-    ext = if '.' in f.filename => '.' + f.filename.rpartition '.' !! 2
-             otherwise         => ''
-
-    yield (fn + ext, if
-      # TODO: check if imagemagick is installed.
-      f.mimetype.startswith 'image/' => fn + '.thumb' + ext
+    yield (str (int time!) + '.full.' + uuid4!.hex, if
+      f.mimetype.startswith 'image/' => str (int time!) + '.min.' + uuid4!.hex
       # Can't downscale that, have to use a FreeDesktop icon.
       # Sadly, icon loader is not implemented yet.
-      otherwise => raise Exception
-    )
+      otherwise => raise Exception)
 
 
 post_upload = files fnames ->
@@ -49,11 +45,9 @@ post_upload = files fnames ->
     ttg = os.path.join config.UPLOAD_DIR tn
 
     file.save ftg
-    # TODO: check if ...
     file.mimetype.startswith 'image/' => except
-      err => Popen (list' 'convert' ftg '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) ttg)
-      err => # Can't afford to bail out here.
-        app.logger.warning 'failed to resize %s: %s: %s' fn err.__class__.__name__ err 
+      err => Popen $ list' 'convert' ftg '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) ttg
+      err => None
 
 
 root = ->
