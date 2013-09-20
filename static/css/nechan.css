@@ -86,7 +86,8 @@ a.glyphicon,
 
 .post-body {
   max-height: 200px;
-  overflow: hidden;
+  overflow-y: hidden;
+  word-wrap: break-word;
 }
 
 .board-level .post-reply .post-body {
