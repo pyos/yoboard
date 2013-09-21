@@ -25,8 +25,8 @@ DATABASE = path.join STORAGE_DIR 'data-bundle'
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for database connections.
-CLIENT_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
-SERVER_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
+CLIENT_ADDRESS = socket.AF_INET, ('127.0.0.1', 9105)
+SERVER_ADDRESS = socket.AF_INET, ('127.0.0.1', 9105)
 
 # Maximum no. of threads on a single page and on a whole board.
 # Once a thread is pushed off a board, it is automatically removed.
