@@ -14,16 +14,12 @@ yoboard = yoba & imageboard where
   * [gunicorn](http://gunicorn.org/) to load-balance stuff.
   * [imagemagick](http://www.imagemagick.org/) to downscale uploaded stuff.
 
-### Running the web server
+### Usage
 
   1. Tweak `config.dg`.
   2. Create directories pointed to by `STORAGE_DIR` and `UPLOAD_DIR`.
-  3. `gunicorn yoboard.viewserver:app`.
-
-### Running the database
-
-  1. Tweak `config.dg`.
-  2. `python -m yoboard.database`.
+  3. `python -m yoboard.database &`.
+  4. `gunicorn yoboard.viewserver:app`.
 
 #### Wait, what database is THAT?
 
