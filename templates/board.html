@@ -8,14 +8,12 @@
 {% block options %}
   {% if page %}
     <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
-  {% else %}
-    <li class="disabled"><a>&laquo;</a></li>
   {% endif %}
-  <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
+  {% if pagenum > 1 %}
+    <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
+  {% endif %}
   {% if page < pagenum - 1 %}
     <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
-  {% else %}
-    <li class="disabled"><a>&raquo;</a></li>
   {% endif %}
 {% endblock %}
 
