@@ -20,6 +20,7 @@ pre_upload = title text files ->
     pre_upload :: str str [File] -> [(str, str)]
 
   '''
+  if len files == 1 and (head files).filename == '' => files.pop 0
   config.NOT_EMPTY and not (text or files)   => abort 400
   config.MAX_UPLOADS      < len files        => abort 400
   config.MAX_TITLE_LENGTH < len title        => abort 400
