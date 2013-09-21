@@ -11,12 +11,9 @@ UPLOAD_DIR   = path.join STORAGE_DIR 'upload'
 # This file should be in a writable location.
 # The database will automatically dump stuff into this file
 # at regular intervals, as well as on shutdown.
-# Note that neglect to sync the hard drives between a save
-# and a power failure may lead to complete data loss.
 DATABASE = path.join STORAGE_DIR 'data-bundle'
 
-# This is the interval after which to dump data, as noted above.
-# (In seconds.) Once again, don't forget to sync the write buffers.
+# This is the interval after which to dump data, as noted above. (In seconds.)
 # Also, making a backup of the database is probably a good idea.
 AUTOSYNC_INTERVAL = 15 * 60
 
@@ -24,44 +21,33 @@ AUTOSYNC_INTERVAL = 15 * 60
 CLIENT_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
 SERVER_ADDRESS = socket.AF_UNIX, socket.SOCK_STREAM, path.join STORAGE_DIR 'data-socket'
 
-# Maximum no. of threads on a single page.
-# Lowering this number improves performance for a single request
-# at the cost of requiring more requests to see the whole board.
-THREADS_PER_PAGE = 10
-
-# Maximum no. of threads on a board.
-# Lowering this number decreases memory footprint and
-# compensates for low `THREADS_PER_PAGE`, but makes
-# wiping easier and increases the likelyhood of losing a thread.
+# Maximum no. of threads on a single page and on a whole board.
+# Once a thread is pushed off a board, it is automatically removed.
+THREADS_PER_PAGE  = 10
 THREADS_PER_BOARD = 10 * THREADS_PER_PAGE
 
 # No. of posts from each thread to display on the board page.
-# Increasing this number gives a better perception of the discussion,
-# but increases data throughput and may harm the UX.
 POSTS_ON_BOARD_PAGE = 4
 
 # No. of posts until the thread no longer floats up.
-# Increasing this number allows for longer discussions without
-# having to reinitiate a thread at the cost of increased
-# memory footpring. Set this to `float "inf"` to disable.
+# Once this number is reached, the thread is doomed to fall
+# off the last page of a board. Set to `float 'inf'` to disable.
 POSTS_UNTIL_AUTOSAGE = 500
 
 # No. of posts until the database rejects all additions to the thread.
-# Note that it can be set to a number lower than `POSTS_UNTIL_AUTOSAGE`,
-# though that'd be considered a poor UX.
+# Note that it can be set to a number lower than `POSTS_UNTIL_AUTOSAGE`.
 POSTS_PER_THREAD = POSTS_UNTIL_AUTOSAGE + 50
 
 # Size of an image preview on board pages.
-# The larger this number is, the more obvious should be the consequence.
+# This number is passed to the `convert` tool, so increasing it
+# is not retroactive.
 THUMBNAIL_SIZE = 128
 
 # Various limits on message sizes.
-# As with threads, large messages allow for more active discussions
-# at the cost of database access latency.
+# Note that there's no limit on the size of uploaded files;
+# use nginx as a proxy for that (it can limit the size of a request.)
 MAX_TITLE_LENGTH = 100
 MAX_TEXT_LENGTH  = 3000
 MAX_TEXT_LINES   = 300
-# Note that there's no limit on the size of uploaded files;
-# use nginx as a proxy for that (it can limit the size of a request.)
 MAX_UPLOADS      = 5
 NOT_EMPTY        = True  # a post must have some text and/or files
