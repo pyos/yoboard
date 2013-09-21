@@ -12,12 +12,18 @@ hr {
 }
 
 .navbar {
-  background: #333;
+  background: #ddd;
+  box-shadow: none;
 }
 
 .navbar .navbar-brand,
 .navbar .navbar-nav > li > a {
-  color: #ddd;
+  color: #555;
+}
+
+
+.navbar .navbar-nav > .disabled > a {
+  color: #888;
 }
 
 .navbar .navbar-brand:hover,
@@ -25,31 +31,31 @@ hr {
 .navbar .navbar-nav > .open > a,
 .navbar .navbar-nav > .open:hover > a,
 .navbar .navbar-nav > .open:focus > a {
-  background-color: #3b3b3b;
-  color: #fff;
+  background-color: #d5d5d5;
+  color: #555;
 }
 
 .navbar .navbar-nav > .active > a,
 .navbar .navbar-nav > .active:hover > a {
-  background-color: #444;
-  color: #fff;
+  background-color: #ccc;
+  color: #555;
 }
 
 @media (max-width: 767px) {
   .navbar .navbar-nav .open .dropdown-menu > .active > a,
   .navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
-    background: #444;
+    background: #ddd;
   }
 
   .navbar .navbar-nav .open .dropdown-menu > li:hover > a {
-    background: #3b3b3b;
+    background: #c5c5c5;
   }
 
   .navbar .navbar-nav .open .dropdown-menu > li > a,
   .navbar .navbar-nav .open .dropdown-menu > li:hover > a,
   .navbar .navbar-nav .open .dropdown-menu > .active > a,
   .navbar .navbar-nav .open .dropdown-menu > .active:hover > a {
-    color: #fff;
+    color: #555;
   }
 }
 
