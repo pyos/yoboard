@@ -1,5 +1,5 @@
 body {
-  margin: 1em;
+  margin: 15px;
 }
 
 a {
@@ -13,7 +13,7 @@ a.glyphicon,
 }
 
 .navbar {
-  margin: -1em -1em 1em -1em;
+  margin: -15px -15px 15px -15px;
   border: none;
   border-radius: 0;
 }
@@ -24,7 +24,7 @@ a.glyphicon,
 }
 
 .input-group {
-  margin: 0.5em 0 0.5em 0;
+  margin: 7px 0 7px 0;
 }
 
 .input-group .form-control,
@@ -34,17 +34,17 @@ a.glyphicon,
 
 .post {
   display: table;
-  margin: 2em 1em 1em 1em;
+  margin: 30px 15px 15px 15px;
 }
 
 .post-missing-notice {
-  margin-left: 1em;  /* must align with .post */
+  margin-left: 15px;  /* must align with .post */
 }
 
 .board-level {
   /* Top-level trees. */
   border-top: 1px solid #999;
-  padding-top: 1em;
+  padding-top: 15px;
 }
 
 .post-view-tree > .post:not(:first-child),
@@ -122,5 +122,5 @@ blockquote p {
 }
 
 .post-attach + .post-body {
-  padding-left: 1em;
+  padding-left: 15px;
 }

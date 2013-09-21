@@ -5,7 +5,7 @@ import '/os/path'
 SITE_NAME = 'Йобач'
 
 # This is displayed above a big image on the index page.
-# Edit /static/nechan-dark.css to replace the image.
+# Edit /static/img/main-image.png to replace the image.
 SITE_TITLE = 'YOBA SLUSHAET VAS'
 
 ROOT_DIR     = path.dirname __file__
