@@ -59,12 +59,24 @@ $(function () {
   , "video": ["film", "video"]
   };
 
-  $("[data-media-mime]").each(function (num) {
-    var self = $(this);
-    var type = self.attr("data-media-mime");
-    var data = mimes[type] || mimes[type.split("/")[0]] || ["file", "unknown type"];
-    $("<span />").addClass("glyphicon")
-                 .addClass("glyphicon-" + data[0])
-                 .prependTo(self.text(data[1]));
+  $(".post").each(function () {
+    var has_prefix = false;
+    var header     = $(this).children(".post-header");
+
+    $("[data-media-mime]", this).each(function (num) {
+      var self = $(this);
+      var type = self.attr("data-media-mime");
+      var link = self.parent().attr("href");
+      var data = mimes[type] || mimes[type.split("/")[0]] || ["file", "unknown type"];
+
+      if (!has_prefix) {
+        has_prefix = true;
+        $("<span />").text(" | Файлы: ").appendTo(header);
+      };
+
+      $("<span />").addClass("glyphicon")
+                   .addClass("glyphicon-" + data[0])
+                   .appendTo($("<a />").attr("href", link).appendTo(header));
+    });
   });
 });
