@@ -7,19 +7,13 @@ yoboard = yoba & imageboard where
      "http://lurkmore.so/images/8/8d/1238521509967.png"
 ```
 
-### Requirements
-
-  * [dg](https://pyos.github.io/dg) to compile stuff.
-  * [Flask](http://flask.pocoo.org/) to run stuff.
-  * [gunicorn](http://gunicorn.org/) to load-balance stuff.
-  * [imagemagick](http://www.imagemagick.org/) to downscale uploaded stuff.
-
 ### Usage
 
-  1. Tweak `config.dg`.
-  2. Create directories pointed to by `STORAGE_DIR` and `UPLOAD_DIR`.
-  3. `python -m yoboard.database &`.
-  4. `gunicorn yoboard.viewserver:app`.
+  1. `pip install -r yoboard/requirements.txt`
+  2. `$EDITOR yoboard/config.dg`
+  3. `python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'`
+  4. `python -m yoboard.database &`
+  5. `gunicorn yoboard.viewserver:app`
 
 #### Wait, what database is THAT?
 
