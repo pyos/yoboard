@@ -1,6 +1,13 @@
 import '/socket'
 import '/os/path'
 
+# This is displayed in the navbar on all pages except for the index.
+SITE_NAME = 'Йобач'
+
+# This is displayed above a big image on the index page.
+# Edit /static/nechan-dark.css to replace the image.
+SITE_TITLE = 'YOBA SLUSHAET VAS'
+
 ROOT_DIR     = path.dirname __file__
 TEMPLATE_DIR = path.join ROOT_DIR    'templates'  # /templates of the repo
 STATIC_DIR   = path.join ROOT_DIR    'static'     # /static of the repo
