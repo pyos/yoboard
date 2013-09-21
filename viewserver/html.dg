@@ -58,7 +58,7 @@ root = ->
 
 
 board = board page: 0 ->
-  data.get_cached_board board page or
+#  data.get_cached_board board page or
     tt, bd, pn = except err => data.board board page
                         err :: KeyError => abort 404
     result = render_template 'board.html'
@@ -124,7 +124,7 @@ thread_redirect = board thread ->
 
 
 thread_render = board thread t template ->
-  data.get_cached_thread board thread t or
+#  data.get_cached_thread board thread t or
     as_list = None
     as_list = t ->
       yield t.root
