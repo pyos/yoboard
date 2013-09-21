@@ -1,8 +1,10 @@
-### 5. SIGTERM to Exception.
+### 5. SIGTERM to exit, SIGUSR1 to force-dump.
 import '/signal/signal'
 import '/signal/SIGTERM'
+import '/signal/SIGUSR1'
 
 signal SIGTERM $ _ _ -> raise KeyboardInterrupt
+signal SIGUSR1 $ _ _ -> save!
 
 ### 4. Data loader.
 import '/os'
@@ -23,12 +25,17 @@ data = if
 
 ### 3. Persistence.
 import '/atexit'
+import '/uuid/uuid4'
 
 save = atexit.register $ ->
   os.fork! == 0 =>
-    with fd = gzip.open (config.DATABASE + '~') 'wb' => pickle.dump data fd
-    os.path.exists config.DATABASE => os.unlink config.DATABASE
-    os.rename (config.DATABASE + '~') config.DATABASE
+    dt = pickle.dumps data
+    fn = config.DATABASE + '.save.' + uuid4!.hex
+    with fd = gzip.open fn 'wb' =>
+      fd.write dt
+      fd.flush!
+      os.fsync fd.fileno!
+    os.rename fn config.DATABASE
     os._exit 0
 
 ### 2. Automatic scheduled dumping.
