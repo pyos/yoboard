@@ -9,11 +9,13 @@ yoboard = yoba & imageboard where
 
 ### Usage
 
-  1. `pip install -r yoboard/requirements.txt`
-  2. `$EDITOR yoboard/config.dg`
-  3. `python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'`
-  4. `python -m yoboard.database &`
-  5. `gunicorn yoboard.viewserver:app`
+```sh
+pip install -r yoboard/requirements.txt`
+$EDITOR yoboard/config.dg`
+python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'`
+python -m yoboard.database &`
+gunicorn yoboard.viewserver:app`
+```
 
 #### Wait, what database is THAT?
 
