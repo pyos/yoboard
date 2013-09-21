@@ -79,4 +79,17 @@ $(function () {
                    .appendTo($("<a />").attr("href", link).appendTo(header));
     });
   });
+
+  $("[type='file']").each(function () {
+    var self = $(this);
+    var reset   = null;
+    var display = self.siblings(".adjacent-file-display");
+    var control = self.siblings(".adjacent-file-control");
+
+    self.change(function () {
+      display.val(self.val().split("\\").pop().split("/").pop());
+    });
+
+    control.click(function () { self.click(); });
+  });
 });
