@@ -24,7 +24,7 @@
             <div class="col-sm-4">
               <h3>{{ car }}</h3>
               <ul class="list-unstyled board-index">
-                {% for bid, bnam in cdr|dictsort(true) %}
+                {% for bid, bnam in cdr|dictsort(false, 'value') %}
                   <li><a href="{{ url_for('html.board', board=bid) }}">{{ bnam }}</a></li>
                 {% endfor %}
               </ul>
