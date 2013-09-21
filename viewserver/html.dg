@@ -51,8 +51,7 @@ post_upload = files fnames ->
 
 
 root = ->
-  render_template 'base.html'
-    board: ''
+  render_template 'root.html'
     config: config
     boards: data.boards!
 
