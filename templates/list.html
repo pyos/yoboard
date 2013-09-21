@@ -3,7 +3,7 @@
 {% from "post.html" import post with context %}
 
 {% block content %}
-  {% for p in posts %}
+  {% for p in posts|sort %}
     {{ post(p, True) }}
   {% endfor %}
 {% endblock %}

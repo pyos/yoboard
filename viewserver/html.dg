@@ -124,35 +124,26 @@ thread_redirect = board thread ->
     otherwise      => 'html.thread_list'
 
 
-thread_tree = board thread ->
-  data.get_cached_thread board thread 0 or
-    th = except err => data.thread board thread
-                err :: KeyError => abort 404
-    result = render_template 'tree.html'
-      this:   th
-      board:  board
-      config: config
-      boards: data.boards!
-    data.set_cached_thread board thread 0 result
-    result
-
-
-thread_list = board thread ->
-  data.get_cached_thread board thread 1 or
+thread_render = board thread t template ->
+  data.get_cached_thread board thread t or
     as_list = None
     as_list = t ->
       yield t.root
       for q in t.replies => yield from: (as_list q)
     th = except err => data.thread board thread
                 err :: KeyError => abort 404
-    result = render_template 'list.html'
+    result = render_template template
       this:   th
-      posts: (sorted $ as_list th)
+      posts: (as_list th)
       board:  board
       config: config
       boards: data.boards!
-    data.set_cached_thread board thread 1 result
+    data.set_cached_thread board thread t result
     result
+
+
+thread_tree = board thread -> thread_render board thread 0 'tree.html'
+thread_list = board thread -> thread_render board thread 1 'list.html'
 
 
 mod = Blueprint 'html' __name__
