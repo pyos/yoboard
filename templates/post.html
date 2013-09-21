@@ -19,7 +19,7 @@
       <div class="post-attach pull-left">
         <a href="{{ url_for('uploads', name=file[0]) }}">
           #: if file[1]
-            <img class="media-object" src="{{ url_for('uploads', name=file[1]) }}" />
+            <img class="media-object" alt="{{ file[2] }}" src="{{ url_for('uploads', name=file[1]) }}" />
           #: else
             <span class="media-object" data-media-mime="{{ file[2] }}"></span>
           #: endif
@@ -47,8 +47,8 @@
   <input type="hidden" name="parent" value="{{ parent }}" />
 
   <div class="input-group">
-    <input type="text" class="form-control" name="title" placeholder="Тема"></td>
-    <label class="input-group-addon" type="checkbox">
+    <input type="text" class="form-control" name="title" placeholder="Тема" />
+    <label class="input-group-addon">
       <input type="checkbox" name="sage" />
       Сажа
     </label>
