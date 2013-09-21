@@ -11,6 +11,12 @@ hr {
   border-color: #222;
 }
 
+#main-image {
+  height: 240px;
+  box-shadow: inset 0 0 10px 10px #050505;
+  background: url(http://lurkmore.so/images/8/8d/1238521509967.png) center top no-repeat;
+}
+
 .navbar {
   background: #222;
   border: none;
