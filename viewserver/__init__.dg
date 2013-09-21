@@ -1,5 +1,6 @@
 import '/flask/Flask'
 import '/flask/render_template'
+import '/flask/send_from_directory'
 
 import '../config'
 import '../database/picklerpc/Client'
@@ -10,6 +11,9 @@ app.before_first_request $ -> data.reconnect
 app.register_blueprint   $ import 'html/mod'
 #app.register_blueprint  $ import 'json/mod'
 #app.register_blueprint  $ import 'admin/mod'
+app.add_url_rule '/static/upload/<path:name>' 'uploads' $ name ->
+  send_from_directory config.UPLOAD_DIR name as_attachment: True
+
 
 import '/os/path'
 import '/traceback/extract_tb'
