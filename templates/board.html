@@ -1,42 +1,42 @@
-{% extends "base.html" %}
-{% from "post.html" import post, post_form with context %}
+#: extends "base.html"
+#: from "post.html" import post, post_form with context
 
-{% block title %}
+#: block title
   {{ title }}
-{% endblock %}
+#: endblock
 
-{% block options %}
-  {% if page %}
+#: block options
+  #: if page
     <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
-  {% endif %}
-  {% if pagenum > 1 %}
+  #: endif
+  #: if pagenum > 1
     <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
-  {% endif %}
-  {% if page < pagenum - 1 %}
+  #: endif
+  #: if page < pagenum - 1
     <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
-  {% endif %}
-{% endblock %}
+  #: endif
+#: endblock
 
-{% block content %}
+#: block content
   <div id="board-reply-form">
     <div class="post-form" id="board-form">
       {{ post_form(url_for('html.thread_create', board=board), 0) }}
     </div>
   </div>
 
-  {% for thread in this %}
+  #: for thread in this
     <div class="post-view-tree board-level">
-      {{ post(thread.root, False) }}
+      {{ post(thread.root, false) }}
 
-      {% if thread.skipped.value %}  
+      #: if thread.skipped.value
         <p class="post-missing-notice">
           Всего {{ thread.skipped.value + thread.latest|length }} постов, из них {{ thread.skipped.value }} пропущен{% if thread.skipped.value > 1 %}о{% endif %}.
         </p>
-      {% endif %}
-  
-      {% for reply in thread.latest %}
-        {{ post(reply, True) }}
-      {% endfor %}
+      #: endif
+
+      #: for reply in thread.latest
+        {{ post(reply, true) }}
+      #: endfor
     </div>
-  {% endfor %}
-{% endblock %}
+  #: endfor
+#: endblock

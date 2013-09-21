@@ -1,36 +1,36 @@
-{% macro post(p, list_mode) %}
+#: macro post(p, list_mode)
 <div class="post media {% if p.parent == 0 %}post-original{% else %}post-reply{% endif %}" id="{{ p.id }}">
   <div class="post-header media-heading">
     <a href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
-    {% if p.title %}
+    #: if p.title
       <span class="post-title">{{ p.title }}</span>
-    {% endif %}
+    #: endif
     <span class="post-timestamp">{{ p.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</span>
-    {% if p.sage %}
+    #: if p.sage
       <span class="post-sage"></span>
-    {% endif %}
+    #: endif
     <a class="glyphicon glyphicon-edit post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"></a>
     <a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Развернуть"></a>
     <a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Свернуть"></a>
   </div>
 
   <div class="post-content clearfix">
-    {% for file in p.files %}
+    #: for file in p.files
       <div class="post-attach pull-left">
         <a href="{{ url_for('uploads', name=file[0]) }}">
-          {% if file[1] %}
+          #: if file[1]
             <img class="media-object" src="{{ url_for('uploads', name=file[1]) }}" />
-          {% else %}
+          #: else
             <span class="media-object" data-media-mime="{{ file[2] }}"></span>
-          {% endif %}
+          #: endif
         </a>
       </div>
-    {% endfor %}
+    #: endfor
 
     <div class="post-body media-body">
-      {% if list_mode and p.parent and p.parent != p.thread %}
+      #: if list_mode and p.parent and p.parent != p.thread
         <a class="post-parent post-anchor" href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
-      {% endif %}
+      #: endif
 
       {{ p.text|safe }}
     </div>
@@ -40,9 +40,9 @@
     {{ post_form(url_for('html.thread_redirect', board=board, thread=p.thread), p.id) }}
   </div>
 </div>
-{% endmacro %}
+#: endmacro
 
-{% macro post_form(url, parent) %}
+#: macro post_form(url, parent)
 <form method="post" role="form" enctype="multipart/form-data" action="{{ url }}">
   <input type="hidden" name="parent" value="{{ parent }}" />
 
@@ -70,4 +70,4 @@
     <button type="submit" class="btn btn-default">{% if parent %}Ответить{% else %}Создать тред{% endif %}</button>
   </div>
 </form>
-{% endmacro %}
+#: endmacro

@@ -18,20 +18,20 @@
     </div>
 
     <div class="container">
-      {% for row in boards|dictsort|batch(3) %}
+      #: for row in boards|dictsort|batch(3)
         <div class="row">
-          {% for car, cdr in row %}
+          #: for car, cdr in row
             <div class="col-sm-4">
               <h3>{{ car }}</h3>
               <ul class="list-unstyled board-index">
-                {% for bid, bnam in cdr|dictsort(false, 'value') %}
+                #: for bid, bnam in cdr|dictsort(false, 'value')
                   <li><a href="{{ url_for('html.board', board=bid) }}">{{ bnam }}</a></li>
-                {% endfor %}
+                #: endfor
               </ul>
             </div>
-          {% endfor %}
+          #: endfor
         </div>
-      {% endfor %}
+      #: endfor
     </div>
 
 

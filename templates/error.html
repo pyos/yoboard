@@ -1,30 +1,28 @@
-{% extends "base.html" %}
-{% block title %}
-  {% if hascode %}
+#: extends "base.html"
+#: block title
+  #: if hascode
     {{ err }}
-  {% else %}
+  #: else
     500: Internal Server Error
-  {% endif %}
-{% endblock %}
+  #: endif
+#: endblock
 
-
-{% macro show_trace(err, with_header) %}
-  {% if with_header %}
+#: macro show_trace(err, with_header)
+  #: if with_header
     <span class="err">{{ err.__class__.__name__ }}</span>: {{ err }}<br />
-  {% endif %}
-  {% for (filename, lineno, coname, line) in untrace(err) %}
+  #: endif
+  #: for filename, lineno, coname, line in untrace(err)
     <span class="gh">in</span> <span class="sc">{{ filename }}</span>
     <span class="gh">line</span> <span class="mi">{{ lineno }}</span>,
     `{{ coname }}`: <span class="go">{{ line }}</span><br />
-  {% endfor %}
-  {% if err.__context__ %}
-    <span class="gh">in context of</span> {{ show_trace(err.__context__, True) }}
-  {% endif %}
-{% endmacro %}
+  #: endfor
+  #: if err.__context__
+    <span class="gh">in context of</span> {{ show_trace(err.__context__, true) }}
+  #: endif
+#: endmacro
 
-
-{% block content %}
+#: block content
   <samp class="highlight">
     {{ show_trace(err, not hascode) }}
   </samp>
-{% endblock %}
+#: endblock
