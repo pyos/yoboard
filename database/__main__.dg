@@ -1,8 +1,8 @@
-### 5. SIGTERM.
-import '/signal'
+### 5. SIGTERM to Exception.
+import '/signal/signal'
+import '/signal/SIGTERM'
 
-# On UNIX, we need to convert it into an exception to make sure atexit runs.
-signal `hasattr` 'SIGTERM' => signal.signal signal.SIGTERM $ _ _ -> raise KeyboardInterrupt
+signal SIGTERM $ _ _ -> raise KeyboardInterrupt
 
 ### 4. Data loader.
 import '/os'
@@ -29,13 +29,16 @@ save = atexit.register $ ->
     with fd = gzip.open (config.DATABASE + '~') 'wb' => pickle.dump data fd
     os.path.exists config.DATABASE => os.unlink config.DATABASE
     os.rename (config.DATABASE + '~') config.DATABASE
+    os._exit 0
 
 ### 2. Automatic scheduled dumping.
 import '/threading'
 
-timer = threading.Timer config.AUTOSYNC_INTERVAL save
-timer.daemon = True
-timer.start!
+schedule = _ ->
+  timer = threading.Timer config.AUTOSYNC_INTERVAL (schedule <- save)
+  timer.daemon = True
+  timer.start!
+schedule ()
 
 ### 1. The socket server.
 import 'picklerpc/Server'
