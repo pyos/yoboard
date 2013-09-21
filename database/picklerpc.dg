@@ -31,7 +31,14 @@ Client = subclass object where
     @loader = Unpickler $ @socket.makefile 'rb' buffering: 8192
 
   __getattr__ = name ~> *: args ->
-    @socket.sendall $ dumps (name, args)
-    response = @loader.load!
+    response = @call name args
     response :: Exception => raise response
     response
+
+  call = name args ~> except
+    e =>
+      @socket.sendall $ dumps (name, args)
+      @loader.load!
+    e :: OSError and e.errno in (32, 107) =>
+      @reconnect
+      @call name args
