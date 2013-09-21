@@ -28,8 +28,8 @@ pre_upload = title text files ->
 
   list xs where xs = None where for f in files => if f.filename =>
     yield $ tuple'
-      str (int time!) + '.full.' + uuid4!.hex
-      if f.mimetype.startswith 'image/' => str (int time!) + '.min.' + uuid4!.hex
+      fn = str (int time!) + '.' + uuid4!.hex + os.path.splitext f.filename !! 1
+      if f.mimetype.startswith 'image/' => fn.replace '.' '.min.' 1
          # Can't downscale that, will use a glyphicon instead.
          otherwise => None
       f.mimetype
