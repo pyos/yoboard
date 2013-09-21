@@ -17,9 +17,9 @@
   <div class="post-content clearfix">
     {% for file in p.files %}
       <div class="post-attach pull-left">
-        <a href="/static/upload/{{ file[0] }}">
+        <a href="{{ url_for('uploads', name=file[0]) }}">
           {% if file[1] %}
-            <img class="media-object" src="/static/upload/{{ file[1] }}" />
+            <img class="media-object" src="{{ url_for('uploads', name=file[1]) }}" />
           {% else %}
             <span class="media-object" data-media-mime="{{ file[2] }}"></span>
           {% endif %}
