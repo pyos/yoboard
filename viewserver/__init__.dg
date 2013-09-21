@@ -20,7 +20,6 @@ onerror = code -> err -> page, code where page = render_template 'error.html'
   err:        err
   hascode:   (err :: HTTPException)
   config:     config
-  boards:     dict!
   untrace:   (e -> map    ((fn, a, b, c) -> path.relpath fn config.ROOT_DIR, a, b, c)
                    filter ((fn, _, _, _) -> fn.startswith config.ROOT_DIR) $ extract_tb e.__traceback__)
 

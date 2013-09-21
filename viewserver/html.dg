@@ -67,7 +67,6 @@ board = board page: 0 ->
       page:    page
       board:   board
       config:  config
-      boards:  data.boards!
       pagenum: pn
     data.set_cached_board board page result
     result
@@ -137,7 +136,6 @@ thread_render = board thread t template ->
       posts: (as_list th)
       board:  board
       config: config
-      boards: data.boards!
     data.set_cached_thread board thread t result
     result
 
