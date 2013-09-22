@@ -17,6 +17,24 @@ python -m yoboard.database &
 python -m yoboard.viewserver
 ```
 
+##### gunicorn
+
+Replace the last command with `gunicorn yoboard.viewserver:app`. This is the recommended modus operandi.
+
+##### nginx
+
+Run the view server as above, then make nginx serve static files:
+
+```
+location /static {
+  alias /path/to/viewserver/static;
+}
+
+location /static/upload {
+  alias /path/to/UPLOAD_DIR;
+}
+```
+
 #### Wait, what database is THAT?
 
 It's not a database, it's a non-distributed Python object storage with
