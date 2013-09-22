@@ -6,7 +6,6 @@ builtins.__dict__.update $ dict
   Tree:   (import 'Tree')
   Board:  (import 'Board')
   Thread: (import 'Thread')
-  IntRef: (import 'IntRef')
   markup: (import 'markup')
   config: (import '../config')
 
