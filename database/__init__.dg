@@ -4,13 +4,13 @@ Record = subclass object where
   __init__ = *: args ~>
   __new__  = *: args ~> self where
     self = object.__new__ self
-    self.__dict__.update $ dict $ zip @fields args
+    for (n, v) in zip @__slots__ args => setattr self n v
   # Normally, pickle serializes the whole dict.
   # This is, obviously, redundant.
-  __reduce_ex__ = _ ~> (@__class__, tuple $ map (@__dict__ !!) @fields)
+  __reduce_ex__ = _ ~> (@__class__, tuple $ map (self `getattr`) @__slots__)
 
 
-Post   = subclass Record where fields = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' 'ip'
-Board  = subclass Record where fields = list' 'id' 'title' 'category' 'threads'
-Tree   = subclass Record where fields = list' 'root' 'replies'
-Thread = subclass Record where fields = list' 'root' 'replies' 'latest' 'skipped' 'attached' 'closed'
+Post   = subclass Record where __slots__ = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' 'ip'
+Board  = subclass Record where __slots__ = list' 'id' 'title' 'category' 'threads'
+Tree   = subclass Record where __slots__ = list' 'root' 'replies'
+Thread = subclass Record where __slots__ = list' 'root' 'replies' 'latest' 'skipped' 'attached' 'closed'
