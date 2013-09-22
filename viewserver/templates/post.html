@@ -15,10 +15,10 @@
   </div>
 
   <div class="post-content clearfix">
-    #: for file in p.files if file[1]
+    #: for file, thumb in p.files
       <div class="media-object pull-left">
-        <a href="{{ url_for('uploads', name=file[0]) }}">
-          <img alt="image" src="{{ url_for('uploads', name=file[1]) }}" />
+        <a href="{{ url_for('uploads', name=file) }}">
+          <img alt="image" src="{{ url_for('uploads', name=thumb) }}" />
         </a>
       </div>
     #: endfor

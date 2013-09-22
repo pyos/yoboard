@@ -11,7 +11,7 @@ import 'markup'
 import '../config'
 
 
-remove_uploads = obj -> for (fn, thumb, *_) in obj.files =>
+remove_uploads = obj -> for (fn, thumb) in obj.files =>
   fn    => os.unlink $ os.path.join config.UPLOAD_DIR fn
   thumb => os.unlink $ os.path.join config.UPLOAD_DIR thumb
 
