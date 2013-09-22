@@ -19,8 +19,9 @@ Server = (family, addr) commands ->
       e =>
         name, args = (read !! s).load!
         s.sendall $ dumps $ (commands !! name) *: args
-      e :: EOFError  => read !!~ s
-      e :: Exception => s.sendall $ dumps e
+      e :: EOFError             => read !!~ s
+      e :: ConnectionResetError => read !!~ s
+      e :: Exception            => s.sendall $ dumps e
 
 
 Client = subclass object where
