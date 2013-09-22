@@ -22,7 +22,7 @@
 #: block content
   <div class="post-view-tree">
     #: for p in posts|sort(attribute='id')
-      {{ post(p, True) }}
+      {{ post(p, True, this.closed, this.attached) }}
     #: endfor
   </div>
 #: endblock

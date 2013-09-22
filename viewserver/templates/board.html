@@ -24,7 +24,7 @@
 
   #: for thread in this
     <div class="post-view-tree">
-      {{ post(thread.root, false) }}
+      {{ post(thread.root, false, thread.closed, thread.attached) }}
 
       #: if thread.skipped
         <p class="post-missing-notice">
@@ -33,7 +33,7 @@
       #: endif
 
       #: for reply in thread.latest
-        {{ post(reply, true) }}
+        {{ post(reply, true, thread.closed, thread.attached) }}
       #: endfor
     </div>
   #: endfor

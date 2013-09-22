@@ -9,7 +9,7 @@
 
 #: macro node(t)
   <div class="post-view-tree">
-    {{ post(t.root, false) }}
+    {{ post(t.root, false, this.closed, this.attached) }}
 
     #: for st in t.replies
       {{ node(st) }}
