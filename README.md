@@ -14,7 +14,7 @@ pip install -r yoboard/requirements.txt
 $EDITOR yoboard/config.dg
 python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'
 python -m yoboard.database &
-gunicorn yoboard.viewserver:app
+python -m yoboard.viewserver
 ```
 
 #### Wait, what database is THAT?
