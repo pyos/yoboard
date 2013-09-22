@@ -1,18 +1,19 @@
-import '/collections/namedtuple'
-
-
-IntRef = subclass object where
-  # Named tuples are not mutable, but their items are.
-  # Except for ints and strings, which we have to wrap.
-  __init__ = @value ~>
-  __repr__ = self   -> '<{!r}>'.format @value
+Record = subclass object where
+  # Named tuples are not mutable, but this thing is.
+  # It also allows for easier addition of new fields during a migration.
+  __new__ = *: args ~> self where
+    self = object.__new__ self
+    self.__dict__.update $ dict $ zip @fields args
   # Normally, pickle serializes the whole dict.
   # This is, obviously, redundant.
-  __setstate__ = @value ~>
+  __reduce_ex__ = _ ~> (@__class__, tuple $ map (@__dict__ !!) @fields)
+
+
+Post   = subclass Record where fields = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp'
+Board  = subclass Record where fields = list' 'id' 'title' 'category' 'threads'
+Tree   = subclass Record where fields = list' 'root' 'replies'
+Thread = subclass Record where fields = list' 'root' 'replies' 'latest' 'skipped'
+IntRef = subclass Record where
+  fields = list' 'value'
   __getstate__ = self   -> @value
-
-
-Post   = namedtuple 'Post'    'id, title, sage, text, files, thread, parent, timestamp'
-Board  = namedtuple 'Board'   'id, title, category, threads'
-Tree   = namedtuple 'Tree'    'root, replies'
-Thread = namedtuple 'Thread'  'root, replies, latest, skipped'
+  __setstate__ = @value ~>
