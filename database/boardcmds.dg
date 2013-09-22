@@ -222,6 +222,7 @@ commands = data ->
       VD_ATTACHED !!~ name
       VC_BOARD.pop name None
       VC_THREAD.clear!
+      None
 
     # :: str int -> ()
     'post_remove', board num ->
@@ -234,3 +235,4 @@ commands = data ->
       post_cleanup board num
       VC_BOARD.pop   board                       None
       VC_THREAD.pop (board, curtree.root.thread) None
+      None
