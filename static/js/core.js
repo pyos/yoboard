@@ -6,7 +6,7 @@ $(function () {
     return true;
   });
 
-  $(".post-body").each(function () {
+  $(".post-content").each(function () {
     if (this.offsetHeight < this.scrollHeight) {
       var min_size = this.offsetHeight;
       var max_size = this.scrollHeight;
@@ -61,7 +61,7 @@ $(function () {
 
   $(".post").each(function () {
     var has_prefix = false;
-    var header     = $(this).children(".post-header");
+    var header     = $(this).children(".media-heading");
 
     $("[data-media-mime]", this).each(function (num) {
       var self = $(this);

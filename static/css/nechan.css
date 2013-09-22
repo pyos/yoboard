@@ -41,16 +41,14 @@ a.glyphicon,
   margin-left: 15px;  /* must align with .post */
 }
 
-.board-level {
-  /* Top-level trees. */
+body > .post-view-tree {
   border-top: 1px solid #999;
   padding-top: 15px;
 }
 
 .post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree:not(:first-child) {
-  /* Not the first message in tree view or on a board page. */
-  padding-left: 48px;
+.post-view-tree > .post-view-tree {
+  margin-left: 48px;
   /* TODO: use a background-image that would indicate the tree structure.
    *   e.g. a line with an arrow for everything except :first-child
    *   and a line cap for :last-child.
@@ -63,6 +61,10 @@ a.glyphicon,
 
 .post-title:after {
   content: '"';
+}
+
+.post-id:before {
+  content: '#';
 }
 
 .post-title {
@@ -80,18 +82,13 @@ a.glyphicon,
   color: #aaaaaa;
 }
 
-.post-parent:before {
+.post-anchor:before {
   content: ">>";
 }
 
-.post-body {
+.post-content {
   max-height: 200px;
   overflow-y: hidden;
-  word-wrap: break-word;
-}
-
-.board-level .post-reply .post-body {
-  max-height: 150px;
 }
 
 .post-collapse-btn,
@@ -99,7 +96,7 @@ a.glyphicon,
   display: none;
 }
 
-.post-body p {
+.media-body p {
   white-space: pre-line;
 }
 
@@ -119,8 +116,5 @@ blockquote p {
 
 .media-object {
   margin-bottom: 10px;
-}
-
-.post-attach + .post-body {
-  padding-left: 15px;
+  margin-right: 15px;
 }

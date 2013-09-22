@@ -14,7 +14,7 @@
   #: for filename, lineno, coname, line in untrace(err)
     <span class="gh">in</span> <span class="sc">{{ filename }}</span>
     <span class="gh">line</span> <span class="mi">{{ lineno }}</span>,
-    `{{ coname }}`: <span class="go">{{ line }}</span><br />
+    <span class="fn">{{ coname }}</span>: <span class="go">{{ line }}</span><br />
   #: endfor
   #: if err.__context__
     <span class="gh">in context of</span> {{ show_trace(err.__context__, true) }}

@@ -6,26 +6,24 @@
 #: endblock
 
 #: block options
-  #: if page
-    <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
-  #: endif
   #: if pagenum > 1
-    <li class="disabled"><a class="no-side-padding">Стр. {{ page }}</a></li>
-  #: endif
-  #: if page < pagenum - 1
-    <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
+    #: if page
+      <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
+    #: endif
+    <li class="disabled"><a>Стр. {{ page }}</a></li>
+    #: if pagenum > page + 1
+      <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
+    #: endif
   #: endif
 #: endblock
 
 #: block content
-  <div id="board-reply-form">
-    <div class="post-form" id="board-form">
-      {{ post_form(url_for('html.thread_create', board=board), 0) }}
-    </div>
+  <div class="post-form" id="board-form">
+    {{ post_form(url_for('html.thread_create', board=board), 0) }}
   </div>
 
   #: for thread in this
-    <div class="post-view-tree board-level">
+    <div class="post-view-tree">
       {{ post(thread.root, false) }}
 
       #: if thread.skipped.value

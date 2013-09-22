@@ -1,7 +1,7 @@
 #: macro post(p, list_mode)
-<div class="post media {% if p.parent == 0 %}post-original{% else %}post-reply{% endif %}" id="{{ p.id }}">
-  <div class="post-header media-heading">
-    <a href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">#{{ p.id }}</a>
+<div class="post media" id="{{ p.id }}">
+  <div class="media-heading">
+    <a href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">{{ p.id }}</a>
     #: if p.title
       <span class="post-title">{{ p.title }}</span>
     #: endif
@@ -16,20 +16,20 @@
 
   <div class="post-content clearfix">
     #: for file in p.files
-      <div class="post-attach pull-left">
+      <div class="media-object pull-left">
         <a href="{{ url_for('uploads', name=file[0]) }}">
           #: if file[1]
-            <img class="media-object" alt="{{ file[2] }}" src="{{ url_for('uploads', name=file[1]) }}" />
+            <img alt="{{ file[2] }}" src="{{ url_for('uploads', name=file[1]) }}" />
           #: else
-            <span class="media-object" data-media-mime="{{ file[2] }}"></span>
+            <span data-media-mime="{{ file[2] }}"></span>
           #: endif
         </a>
       </div>
     #: endfor
 
-    <div class="post-body media-body">
+    <div class="media-body">
       #: if list_mode and p.parent and p.parent != p.thread
-        <a class="post-parent post-anchor" href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.parent }}" data-id="{{ p.parent }}" data-board="{{ board }}">{{ p.parent }}</a><br />
+        <p><a class="post-anchor" data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}">{{ p.parent }}</a></p>
       #: endif
 
       {{ p.text|safe }}
@@ -49,8 +49,7 @@
   <div class="input-group">
     <input type="text" class="form-control" name="title" placeholder="Тема" />
     <label class="input-group-addon">
-      <input type="checkbox" name="sage" />
-      Сажа
+      <input type="checkbox" name="sage" /> Сажа
     </label>
   </div>
 
@@ -59,11 +58,9 @@
   </div>
 
   <div class="input-group">
-    <div class="input-group-addon adjacent-file-control btn btn-default">
-      <span class="glyphicon glyphicon-hdd"></span>
-    </div>
+    <div class="input-group-addon adjacent-file-control btn btn-default glyphicon glyphicon-hdd"></div>
     <input type="file" name="file" class="hidden" />
-    <input type="text" class="form-control adjacent-file-control adjacent-file-display" disabled />
+    <input type="text" class="form-control adjacent-file-display" disabled />
   </div>
 
   <div class="input-group">

@@ -7,8 +7,8 @@ a {
   color: #f60;
 }
 
-hr {
-  border-color: #ccc;
+footer {
+  border-top: 1px solid #ccc;
 }
 
 .navbar {
@@ -60,14 +60,7 @@ hr {
 }
 
 .post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree:not(:first-child) {
-  /* Got to use `margin` instead in order for the border to render properly. */
-  margin-left: 48px;
-  padding-left: 0px;
-}
-
-.post-view-tree > .post:not(:first-child), /* to override `padding-left` above */
-.post:not(.post-original) {
+.post-view-tree > .post-view-tree > .post {
   margin-top: 8px;
   margin-bottom: 8px;
   padding: 8px;

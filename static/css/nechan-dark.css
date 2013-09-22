@@ -7,8 +7,8 @@ a {
   color: #39f;
 }
 
-hr {
-  border-color: #222;
+footer {
+  border-top: 1px solid #333;
 }
 
 #main-image {
