@@ -1,7 +1,6 @@
-### 5. SIGTERM to exit, SIGUSR1 to force-dump.
+### 5. SIGTERM to exit.
 import '/signal/signal'
 import '/signal/SIGTERM'
-import '/signal/SIGUSR1'
 
 signal SIGTERM $ _ _ -> raise KeyboardInterrupt
 
