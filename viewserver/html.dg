@@ -31,9 +31,7 @@ pre_upload = title text files ->
     yield $ tuple'
       fn = str (int time!) + '.' + uuid4!.hex + os.path.splitext f.filename !! 1
       if f.mimetype.startswith 'image/' => fn.replace '.' '.min.' 1
-         # Can't downscale that, will use a glyphicon instead.
-         otherwise => None
-      f.mimetype
+         otherwise => abort 400
 
 
 post_upload = files fnames ->
