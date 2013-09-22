@@ -4,7 +4,6 @@ import '/signal/SIGTERM'
 import '/signal/SIGUSR1'
 
 signal SIGTERM $ _ _ -> raise KeyboardInterrupt
-signal SIGUSR1 $ _ _ -> save!
 
 ### 4. Data loader.
 import '/os'
