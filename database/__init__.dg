@@ -4,27 +4,13 @@ Record = subclass object where
   __init__ = *: args ~>
   __new__  = *: args ~> self where
     self = object.__new__ self
-    self.__dict__.update $ dict $ zip @fields @defaults
     self.__dict__.update $ dict $ zip @fields args
   # Normally, pickle serializes the whole dict.
   # This is, obviously, redundant.
   __reduce_ex__ = _ ~> (@__class__, tuple $ map (@__dict__ !!) @fields)
 
 
-Post   = subclass Record where
-  fields   = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' 'ip'
-  defaults = list' 0    ''      False  ''     list!   0        0        None        '0.0.0.0'
-Board  = subclass Record where
-  fields   = list' 'id' 'title' 'category' 'threads'
-  defaults = list' 0    ''      ''         list!
-Tree   = subclass Record where
-  fields   = list' 'root' 'replies'
-  defaults = list' None   list!
-Thread = subclass Record where
-  fields   = list' 'root' 'replies' 'latest' 'skipped' 'attached' 'closed'
-  defaults = list' None   list!     list!    0         False      False
-IntRef = subclass Record where
-  fields   = list' 'value'
-  defaults = list' 0
-  __setstate__ = @value ~>
-  __reduce_ex__ = _ ~> (int, tuple' @value)
+Post   = subclass Record where fields = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' 'ip'
+Board  = subclass Record where fields = list' 'id' 'title' 'category' 'threads'
+Tree   = subclass Record where fields = list' 'root' 'replies'
+Thread = subclass Record where fields = list' 'root' 'replies' 'latest' 'skipped' 'attached' 'closed'

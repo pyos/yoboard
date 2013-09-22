@@ -85,7 +85,7 @@ thread_create = board ->
     text   = request.form.get      'text'  ''
     files  = request.files.getlist 'file'
 
-  except err => thread = data.thread_create board title text fnames
+  except err => thread = data.thread_create board title text fnames request.remote_addr
          err :: KeyError => abort 404
          err is None     => post_upload files fnames
   redirect $ url_for 'html.thread_redirect' board: board thread: thread
@@ -108,7 +108,7 @@ thread_reply = board thread ->
     text   = request.form.get      'text'  ''
     files  = request.files.getlist 'file'
 
-  except e => data.post_create board parent title sage text fnames
+  except e => data.post_create board parent title sage text fnames request.remote_addr
          e :: KeyError      => abort 404
          e :: OverflowError => abort 403
          e is None          => post_upload files fnames

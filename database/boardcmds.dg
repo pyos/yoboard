@@ -7,7 +7,6 @@ import 'Post'
 import 'Tree'
 import 'Board'
 import 'Thread'
-import 'IntRef'
 import 'markup'
 import '../config'
 
@@ -82,8 +81,8 @@ commands = data ->
         for t in take config.THREADS_PER_PAGE (drop n board.threads) =>
           # To reduce the amount of data transferred to the web server,
           # reply trees are removed.
-          yield $ Thread t.root None t.latest t.skipped
-  
+          yield $ Thread t.root None t.latest t.skipped t.attached t.closed
+
       board.title, list data, pages + bool r
 
     # Create a new board or update the old one.
@@ -107,13 +106,13 @@ commands = data ->
 
     # Create a new thread, return its ID.
     #
-    # :: str str str [(str, str)] -> int
+    # :: str str str [(str, str)] str -> int
     #
-    'thread_create', board title text files ->
+    'thread_create', board title text files ip ->
       boardo = RP_BOARD !! board
       rootid = RP_COUNT !! board += 1
-      root   = Post rootid title False (markup.parse text) files rootid 0 datetime.now!
-      thread = Thread root list! list! (IntRef 0)
+      root   = Post rootid title False (markup.parse text) files rootid 0 datetime.now! ip
+      thread = Thread root list! list! 0 False False
 
       boardo.threads.insert 0 thread
       config.THREADS_PER_BOARD < len boardo.threads =>
@@ -127,20 +126,20 @@ commands = data ->
 
     # Create a new reply, return its ID.
     #
-    # :: str int str bool str [(str, str)] -> int
+    # :: str int str bool str [(str, str)] str -> int
     #
-    'post_create', board parent title sage text files ->
+    'post_create', board parent title sage text files ip ->
       boardobj  = RP_BOARD !! board
       parentobj = RP_POSTS !! board !! parent
       treeobj   = RP_TREES !! board !! parent
       threadobj = RP_TREES !! board !! parentobj.thread
 
-      threadlen = len threadobj.latest + threadobj.skipped.value
+      threadlen = len threadobj.latest + threadobj.skipped
       threadlen >= config.POSTS_UNTIL_AUTOSAGE => sage = True
       threadlen >= config.POSTS_PER_THREAD     => raise OverflowError
 
       postid  = RP_COUNT !! board += 1
-      postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now!
+      postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now! ip
       curtree = Tree postobj list!
 
       RP_POSTS !! board !! postid = postobj
@@ -150,7 +149,7 @@ commands = data ->
 
       len threadobj.latest > config.POSTS_ON_BOARD_PAGE =>
         threadobj.latest.pop 0
-        threadobj.skipped.value += 1
+        threadobj.skipped += 1
 
       not sage =>
         boardobj.threads.remove   threadobj

@@ -21,7 +21,7 @@
 
 #: block content
   <div class="post-view-tree">
-    #: for p in posts|sort
+    #: for p in posts|sort(attribute='id')
       {{ post(p, True) }}
     #: endfor
   </div>
