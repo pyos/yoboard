@@ -25,6 +25,15 @@ commands = data ->
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
   RP_POSTS  = data !! 'posts'     # :: {str: {int: Post}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
+
+  # Various data that can be derived from the above stuff.
+  VD_ATTACHED = dict (None where
+    # An {str: int} mapping that contains the number of attached threads
+    # on each board.
+    for (n, b) in RP_BOARD.items! => yield (n, next (None where
+      for (i, t) in enumerate b.threads => not t.attached => yield i
+      yield $ len b.threads)))
+
   # Volatile cache containers.
   # These are in the database because that
   #   1. allows flask workers to share cache;
@@ -78,7 +87,7 @@ commands = data ->
 
       data = None where
         n = page * config.THREADS_PER_PAGE
-        for t in take config.THREADS_PER_PAGE (drop n board.threads) =>
+        for t in board.threads !! slice n (n + config.THREADS_PER_PAGE) =>
           # To reduce the amount of data transferred to the web server,
           # reply trees are removed.
           yield $ Thread t.root None t.latest t.skipped t.attached t.closed
@@ -100,6 +109,7 @@ commands = data ->
           RP_BOARD !! name = Board name title category list!
           RP_POSTS !! name = dict!
           RP_TREES !! name = dict!
+          VD_ATTACHED !! name = 0
       RP_CATMAP !! category = RP_CATMAP.get category dict!
       RP_CATMAP !! category !! name = title
       None
@@ -114,7 +124,7 @@ commands = data ->
       root   = Post rootid title False (markup.parse text) files rootid 0 datetime.now! ip
       thread = Thread root list! list! 0 False False
 
-      boardo.threads.insert 0 thread
+      boardo.threads.insert (VD_ATTACHED !! board) thread
       config.THREADS_PER_BOARD < len boardo.threads =>
         cn = boardo.threads.pop -1
         post_cleanup board cn.root.id
@@ -123,6 +133,46 @@ commands = data ->
       RP_TREES !! board !! rootid = thread
       RP_POSTS !! board !! rootid = root
       rootid
+
+    # Set the `closed` flag of a thread.
+    # Closed threads cannot be replied to.
+    # Note that this is independent of a reply count limit.
+    #
+    # :: str int bool -> ()
+    #
+    'thread_set_closed', board num state ->
+      state  = bool state
+      thread = RP_TREES !! board !! num
+      if thread :: Tree         => raise KeyError
+         thread.closed is state => None
+         otherwise              =>
+           thread.closed = bool state
+           # Since there's probably some kind of icon for that,
+           # the cache is now invalid.
+           VC_BOARD.pop   board       None
+           VC_THREAD.pop (board, num) None
+           None
+
+    # Set the `attached` flag of a thread.
+    # Attached threads always appear at the top of the first page.
+    #
+    # :: str int bool -> ()
+    #
+    'thread_set_attached', board num state ->
+      state  = bool state
+      boardo = RP_BOARD !! board
+      thread = RP_TREES !! board !! num
+      if thread :: Tree           => raise KeyError
+         thread.attached is state => None
+         otherwise =>
+           thread.attached = state
+           VD_ATTACHED !! board -= not state
+           boardo.threads.remove                        thread
+           boardo.threads.insert (VD_ATTACHED !! board) thread
+           VD_ATTACHED !! board += state
+           VC_BOARD.pop   board       None
+           VC_THREAD.pop (board, num) None
+           None
 
     # Create a new reply, return its ID.
     #
@@ -137,6 +187,7 @@ commands = data ->
       threadlen = len threadobj.latest + threadobj.skipped
       threadlen >= config.POSTS_UNTIL_AUTOSAGE => sage = True
       threadlen >= config.POSTS_PER_THREAD     => raise OverflowError
+      threadobj.closed                         => raise OverflowError
 
       postid  = RP_COUNT !! board += 1
       postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now! ip
@@ -151,9 +202,9 @@ commands = data ->
         threadobj.latest.pop 0
         threadobj.skipped += 1
 
-      not sage =>
-        boardobj.threads.remove   threadobj
-        boardobj.threads.insert 0 threadobj
+      not sage and not threadobj.attached =>
+        boardobj.threads.remove                        threadobj
+        boardobj.threads.insert (VD_ATTACHED !! board) threadobj
 
       VC_BOARD.pop   board                  None
       VC_THREAD.pop (board, postobj.thread) None
@@ -168,6 +219,7 @@ commands = data ->
       RP_POSTS !!~ name
       RP_TREES !!~ name
       RP_COUNT !!~ name
+      VD_ATTACHED !!~ name
       VC_BOARD.pop name None
       VC_THREAD.clear!
 
