@@ -8,14 +8,12 @@ SITE_NAME = 'Йобач'
 # Edit /static/img/main-image.png to replace the image.
 SITE_TITLE = 'YOBA SLUSHAET VAS'
 
-ROOT_DIR     = path.dirname __file__
-TEMPLATE_DIR = path.join ROOT_DIR    'templates'  # /templates of the repo
-STATIC_DIR   = path.join ROOT_DIR    'static'     # /static of the repo
-STORAGE_DIR  = path.join ROOT_DIR    'store'      # where to store server-specific data
-UPLOAD_DIR   = path.join STORAGE_DIR 'upload'
+# Where to store server-specific data, namely the database
+# and uploaded files.
+STORAGE_DIR = path.join (path.dirname __file__) 'store'
+UPLOAD_DIR  = path.join STORAGE_DIR 'upload'
 
 # A file to use for persistent storage.
-# This file should be in a writable location.
 # The database will automatically dump stuff into this file
 # at regular intervals, as well as on shutdown.
 DATABASE = path.join STORAGE_DIR 'data-bundle'
