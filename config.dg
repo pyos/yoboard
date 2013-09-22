@@ -29,7 +29,7 @@ SERVER_ADDRESS = socket.AF_INET, ('127.0.0.1', 9105)
 # Maximum no. of threads on a single page and on a whole board.
 # Once a thread is pushed off a board, it is automatically removed.
 THREADS_PER_PAGE  = 10
-THREADS_PER_BOARD = 10 * THREADS_PER_PAGE
+THREADS_PER_BOARD = THREADS_PER_PAGE * 5
 
 # No. of posts from each thread to display on the board page.
 POSTS_ON_BOARD_PAGE = 4
