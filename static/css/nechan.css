@@ -3,68 +3,58 @@ body {
 }
 
 a {
-  text-decoration: underline;
+  /* This makes `href="#"` redundant. */
   cursor: pointer;
+  text-decoration: underline;
 }
 
-a.glyphicon,
-.navbar a {
+a.glyphicon, .navbar a {
   text-decoration: none;
 }
 
 .navbar {
-  margin: -15px -15px 15px -15px;
   border: none;
   border-radius: 0;
-}
-
-.navbar .navbar-brand,
-.navbar .navbar-nav > li > a {
+  margin: -15px -15px 15px -15px;
   text-shadow: none;
 }
 
 .input-group {
-  margin: 7px 0 7px 0;
+  margin: 8px;
 }
 
 .input-group .form-control,
 .input-group-addon {
+  /* Otherwise it attempts to fill the whole page. */
   width: auto;
 }
 
-.post {
-  display: table;
-  margin: 30px 15px 15px 15px;
+body > .post-view-tree {
+  padding-top: 15px;
+}
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree {
+  /* TODO: display nesting levels visually. */
+  margin-left: 48px;
 }
 
 .post-missing-notice {
   margin-left: 15px;  /* must align with .post */
 }
 
-body > .post-view-tree {
-  border-top: 1px solid #999;
-  padding-top: 15px;
-}
-
-.post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree {
-  margin-left: 48px;
-  /* TODO: use a background-image that would indicate the tree structure.
-   *   e.g. a line with an arrow for everything except :first-child
-   *   and a line cap for :last-child.
-   */
-}
-
-.post-title:before {
-  content: '"';
-}
-
-.post-title:after {
-  content: '"';
+.post {
+  display: table;
+  margin: 15px;
 }
 
 .post-id:before {
   content: '#';
+}
+
+.post-title:before,
+.post-title:after {
+  content: '"';
 }
 
 .post-title {
@@ -72,23 +62,14 @@ body > .post-view-tree {
 }
 
 .post-sage:before {
-  content: "САЖА";
   color: #aa0000;
+  content: "САЖА";
   font-weight: bold;
 }
 
 .post-timestamp:before {
-  content: "@ ";
   color: #aaaaaa;
-}
-
-.post-anchor:before {
-  content: ">>";
-}
-
-.post-content {
-  max-height: 200px;
-  overflow-y: hidden;
+  content: "@ ";
 }
 
 .post-collapse-btn,
@@ -96,13 +77,27 @@ body > .post-view-tree {
   display: none;
 }
 
+.post-content {
+  max-height: 200px;
+  overflow-y: hidden;
+}
+
+.media-object {
+  margin-bottom: 10px;
+  margin-right: 15px;
+}
+
 .media-body p {
   white-space: pre-line;
 }
 
+.post-anchor:before {
+  content: ">>";
+}
+
 blockquote {
-  border-left: 2px solid;
   /* Twice as small as bootstrap defaults. */
+  border-left: 2px solid;
   padding: 5px 10px;
   margin: 0 0 10px;
 }
@@ -112,9 +107,4 @@ blockquote p {
   line-height: inherit;
   font-size: inherit;
   font-weight: inherit;
-}
-
-.media-object {
-  margin-bottom: 10px;
-  margin-right: 15px;
 }
