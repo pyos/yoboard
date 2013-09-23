@@ -9,9 +9,9 @@ data = Client config.CLIENT_ADDRESS
 app  = Flask __name__
 app.jinja_env.line_statement_prefix = '#:'
 app.before_first_request $ -> data.reconnect
-app.register_blueprint   $ import 'html/mod'
-#app.register_blueprint  $ import 'json/mod'
-#app.register_blueprint  $ import 'admin/mod'
+app.register_blueprint                       $ import 'html/mod'
+app.register_blueprint url_prefix: '/api'    $ import 'json/mod'
+#app.register_blueprint url_prefix: '/admin' $ import 'admin/mod'
 app.add_url_rule '/static/upload/<path:name>' 'uploads' $ name ->
   send_from_directory config.UPLOAD_DIR name as_attachment: True
 
