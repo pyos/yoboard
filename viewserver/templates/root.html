@@ -11,22 +11,23 @@
 #: endblock
 
 #: block main
-    <div class="container">
-      <h1 class="text-center">{{ config.SITE_TITLE }}</h1>
-      <div id="main-image">&nbsp;</div>
+  <div class="container">
+    <h1 class="text-center">{{ config.SITE_TITLE }}</h1>
+    <div id="main-image">&nbsp;</div>
 
-      #: for row in boards|dictsort|batch(3)
-        <div class="row">
-          #: for car, cdr in row
-            <div class="col-sm-4">
-              <h3>{{ car }}</h3>
-              <ul class="list-unstyled board-index">
-                #: for bid, bnam in cdr|dictsort(false, 'value')
-                  <li><a href="{{ url_for('.board', board=bid) }}">{{ bnam }}</a></li>
-                #: endfor
-              </ul>
-            </div>
-          #: endfor
-        </div>
-      #: endfor
+    #: for row in boards|dictsort|batch(3)
+      <div class="row">
+        #: for car, cdr in row
+          <div class="col-sm-4">
+            <h3>{{ car }}</h3>
+            <ul class="list-unstyled board-index">
+              #: for bid, bnam in cdr|dictsort(false, 'value')
+                <li><a href="{{ url_for('.board', board=bid) }}">{{ bnam }}</a></li>
+              #: endfor
+            </ul>
+          </div>
+        #: endfor
+      </div>
+    #: endfor
+  </div>
 #: endblock
