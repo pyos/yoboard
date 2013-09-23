@@ -62,7 +62,7 @@ pre_upload = title text files ->
 
   list xs where xs = None where for f in files => if
     f.mimetype.startswith 'image/' => yield $ tuple'
-      name = str time! + '.min.' + uuid4!.hex + path.splitext f.filename !! 1
+      name = str time! + '.full.' + uuid4!.hex + path.splitext f.filename !! 1
       name.replace '.full.' '.min.'
     otherwise => abort 400
 
