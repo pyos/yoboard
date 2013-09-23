@@ -96,11 +96,11 @@ post_create = board ->
 
 
 mod = Blueprint 'html' __name__
-mod.add_url_rule '/'                           'root' root
-mod.add_url_rule '/<board>/'                   'post_create' post_create methods: (list' 'POST')
-mod.add_url_rule '/<board>/'                   'board' board
-mod.add_url_rule '/<board>/p<int:page>/'       'board'
-mod.add_url_rule '/<board>/<int:thread>/'      'thread' thread
+mod.add_url_rule '/'                           None root
+mod.add_url_rule '/<board>/'                   None post_create methods: (list' 'POST')
+mod.add_url_rule '/<board>/'                   None board
+mod.add_url_rule '/<board>/p<int:page>/'       None board
+mod.add_url_rule '/<board>/<int:thread>/'      None thread
 mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ bind thread_render 0 'tree.html'
 mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ bind thread_render 1 'list.html'
 mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html' config: config

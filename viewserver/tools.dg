@@ -1,6 +1,7 @@
 import '/os/path'
 import '/time/time'
 import '/uuid/uuid4'
+import '/functools/update_wrapper'
 import '/subprocess/Popen'
 
 import '/flask/abort'
@@ -36,7 +37,7 @@ with_json_equivalent = onjson onhtml ->
     with_json_equivalent :: (** -> object, ** -> Response) -> ** -> Response
 
   '''
-  **: args -> if
+  update_wrapper wrapped: onjson $ **: args -> if
     request.accept_mimetypes.best_match (list' 'text/html' 'application/json') == 'text/html' => onhtml **: args
     otherwise => jsonify $ json_encode $ onjson **: args
 
