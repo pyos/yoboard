@@ -11,6 +11,19 @@ import '../database/Post'
 import '../database/Record'
 
 
+confitems = set'
+  # Stuff to return in `/.config`.
+  'SITE_NAME'
+  'SITE_TITLE'
+  'POSTS_UNTIL_AUTOSAGE'
+  'POSTS_PER_THREAD'
+  'MAX_TITLE_LENGTH'
+  'MAX_TEXT_LENGTH'
+  'MAX_TEXT_LINES'
+  'MAX_UPLOADS'
+  'NOT_EMPTY'
+
+
 jsonencode = x -> if
   x :: Post   => dict (None where for k in x.__slots__ => if k != 'ip' => yield (k, getattr x k))
   x :: Record => dict (None where for k in x.__slots__ => yield (k, jsonencode $ getattr x k))
@@ -31,7 +44,7 @@ thread = board thread -> jsonify $ jsonencode $ except
 
 mod = Blueprint 'json' __name__
 mod.add_url_rule '/'                      'man'    $ -> render_template 'api.html' config: config
-mod.add_url_rule '/.config'               'config' $ -> raise NotImplementedError
+mod.add_url_rule '/.config'               'config' $ -> jsonify $ map (k -> (k, getattr config k)) confitems
 mod.add_url_rule '/<board>/'              None board
 mod.add_url_rule '/<board>/p<int:page>/'  None board
 mod.add_url_rule '/<board>/<int:thread>/' None thread
