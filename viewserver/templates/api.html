@@ -16,6 +16,11 @@
     <h3 class="api-method"><small>method</small> get</h3>
     <table class="table">
       <tr>
+        <td><a href="{{ url_for('json.boards') }}">{{ url_for('json.boards') }}</a></td>
+        <td class="typ">{str: {str: str}}</td>
+        <td class="desc">A mapping of categories to mappings of board names to board titles.</td>
+      </tr>
+      <tr>
         <td><a href="{{ url_for('json.config') }}">{{ url_for('json.config') }}</a></td>
         <td class="typ"><a href="#struct-config">config</a></td>
         <td class="desc">Fetch some of the engine's configuration parameters. Useful for checking posts before actually sending them.</td>

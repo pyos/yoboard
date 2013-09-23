@@ -45,6 +45,7 @@ thread = board thread -> jsonify $ jsonencode $ except
 mod = Blueprint 'json' __name__
 mod.add_url_rule '/'                      'man'    $ -> render_template 'api.html' config: config
 mod.add_url_rule '/.config'               'config' $ -> jsonify $ map (k -> (k, getattr config k)) confitems
+mod.add_url_rule '/.boards'               'boards' $ -> jsonify $ data.boards!
 mod.add_url_rule '/<board>/'              None board
 mod.add_url_rule '/<board>/p<int:page>/'  None board
 mod.add_url_rule '/<board>/<int:thread>/' None thread
