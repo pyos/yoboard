@@ -51,7 +51,7 @@ a.glyphicon, .navbar a {
 
 .adjacent-file-target {
   position: absolute;
-  left: -99999px;
+  visibility: hidden;
 }
 
 .input-group .form-control,
