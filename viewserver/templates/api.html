@@ -6,17 +6,17 @@
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-theme.min.css" />
     <link type="text/css" rel="stylesheet" href="/static/css/nechan.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/nechan-dark.css" />
     <script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/theme.js"></script>
   </head>
   <body>
     <div class="container"><h1>JSON API</h1></div>
     <div class="container">
       <h3>Note:</h3>
       <p>
-        All of these URLs may return a 404 if a board/thread does not exists. 500 is also returned on unforeseen server-side errors. <strong>All of the error pages are HTML and offer no message. Check the data before sending a request.</strong>
+        All of these URLs may return a 404 if a board/thread does not exist. 500 is also returned on unforeseen server-side errors. <strong>All of the error pages are HTML and offer no message. Check the data before sending a request.</strong>
       </p>
     </div>
     <div class="container" id="ref-config">
@@ -56,7 +56,7 @@
         <tr>
           <td><code>MAX_TEXT_LINES</code></td>
           <td><code>:: int</code></td>
-          <td>Limit on the number of newline (<code>\n</code>) characters in a "text" field.</td>
+          <td>Limit on the number of line feed (<code>\n</code>) characters in a "text" field.</td>
         </tr>
         <tr>
           <td><code>MAX_UPLOADS </code></td>
@@ -79,7 +79,7 @@
         <tr>
           <td><code>pages</code></td>
           <td><code>:: int</code></td>
-          <td>Total no. of pages on that board. Going over that number does not trigger an error, but yields an empty thread list.</td>
+          <td>Total no. of pages on that board. Going over that number does not trigger an error, but yields an empty thread list. (Note that page indices are 0-based.)</td>
         </tr>
         <tr>
           <td><code>title</code></td>
@@ -88,7 +88,7 @@
         </tr>
         <tr>
           <td><code>threads</code></td>
-          <td><code>:: [dict]</code></td>
+          <td><code>:: [Thread]</code></td>
           <td>A list of threads on the requested page. See <a href="#ref-thread">info on threads</a> for a description of their format.</td>
         </tr>
       </table>
@@ -115,7 +115,7 @@
       </table>
 
       <h3>Response</h3>
-      <p>A redirect to {{ url_for('html.thread_redirect', board='b', thread='123') }} where 'b' is the same as in request and '123' is the id of a newly created thread. If at least one of the conditions described above was not met, an HTTP 400 is returned.</p>
+      <p>A redirect to {{ url_for('html.thread_redirect', board='b', thread='123') }} where 'b' is the same as in the request and '123' is the id of a newly created thread. If at least one of the conditions described above was not met, an HTTP 400 is returned.</p>
     </div>
 
     <div class="container" id="ref-thread">
