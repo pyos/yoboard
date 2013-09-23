@@ -18,13 +18,8 @@
     <table class="table">
       <tr>
         <td><a href="{{ url_for('.root') }}">{{ url_for('.root') }}</a></td>
-        <td class="typ">{str: {str: str}}</td>
-        <td class="desc">A mapping of categories to mappings of board names to board titles.</td>
-      </tr>
-      <tr>
-        <td><a href="{{ url_for('.conf') }}">{{ url_for('.conf') }}</a></td>
-        <td class="typ"><a href="#struct-config">config</a></td>
-        <td class="desc">Fetch some of the engine's configuration parameters. Useful for checking posts before actually sending them.</td>
+        <td class="typ"><a href="#struct-index">index</a></td>
+        <td class="desc">Various info about the layout and the configuration of this site.</td>
       </tr>
       <tr>
         <td><a href="{{ url_for('.board', board='b') }}">{{ url_for('.board', board='b') }}</a></td>
@@ -92,6 +87,20 @@
             </tr>
           </table>
         </td>
+      </tr>
+    </table>
+
+    <h3 class="api-struct" id="struct-index"><small>struct</small> index</h3>
+    <table class="table">
+      <tr>
+        <td class="var">boards</td>
+        <td class="typ">{str: {str: str}}</a></td>
+        <td class="desc">A mapping of categories to mappings of board names to board titles.</td>
+      </tr>
+      <tr>
+        <td class="var">config</td>
+        <td class="typ"><a href="#struct-config">config</a></td>
+        <td class="desc">Some of the engine's configuration parameters. Useful for checking posts before actually sending them.</td>
       </tr>
     </table>
 

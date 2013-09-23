@@ -29,7 +29,7 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
 
 
 root = with_json_equivalent
-  -> data.boards!
+  -> dict config: CONFIG boards: data.boards!
   -> render_template 'root.html'
     config: config
     boards: data.boards!
@@ -104,4 +104,3 @@ mod.add_url_rule '/<board>/<int:thread>/'      None thread
 mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ bind thread_render 0 'tree.html'
 mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ bind thread_render 1 'list.html'
 mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html' config: config
-mod.add_url_rule '/config.json'                'conf' $ -> jsonify CONFIG
