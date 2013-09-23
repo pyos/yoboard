@@ -9,10 +9,13 @@
     <script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    #: block head
     <script type="text/javascript" src="/static/js/themes.js"></script>
     <script type="text/javascript" src="/static/js/core.js"></script>
+    #: endblock
   </head>
   <body>
+    #: block navbar
     <nav class="navbar navbar-default" role="navigation">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#board-list">
@@ -37,12 +40,19 @@
         </ul>
       </div>
     </nav>
+    #: endblock
 
+    #: block main
     <h1>{{ self.title() }}</h1>
-    {% block content %}{% endblock %}
+    #: block content
+    #: endblock
+    #: endblock
 
     <footer>
-      <small>+ <a href="https://github.com/pyos/yoboard">yoboard</a></small>
+      <small>
+        + <a href="https://github.com/pyos/yoboard">yoboard</a>
+        | <a href="{{ url_for('json.man') }}">JSON API</a>
+      </small>
     </footer>
   </body>
 </html>

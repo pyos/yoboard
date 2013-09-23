@@ -2,6 +2,11 @@ body {
   margin: 15px;
 }
 
+footer {
+  margin-top: 15px;
+  padding: 15px;
+}
+
 a {
   /* This makes `href="#"` redundant. */
   cursor: pointer;
@@ -10,6 +15,27 @@ a {
 
 a.glyphicon, .navbar a {
   text-decoration: none;
+}
+
+.table .var,
+.table .typ {
+  font-family: monospace;
+  white-space: nowrap;
+  width: auto;
+}
+
+.table .typ:before {
+  content: " :: ";
+  opacity: 0.8;
+}
+
+.table .desc {
+  width: 100%;
+}
+
+.api-struct small,
+.api-method small {
+  font-size: 1em;
 }
 
 .navbar {

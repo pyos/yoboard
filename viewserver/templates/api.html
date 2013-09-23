@@ -1,252 +1,277 @@
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <title>{{ config.SITE_NAME }} - JSON API</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/bootstrap-theme.min.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/nechan.css" />
-    <script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/static/js/themes.js"></script>
-  </head>
-  <body>
-    <div class="container"><h1>JSON API</h1></div>
-    <div class="container">
-      <h3>Note:</h3>
-      <p>
-        All of these URLs may return a 404 if a board/thread does not exist. 500 is also returned on unforeseen server-side errors. <strong>All of the error pages are HTML and offer no message. Check the data before sending a request.</strong>
-      </p>
-    </div>
-    <div class="container" id="ref-config">
-      <h2><small>GET</small> {{ url_for('json.config') }}</h2>
-      <p>Retrieve some of the board configuration.</p>
-      <table class="table">
-        <tr>
-          <td><code>SITE_NAME</code></td>
-          <td><code>:: str</code></td>
-          <td>Title of this site.</td>
-        </tr>
-        <tr>
-          <td><code>SITE_TITLE</code></td>
-          <td><code>:: str</code></td>
-          <td>The text you see on the <a href="/">index page</a>.</td>
-        </tr>
-        <tr>
-          <td><code>POSTS_UNTIL_AUTOSAGE</code></td>
-          <td><code>:: int</code></td>
-          <td>How many replies a thread can amass before it can't be bumped.</td>
-        </tr>
-        <tr>
-          <td><code>POSTS_PER_THREAD</code></td>
-          <td><code>:: int</code></td>
-          <td>How many replies each thread is allowed to contain. Replies over that count will be refused with HTTP 403.</td>
-        </tr>
-        <tr>
-          <td><code>MAX_TITLE_LENGTH</code></td>
-          <td><code>:: int</code></td>
-          <td>Limit on the length of the "title" field, in characters. Going over that limit triggers HTTP 400.</td>
-        </tr>
-        <tr>
-          <td><code>MAX_TEXT_LENGTH</code></td>
-          <td><code>:: int</code></td>
-          <td>Same as <code>MAX_TITLE_LENGTH</code>, only for the "text" field.</td>
-        </tr>
-        <tr>
-          <td><code>MAX_TEXT_LINES</code></td>
-          <td><code>:: int</code></td>
-          <td>Limit on the number of line feed (<code>\n</code>) characters in a "text" field.</td>
-        </tr>
-        <tr>
-          <td><code>MAX_UPLOADS</code></td>
-          <td><code>:: int</code></td>
-          <td>Limit on the no. of items submitted with name "file".</td>
-        </tr>
-        <tr>
-          <td><code>NOT_EMPTY</code></td>
-          <td><code>:: bool</code></td>
-          <td>Whether a post will be refused with HTTP 400 if it has zero attachments and a zero-length body.</td>
-        </tr>
-      </table>
-    </div>
+#: extends "base.html"
+#: block head
+  <script type="text/javascript" src="/static/js/themes.js"></script>
+#: endblock
 
-    <div class="container" id="ref-board">
-      <h2><small>GET</small> {{ url_for('json.board', board='b') }} <small>where 'b' is the desired board name</small></h2>
-      <h2><small>GET</small> {{ url_for('json.board', board='b', page=0) }} <small>where '0' is a non-negative page number</small></h2>
-      <p>Retrieve info about a single page of a board</p>
-      <table class="table">
-        <tr>
-          <td><code>pages</code></td>
-          <td><code>:: int</code></td>
-          <td>Total no. of pages on that board. Going over that number does not trigger an error, but yields an empty thread list. (Note that page indices are 0-based.)</td>
-        </tr>
-        <tr>
-          <td><code>title</code></td>
-          <td><code>:: str</code></td>
-          <td>Name of the board in question.</td>
-        </tr>
-        <tr>
-          <td><code>threads</code></td>
-          <td><code>:: [Thread]</code></td>
-          <td>A list of threads on the requested page. See <a href="#ref-thread">info on threads</a> for a description of their format.</td>
-        </tr>
-      </table>
-    </div>
+#: block title
+  JSON API
+#: endblock
 
-    <div class="container" id="ref-board-post">
-      <h2><small>POST</small> {{ url_for('html.thread_create', board='b') }} <small>where 'b' is the desired board name</small></h2>
-      <p>Create a new thread on a board of choice.</p>
+#: block navbar
+#: endblock
 
-      <h3>Request</h3>
-      <table class="table">
-        <tr>
-          <td>title</td>
-          <td>A short (up to <code>MAX_TITLE_LENGTH</code>) one-line description of a topic. (Optional.)</td>
-        </tr>
-        <tr>
-          <td>text</td>
-          <td>A longer (up to <code>MAX_TEXT_LENGTH</code> lexemes and <code>MAX_TEXT_LINES</code> line breaks) message to start a discussion with. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or at least one <code>file</code> is given.)</td>
-        </tr>
-        <tr>
-          <td>file</td>
-          <td>A multi-field (up to <code>MAX_UPLOADS</code> values) with attachments, all of which must be images. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or <code>text</code> is not empty.)</td>
-        </tr>
-      </table>
+#: block main
+  <div class="container">
+    <h1>JSON API</h1>
+    <h3 class="api-method"><small>method</small> get</h3>
+    <table class="table">
+      <tr>
+        <td><a href="{{ url_for('json.config') }}">{{ url_for('json.config') }}</a></td>
+        <td class="typ"><a href="#struct-config">config</a></td>
+        <td class="desc">Fetch some of the engine's configuration parameters. Useful for checking posts before actually sending them.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ url_for('json.board', board='b') }}">{{ url_for('json.board', board='b') }}</a></td>
+        <td class="typ"><a href="#struct-board">board</a></td>
+        <td rowspan="2" class="desc">Fetch the contents of a single page of a board of choice. Note that page indices are 0-based.</td>
+      </tr>
+      <tr>
+        <td><a href="{{ url_for('json.board', board='b', page=0) }}">{{ url_for('json.board', board='b', page=0) }}</a></td>
+        <td class="typ"><a href="#struct-board">board</a></td>
+      </tr>
+      <tr>
+        <td><a href="{{ url_for('json.thread', board='b', thread=1) }}">{{ url_for('json.thread', board='b', thread=1) }}</a>
+        <td class="typ"><a href="#struct-thread">thread</a></td>
+        <td class="desc">Fetch a single thread from a chosen board.</td>
+      </tr>
+    </table>
 
-      <h3>Response</h3>
-      <p>A redirect to {{ url_for('html.thread_redirect', board='b', thread='123') }} where 'b' is the same as in the request and '123' is the id of a newly created thread. If at least one of the conditions described above was not met, an HTTP 400 is returned.</p>
-    </div>
+    <h3 class="api-method"><small>method</small> post</h3>
+    <table class="table">
+      <tr>
+        <td><a href="{{ url_for('html.thread_create', board='b') }}" />{{ url_for('html.thread_create', board='b') }}</a></td>
+        <td class="desc">
+          <p>Create a new thread.</p>
+          <table>
+            <tr>
+              <th colspan="2">Parameters</th>
+            </tr>
+            <tr>
+              <td>title</td>
+              <td class="desc">A short (up to <code>MAX_TITLE_LENGTH</code>) one-line description of a topic. (Optional.)</td>
+            </tr>
+            <tr>
+              <td>text</td>
+              <td class="desc">A longer (up to <code>MAX_TEXT_LENGTH</code> lexemes and <code>MAX_TEXT_LINES</code> line breaks) message to start a discussion with. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or at least one <code>file</code> is given.)</td>
+            </tr>
+            <tr>
+              <td>file</td>
+              <td class="desc">A multi-field (up to <code>MAX_UPLOADS</code> values) with attachments, all of which must be images. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or <code>text</code> is not empty.)</td>
+            </tr>
+          </table>
 
-    <div class="container" id="ref-thread">
-      <h2><small>GET</small> {{ url_for('json.thread', board='b', thread='1') }} <small>where 'b' is a board name and '1' is a positive integer</small></h2>
-      <p>Retrieve a complete thread.<p>
-      <table class="table">
-        <tr>
-          <td><code>attached</code></td>
-          <td><code>:: bool</code></td>
-          <td>Whether this thread is fixed at the top of the first page. Note that the API sorts threads automatically; this field is only provided to display some visual feedback to the user.</td>
-        </tr>
-        <tr>
-          <td><code>closed</code></td>
-          <td><code>:: bool</code></td>
-          <td>Whether this thread cannot be replied to. Note that this setting is independent of a <code>POSTS_PER_THREAD</code> limit; a thread may not be closed but still over capacity.</td>
-        </tr>
-        <tr>
-          <td><code>latest</code></td>
-          <td><code>:: [Post]</code></td>
-          <td>A list of some of the latest posts, ordered by ID. The maximum length of this list is server-dependent.</td>
-        </tr>
-        <tr>
-          <td><code>replies</code></td>
-          <td><code>:: [Tree]</code></td>
-          <td>A tree of posts that were added as replies to this thread. The API does not generate a complete list of replies ordered by ID; that's your job. When fetching a board, this field is set to <code>null</code> in order to conserve traffic.</td>
-        </tr>
-        <tr>
-          <td><code>root</code></td>
-          <td><code>:: Post</code></td>
-          <td>The OP of this thread.</td>
-        </tr>
-        <tr>
-          <td><code>skipped</code></td>
-          <td><code>:: int</code></td>
-          <td>No. of replies that did not make it into <code>latest</code> but still exist in the thread. Use this to calculate the total size of the thread: <code>thread.skipped + len(thread.latest)</code>.</td>
-        </tr>
-      </table>
+          <table>
+            <tr>
+              <th colspan="2">Return value</th>
+            </tr>
+            <tr>
+              <td>302</td>
+              <td class="desc">A redirect to <a href="{{ url_for('html.thread_redirect', board='b', thread='1') }}">{{ url_for('html.thread_redirect', board='b', thread='1') }}</a> where 'b' is the same as in the request and '1' is the id of a newly created thread.</td>
+            </tr>
+            <tr>
+              <td>400</td>
+              <td class="desc">One of the conditions described above was not met.</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="{{ url_for('html.thread_reply', board='b', thread=1) }}" />{{ url_for('html.thread_reply', board='b', thread=1) }}</a></td>
+        <td class="desc">
+          <p>Create a new reply in a thread.</p>
+          <table>
+            <tr>
+              <th colspan="2">Parameters, in addition to the above three</th>
+            </tr>
+            <tr>
+              <td>parent</td>
+              <td class="desc">The post to reply to. If not set, assumed to be equal to the OP of the thread. Note that no checks are made that this post is in the required thread: if it's not, the reply will merely be created in another thread without notice.</td>
+            </tr>
+            <tr>
+              <td>sage</td>
+              <td class="desc">Whether to add some hate to this reply. Replies with this field set to true do not bump threads. This field is set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.</td>
+            </tr>
+          </table>
 
-      <h3>Substructure <code>Post</code></h3>
-      <table class="table">
-        <tr>
-          <td><code>files</code></td>
-          <td><code>:: [(str, str)]</code></td>
-          <td>A list of (full-size image, thumbnail) pairs. They're all relative to {{ url_for('uploads', name='') }}.</td>
-        </tr>
-        <tr>
-          <td><code>id</code></td>
-          <td><code>:: int</code></td>
-          <td>ID of this post. Board-unique.</td>
-        </tr>
-        <tr>
-          <td><code>parent</code></td>
-          <td><code>:: int</code></td>
-          <td>ID of the post to which this one is a reply. Guaranteed to be from the same thread. 0 if this post is an OP of a thread.</td>
-        </tr>
-        <tr>
-          <td><code>sage</code></td>
-          <td><code>:: bool</code></td>
-          <td>Whether the author of this post expressed displeasure with the discussion. Always false for OPs of threads. Set to true automatically once the thread reaches <code>POSTS_UNITL_AUTOSAGE</code> replies.</td>
-        </tr>
-        <tr>
-          <td><code>text</code></td>
-          <td><code>:: str</code></td>
-          <td>A pre-rendered message body, in HTML.</td>
-        </tr>
-        <tr>
-          <td><code>thread</code></td>
-          <td><code>:: int</code></td>
-          <td>ID of the OP of the thread this post is in.</td>
-        </tr>
-        <tr>
-          <td><code>timestamp</code></td>
-          <td><code>:: str</code></td>
-          <td>A date and time in <code>%a, %d %b %Y %H:%M:%S GMT</code> format. Probably locale-dependent.</td>
-        </tr>
-        <tr>
-          <td><code>title</code></td>
-          <td><code>:: str</code></td>
-          <td>A short summary of this post, in raw text.</td>
-        </tr>
-      </table>
+          <table>
+            <tr>
+              <th colspan="2">Return value</th>
+            </tr>
+            <tr>
+              <td>302</td>
+              <td class="desc">A redirect to <a href="{{ url_for('html.thread_redirect', board='b', thread='1') }}">{{ url_for('html.thread_redirect', board='b', thread='1') }}</a>.</td>
+            </tr>
+            <tr>
+              <td>400</td>
+              <td class="desc">One of the conditions was not met.</td>
+            </tr>
+            <tr>
+              <td>403</td>
+              <td class="desc">Thread is either closed or over capacity.</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
 
-      <h3>Substructure <code>Tree</code></h3>
-      <table class="table">
-        <tr>
-          <td><code>replies</code></td>
-          <td><code>:: [Tree]</code></td>
-          <td>Children nodes.</td>
-        </tr>
-        <tr>
-          <td><code>root</code></td>
-          <td><code>:: Post</code></td>
-          <td>The value of this node.</td>
-        </tr>
-      </table>
-    </div>
+    <h3 class="api-struct" id="struct-config"><small>struct</small> config</h3>
+    <table class="table">
+      <tr>
+        <td class="var">SITE_NAME</td>
+        <td class="typ">str</td>
+        <td class="desc">The text to the left side of "-" in the <code>&lt;title&gt;</code>.</td>
+      </tr>
+      <tr>
+        <td class="var">SITE_TITLE</td>
+        <td class="typ">str</td>
+        <td class="desc">The text you see on the <a href="/">index page</a>.</td>
+      </tr>
+      <tr>
+        <td class="var">POSTS_UNTIL_AUTOSAGE</td>
+        <td class="typ">int</td>
+        <td class="desc">How many replies a thread can amass before it can't be bumped.</td>
+      </tr>
+      <tr>
+        <td class="var">POSTS_PER_THREAD</td>
+        <td class="typ">int</td>
+        <td class="desc">How many replies each thread is allowed to contain. Replies over that count will be refused with HTTP 403.</td>
+      </tr>
+      <tr>
+        <td class="var">MAX_TITLE_LENGTH</td>
+        <td class="typ">int</td>
+        <td class="desc">Limit on the length of the <code>title</code> field, in characters. Going over that limit triggers HTTP 400.</td>
+      </tr>
+      <tr>
+        <td class="var">MAX_TEXT_LENGTH</td>
+        <td class="typ">int</td>
+        <td class="desc">Same as <code>MAX_TITLE_LENGTH</code>, only for the <code>text</code> field.</td>
+      </tr>
+      <tr>
+        <td class="var">MAX_TEXT_LINES</td>
+        <td class="typ">int</td>
+        <td class="desc">Limit on the number of line feed (<code>\n</code>) characters in a <code>text</code> field.</td>
+      </tr>
+      <tr>
+        <td class="var">MAX_UPLOADS</td>
+        <td class="typ">int</td>
+        <td class="desc">Limit on the no. of items submitted as <code>file</code>.</td>
+      </tr>
+      <tr>
+        <td class="var">NOT_EMPTY</td>
+        <td class="typ">bool</td>
+        <td class="desc">Whether a post will be refused with HTTP 400 if it has zero attachments and a zero-length body.</td>
+      </tr>
+    </table>
 
-    <div class="container" id="ref-thread-post">
-      <h2><small>POST</small> {{ url_for('html.thread_reply', board='b', thread=1) }} <small>where 'b' is the board name and '1' is the thread to reply to</small></h2>
-      <p>Create a new reply in a thread.</p>
+    <h3 class="api-struct" id="struct-board"><small>struct</small> board</h3>
+    <table class="table">
+      <tr>
+        <td class="var">pages</td>
+        <td class="typ">int</td>
+        <td class="desc">Total no. of pages on that board. Going over that number does not trigger an error, but yields an empty thread list.</td>
+      </tr>
+      <tr>
+        <td class="var">title</td>
+        <td class="typ">str</td>
+        <td class="desc">Name of the board in question.</td>
+      </tr>
+      <tr>
+        <td class="var">threads</td>
+        <td class="typ">[<a href="#struct-thread">thread</a>]</td>
+        <td class="desc">A list of threads on the requested page.</td>
+      </tr>
+    </table>
 
-      <h3>Request</h3>
-      <table class="table">
-        <tr>
-          <td>parent</td>
-          <td>The post to reply to. If not set, assumed to be equal to the OP of the thread. Note that no checks are made that this post is in the required thread: if it's not, the reply will merely be created in another thread without notice.</td>
-        </tr>
-        <tr>
-          <td>sage</td>
-          <td>Whether to add some hate to this reply. Replies with this field set to true do not bump threads. This field is set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.</td>
-        </tr>
-        <tr>
-          <td>title</td>
-          <td>See <a href="#ref-board-post">above</a>.</td>
-        </tr>
-        <tr>
-          <td>text</td>
-          <td>See <a href="#ref-board-post">above</a>.</td>
-        </tr>
-        <tr>
-          <td>file</td>
-          <td>See <a href="#ref-board-post">above</a>.</td>
-        </tr>
-      </table>
+    <h3 class="api-struct" id="struct-thread"><small>struct</small> thread</h3>
+    <table class="table">
+      <tr>
+        <td class="var">attached</td>
+        <td class="typ">bool</td>
+        <td class="desc">Whether this thread is fixed at the top of the first page. Note that the API sorts threads automatically; this field is only provided to display some visual feedback to the user.</td>
+      </tr>
+      <tr>
+        <td class="var">closed</td>
+        <td class="typ">bool</td>
+        <td class="desc">Whether this thread cannot be replied to. Note that this setting is independent of a <code>POSTS_PER_THREAD</code> limit; a thread may not be closed but still over capacity.</td>
+      </tr>
+      <tr>
+        <td class="var">latest</td>
+        <td class="typ">[<a href="#struct-post">post</a>]</td>
+        <td class="desc">A list of some of the latest posts, ordered by ID. The maximum length of this list is server-dependent.</td>
+      </tr>
+      <tr>
+        <td class="var">replies</td>
+        <td class="typ">[<a href="#struct-tree">tree</a>]</td>
+        <td class="desc">A tree of posts that were added as replies to this thread. The API does not generate a complete list of replies ordered by ID; that's your job. When fetching a board, this field is set to <code>null</code> in order to conserve traffic.</td>
+      </tr>
+      <tr>
+        <td class="var">root</td>
+        <td class="typ"><a href="#struct-post">post</a></td>
+        <td class="desc">The OP of this thread.</td>
+      </tr>
+      <tr>
+        <td class="var">skipped</td>
+        <td class="typ">int</td>
+        <td class="desc">No. of replies that did not make it into <code>latest</code> but still exist in the thread. Use this to calculate the total size of the thread: <code>thread.skipped + len(thread.latest)</code>.</td>
+      </tr>
+    </table>
 
-      <h3>Response</h3>
-      <p>A redirect to {{ url_for('html.thread_redirect', board='b', thread='1') }}. If one of the fields has an invalid value, HTTP 400. If the thread is over capacity (i.e. has <code>POSTS_PER_THREAD</code> replies) or closed, HTTP 403.</p>
-    </div>
+    <h3 class="api-struct" id="struct-tree"><small>struct</small> tree</h3>
+    <table class="table">
+      <tr>
+        <td class="var">replies</td>
+        <td class="typ">[<a href="#struct-tree">tree</a>]</td>
+        <td class="desc">Children nodes.</td>
+      </tr>
+      <tr>
+        <td class="var">root</td>
+        <td class="typ"><a href="#stuct-post">post</a></td>
+        <td class="desc">The value of this node.</td>
+      </tr>
+    </table>
 
-    <footer class="container">
-      <small>+ <a href="https://github.com/pyos/yoboard">yoboard</a></small>
-    </footer>
-  </body>
-</html>
+    <h3 class="api-struct" id="struct-post"><small>struct</small> post</h3>
+    <table class="table">
+      <tr>
+        <td class="var">files</td>
+        <td class="typ">[(str, str)]</td>
+        <td class="desc">A list of (full-size image, thumbnail) pairs. They're all relative to {{ url_for('uploads', name='') }}.</td>
+      </tr>
+      <tr>
+        <td class="var">id</td>
+        <td class="typ">int</td>
+        <td class="desc">ID of this post. Board-unique.</td>
+      </tr>
+      <tr>
+        <td class="var">parent</td>
+        <td class="typ">int</td>
+        <td class="desc">ID of the post to which this one is a reply. Guaranteed to be from the same thread. 0 if this post is an OP of a thread.</td>
+      </tr>
+      <tr>
+        <td class="var">sage</td>
+        <td class="typ">bool</td>
+        <td class="desc">Whether the author of this post expressed displeasure with the discussion. Always false for OPs of threads. Set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.</td>
+      </tr>
+      <tr>
+        <td class="var">text</td>
+        <td class="typ">str</td>
+        <td class="desc">A pre-rendered message body, in HTML.</td>
+      </tr>
+      <tr>
+        <td class="var">thread</td>
+        <td class="typ">int</td>
+        <td class="desc">ID of the OP of the thread this post is in.</td>
+      </tr>
+      <tr>
+        <td class="var">timestamp</td>
+        <td class="typ">str</td>
+        <td class="desc">A date and time in <code>%a, %d %b %Y %H:%M:%S GMT</code> format. Probably locale-dependent.</td>
+      </tr>
+      <tr>
+        <td class="var">title</td>
+        <td class="typ">str</td>
+        <td class="desc">A short summary of this post, in raw text.</td>
+      </tr>
+    </table>
+  </div>
+#: endblock
