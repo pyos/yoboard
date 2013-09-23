@@ -10,13 +10,13 @@
 #: endblock
 
 #: block options
-  <li><a href="{{ url_for('html.board', board=board) }}">Назад в /{{ board }}/</a></li>
+  <li><a href="{{ url_for('.board', board=board) }}">Назад в /{{ board }}/</a></li>
 #: endblock
 
 #: block view_options
   <li class="disabled"><a>Вид треда</a></li>
   <li class="active"><a data-type="list" class="thread-view-type">Списком</a></li>
-  <li><a href="{{ url_for('html.thread_tree', board=board, thread=this.root.id) }}" data-type="tree" class="thread-view-type">Деревом</a></li>
+  <li><a href="{{ url_for('.thread_tree', board=board, thread=this.root.id) }}" data-type="tree" class="thread-view-type">Деревом</a></li>
 #: endblock
 
 #: block content

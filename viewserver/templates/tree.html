@@ -3,7 +3,7 @@
 
 #: block view_options
   <li class="disabled"><a>Вид треда</a></li>
-  <li><a href="{{ url_for('html.thread_list', board=board, thread=this.root.id) }}" data-type="list" class="thread-view-type">Списком</a></li>
+  <li><a href="{{ url_for('.thread_list', board=board, thread=this.root.id) }}" data-type="list" class="thread-view-type">Списком</a></li>
   <li class="active"><a data-type="tree" class="thread-view-type">Деревом</a></li>
 #: endblock
 

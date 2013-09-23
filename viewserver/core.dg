@@ -1,0 +1,107 @@
+import '/flask/Blueprint'
+import '/flask/abort'
+import '/flask/jsonify'
+import '/flask/redirect'
+import '/flask/request'
+import '/flask/render_template'
+import '/flask/url_for'
+import '/itertools/chain'
+
+import 'data'
+import 'config'
+import 'tools/get_or_404'
+import 'tools/pre_upload'
+import 'tools/post_upload'
+import 'tools/with_json_equivalent'
+
+
+CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
+  # Stuff to return in `/config.json`.
+  'SITE_NAME'
+  'SITE_TITLE'
+  'POSTS_UNTIL_AUTOSAGE'
+  'POSTS_PER_THREAD'
+  'MAX_TITLE_LENGTH'
+  'MAX_TEXT_LENGTH'
+  'MAX_TEXT_LINES'
+  'MAX_UPLOADS'
+  'NOT_EMPTY'
+
+
+root = with_json_equivalent
+  -> data.boards!
+  -> render_template 'root.html'
+    config: config
+    boards: data.boards!
+
+
+board = with_json_equivalent
+  board page: 0 -> dict $ zip ('title', 'threads', 'pages') $ get_or_404 data.board board page
+  board page: 0 ->
+    data.get_cached_board board page or
+      title, threads, pages = get_or_404 data.board board page
+      result = render_template 'board.html'
+        this:    threads
+        title:   title
+        page:    page
+        board:   board
+        config:  config
+        pagenum: pages
+      data.set_cached_board board page result
+      result
+
+
+thread = with_json_equivalent
+  board thread -> get_or_404 data.thread board thread
+  board thread ->
+    view = request.cookies.get 'view_type'
+    redirect $ url_for board: board thread: thread $ if
+      view == 'tree' => '.thread_tree'
+      otherwise      => '.thread_list'
+
+
+thread_render = t template board thread ->
+  data.get_cached_thread board thread t or
+    as_list = None
+    as_list = t ->
+      yield t.root
+      yield from: (chain.from_iterable $ map as_list t.replies)
+
+    thread = get_or_404 data.thread board thread
+    result = render_template template
+      this:   thread
+      posts: (as_list thread)
+      board:  board
+      config: config
+    data.set_cached_thread board thread t result
+    result
+
+
+post_create = board ->
+  parent = int  $ request.form.get 'parent' 0
+  sage   = bool $ request.form.get 'sage'   False
+  fnames = pre_upload
+    title  = request.form.get      'title' ''
+    text   = request.form.get      'text'  ''
+    files  = request.files.getlist 'file'
+
+  except
+    err => thread = if
+      parent == 0 => data.thread_create board        title      text fnames request.remote_addr
+      otherwise   => data.post_create   board parent title sage text fnames request.remote_addr
+    err :: OverflowError => abort 403
+    err :: KeyError      => abort 404
+    err is None          => post_upload files fnames
+  redirect $ url_for '.thread' board: board thread: thread
+
+
+mod = Blueprint 'html' __name__
+mod.add_url_rule '/'                           'root' root
+mod.add_url_rule '/<board>/'                   'post_create' post_create methods: (list' 'POST')
+mod.add_url_rule '/<board>/'                   'board' board
+mod.add_url_rule '/<board>/p<int:page>/'       'board'
+mod.add_url_rule '/<board>/<int:thread>/'      'thread' thread
+mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ bind thread_render 0 'tree.html'
+mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ bind thread_render 1 'list.html'
+mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html' config: config
+mod.add_url_rule '/config.json'                'conf' $ -> jsonify CONFIG

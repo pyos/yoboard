@@ -1,7 +1,7 @@
 #: macro post(p, list_mode, closed, attached)
 <div class="post media" id="{{ p.id }}">
   <div class="media-heading">
-    <a href="{{ url_for('html.thread_redirect', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">{{ p.id }}</a>
+    <a href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id">{{ p.id }}</a>
     #: if p.title
       <span class="post-title">{{ p.title }}</span>
     #: endif
@@ -27,8 +27,8 @@
   <div class="post-content clearfix">
     #: for file, thumb in p.files
       <div class="media-object pull-left">
-        <a href="{{ url_for('uploads', name=file) }}">
-          <img alt="image" src="{{ url_for('uploads', name=thumb) }}" />
+        <a href="{{ url_for('upload', name=file) }}">
+          <img alt="image" src="{{ url_for('upload', name=thumb) }}" />
         </a>
       </div>
     #: endfor
@@ -44,7 +44,7 @@
 
   #: if not closed
     <div class="collapse post-form" id="post-form-{{ p.id }}">
-      {{ post_form(url_for('html.thread_redirect', board=board, thread=p.thread), p.id) }}
+      {{ post_form(url_for('.post_create', board=board), p.id) }}
     </div>
   #: endif
 </div>

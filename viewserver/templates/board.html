@@ -8,18 +8,18 @@
 #: block options
   #: if pagenum > 1
     #: if page
-      <li><a href="{{ url_for('html.board', board=board, page=page - 1) }}">&laquo;</a></li>
+      <li><a href="{{ url_for('.board', board=board, page=page - 1) }}">&laquo;</a></li>
     #: endif
     <li class="disabled"><a>Стр. {{ page }}</a></li>
     #: if pagenum > page + 1
-      <li><a href="{{ url_for('html.board', board=board, page=page + 1) }}">&raquo;</a></li>
+      <li><a href="{{ url_for('.board', board=board, page=page + 1) }}">&raquo;</a></li>
     #: endif
   #: endif
 #: endblock
 
 #: block content
   <div class="post-form" id="board-form">
-    {{ post_form(url_for('html.thread_create', board=board), 0) }}
+    {{ post_form(url_for('.post_create', board=board), 0) }}
   </div>
 
   #: for thread in this

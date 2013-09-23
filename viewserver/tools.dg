@@ -1,0 +1,77 @@
+import '/os/path'
+import '/time/time'
+import '/uuid/uuid4'
+import '/subprocess/Popen'
+
+import '/flask/abort'
+import '/flask/jsonify'
+import '/flask/request'
+
+import 'data'
+import 'config'
+
+import '../database/Post'
+import '../database/Record'
+
+
+get_or_404 = f *: args -> except
+  e => f *: args
+  e :: KeyError => abort 404
+
+
+json_encode = x -> if
+  x :: Post   => dict (None where for k in x.__slots__ => if k != 'ip' => yield (k, getattr x k))
+  x :: Record => dict (None where for k in x.__slots__ => yield (k, json_encode $ getattr x k))
+  x :: list   => list  $ map json_encode x
+  x :: tuple  => tuple $ map json_encode x
+  x :: dict   => dict  $ zip x.keys! $ map json_encode x.values!
+  otherwise   => x
+
+
+with_json_equivalent = onjson onhtml ->
+  '''Create a function that returns either JSON or HTML.
+
+    Routing is done using the Accept header.
+
+    with_json_equivalent :: (** -> object, ** -> Response) -> ** -> Response
+
+  '''
+  **: args -> if
+    request.accept_mimetypes.best_match (list' 'text/html' 'application/json') == 'text/html' => onhtml **: args
+    otherwise => jsonify $ json_encode $ onjson **: args
+
+
+pre_upload = title text files ->
+  '''Ensure that a post is valid & make a list of safe filenames.
+
+    pre_upload :: str str [File] -> [(str, str)]
+
+  '''
+  len files == 1 and (head files).filename == '' =>
+    # Werkzeug adds a file with an empty filename for some reason.
+    files.pop 0
+
+  config.NOT_EMPTY and not (text or files)   => abort 400
+  config.MAX_UPLOADS      < len files        => abort 400
+  config.MAX_TITLE_LENGTH < len title        => abort 400
+  config.MAX_TEXT_LENGTH  < len text         => abort 400
+  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
+
+  list xs where xs = None where for f in files => if
+    f.mimetype.startswith 'image/' => yield $ tuple'
+      name = str time! + '.min.' + uuid4!.hex + path.splitext f.filename !! 1
+      name.replace '.full.' '.min.'
+    otherwise => abort 400
+
+
+post_upload = files fnames ->
+  '''Store the files in a local filesystem & generate thumbnails.
+
+    post_upload :: [File] [(str, str)] -> ()
+
+  '''
+  for (file, (fn, tn)) in zip files fnames =>
+    fp = path.join config.UPLOAD_DIR fn
+    tp = path.join config.UPLOAD_DIR tn
+    file.save fp
+    Popen $ list' 'convert' fp '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) tp

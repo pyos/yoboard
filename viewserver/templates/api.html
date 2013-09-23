@@ -13,29 +13,30 @@
 #: block main
   <div class="container">
     <h1>JSON API</h1>
+    <p>Send an <code>Accept: application/json;q=1.0</code> header to recieve JSON (most of the time.)</p>
     <h3 class="api-method"><small>method</small> get</h3>
     <table class="table">
       <tr>
-        <td><a href="{{ url_for('json.boards') }}">{{ url_for('json.boards') }}</a></td>
+        <td><a href="{{ url_for('.root') }}">{{ url_for('.root') }}</a></td>
         <td class="typ">{str: {str: str}}</td>
         <td class="desc">A mapping of categories to mappings of board names to board titles.</td>
       </tr>
       <tr>
-        <td><a href="{{ url_for('json.config') }}">{{ url_for('json.config') }}</a></td>
+        <td><a href="{{ url_for('.conf') }}">{{ url_for('.conf') }}</a></td>
         <td class="typ"><a href="#struct-config">config</a></td>
         <td class="desc">Fetch some of the engine's configuration parameters. Useful for checking posts before actually sending them.</td>
       </tr>
       <tr>
-        <td><a href="{{ url_for('json.board', board='b') }}">{{ url_for('json.board', board='b') }}</a></td>
+        <td><a href="{{ url_for('.board', board='b') }}">{{ url_for('.board', board='b') }}</a></td>
         <td class="typ"><a href="#struct-board">board</a></td>
         <td rowspan="2" class="desc">Fetch the contents of a single page of a board of choice. Note that page indices are 0-based.</td>
       </tr>
       <tr>
-        <td><a href="{{ url_for('json.board', board='b', page=0) }}">{{ url_for('json.board', board='b', page=0) }}</a></td>
+        <td><a href="{{ url_for('.board', board='b', page=0) }}">{{ url_for('.board', board='b', page=0) }}</a></td>
         <td class="typ"><a href="#struct-board">board</a></td>
       </tr>
       <tr>
-        <td><a href="{{ url_for('json.thread', board='b', thread=1) }}">{{ url_for('json.thread', board='b', thread=1) }}</a>
+        <td><a href="{{ url_for('.thread', board='b', thread=1) }}">{{ url_for('.thread', board='b', thread=1) }}</a>
         <td class="typ"><a href="#struct-thread">thread</a></td>
         <td class="desc">Fetch a single thread from a chosen board.</td>
       </tr>
@@ -44,12 +45,20 @@
     <h3 class="api-method"><small>method</small> post</h3>
     <table class="table">
       <tr>
-        <td><a href="{{ url_for('html.thread_create', board='b') }}" />{{ url_for('html.thread_create', board='b') }}</a></td>
+        <td><a href="{{ url_for('.post_create', board='b') }}" />{{ url_for('.post_create', board='b') }}</a></td>
         <td class="desc">
-          <p>Create a new thread.</p>
+          <p>Create a new message on a board named "b".</p>
           <table>
             <tr>
               <th colspan="2">Parameters</th>
+            </tr>
+            <tr>
+              <td>parent</td>
+              <td class="desc">The post to reply to. If not set, assumed to be 0, which means "new thread".</td>
+            </tr>
+            <tr>
+              <td>sage</td>
+              <td class="desc">Whether to add some hate to this reply. Replies with this field set to true do not bump threads. This field is set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.</td>
             </tr>
             <tr>
               <td>title</td>
@@ -71,44 +80,11 @@
             </tr>
             <tr>
               <td>302</td>
-              <td class="desc">A redirect to <a href="{{ url_for('html.thread_redirect', board='b', thread='1') }}">{{ url_for('html.thread_redirect', board='b', thread='1') }}</a> where 'b' is the same as in the request and '1' is the id of a newly created thread.</td>
+              <td class="desc">A redirect to <a href="{{ url_for('.thread', board='b', thread='1') }}">{{ url_for('.thread', board='b', thread='1') }}</a> where 'b' is the same as in the request and '1' is the id of thread this post was assigned to.</td>
             </tr>
             <tr>
               <td>400</td>
               <td class="desc">One of the conditions described above was not met.</td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr>
-        <td><a href="{{ url_for('html.thread_reply', board='b', thread=1) }}" />{{ url_for('html.thread_reply', board='b', thread=1) }}</a></td>
-        <td class="desc">
-          <p>Create a new reply in a thread.</p>
-          <table>
-            <tr>
-              <th colspan="2">Parameters, in addition to the above three</th>
-            </tr>
-            <tr>
-              <td>parent</td>
-              <td class="desc">The post to reply to. If not set, assumed to be equal to the OP of the thread. Note that no checks are made that this post is in the required thread: if it's not, the reply will merely be created in another thread without notice.</td>
-            </tr>
-            <tr>
-              <td>sage</td>
-              <td class="desc">Whether to add some hate to this reply. Replies with this field set to true do not bump threads. This field is set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.</td>
-            </tr>
-          </table>
-
-          <table>
-            <tr>
-              <th colspan="2">Return value</th>
-            </tr>
-            <tr>
-              <td>302</td>
-              <td class="desc">A redirect to <a href="{{ url_for('html.thread_redirect', board='b', thread='1') }}">{{ url_for('html.thread_redirect', board='b', thread='1') }}</a>.</td>
-            </tr>
-            <tr>
-              <td>400</td>
-              <td class="desc">One of the conditions was not met.</td>
             </tr>
             <tr>
               <td>403</td>
@@ -240,7 +216,7 @@
       <tr>
         <td class="var">files</td>
         <td class="typ">[(str, str)]</td>
-        <td class="desc">A list of (full-size image, thumbnail) pairs. They're all relative to {{ url_for('uploads', name='') }}.</td>
+        <td class="desc">A list of (full-size image, thumbnail) pairs. They're all relative to {{ url_for('upload', name='') }}.</td>
       </tr>
       <tr>
         <td class="var">id</td>

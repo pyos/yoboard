@@ -1,35 +1,34 @@
+import '/os/path'
+import '/traceback/extract_tb'
+
 import '/flask/Flask'
 import '/flask/render_template'
 import '/flask/send_from_directory'
+import '/flask/app/HTTPException'
 
 import '../config'
 import '../database/picklerpc/Client'
 
-data = Client config.CLIENT_ADDRESS
-app  = Flask __name__
-app.jinja_env.line_statement_prefix = '#:'
-app.before_first_request $ -> data.reconnect
-app.register_blueprint                       $ import 'html/mod'
-app.register_blueprint url_prefix: '/api'    $ import 'json/mod'
-#app.register_blueprint url_prefix: '/admin' $ import 'admin/mod'
-app.add_url_rule '/static/upload/<path:name>' 'uploads' $ name ->
-  send_from_directory config.UPLOAD_DIR name as_attachment: True
-
-
-import '/os/path'
-import '/traceback/extract_tb'
-import '/werkzeug/exceptions/HTTPException'
-
 
 root    = path.abspath $ path.join (path.dirname __file__) path.pardir
 onerror = code -> err -> page, code where page = render_template 'error.html'
+  config:     config
   err:        err
   hascode:   (err :: HTTPException)
-  config:     config
   untrace:   (e -> map    ((fn, a, b, c) -> path.relpath fn root, a, b, c)
                    filter ((fn, _, _, _) -> fn.startswith root) $ extract_tb e.__traceback__)
 
+
+data = Client config.CLIENT_ADDRESS
+app  = Flask __name__
+app.jinja_env.line_statement_prefix = '#:'
+app.jinja_env.line_comment_prefix   = '##'
+
+app.before_first_request $ -> data.reconnect
+app.register_blueprint   $ import 'core/mod'
 app.register_error_handler 400 $ onerror 400
 app.register_error_handler 403 $ onerror 403
 app.register_error_handler 404 $ onerror 404
 app.register_error_handler 500 $ onerror 500
+app.add_url_rule '/static/upload/<path:name>' 'upload' $ name ->
+  send_from_directory config.UPLOAD_DIR name as_attachment: True
