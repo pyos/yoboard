@@ -49,6 +49,12 @@ a.glyphicon, .navbar a {
   margin: 8px;
 }
 
+.adjacent-file-target {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
 .input-group .form-control,
 .input-group-addon {
   /* Otherwise it attempts to fill the whole page. */
