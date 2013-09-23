@@ -37,9 +37,11 @@ with_json_equivalent = onjson onhtml ->
     with_json_equivalent :: (** -> object, ** -> Response) -> ** -> Response
 
   '''
-  update_wrapper wrapped: onjson $ **: args -> if
-    request.accept_mimetypes.best_match (list' 'text/html' 'application/json') == 'text/html' => onhtml **: args
-    otherwise => jsonify $ json_encode $ onjson **: args
+  update_wrapper wrapped: onjson $ **: args ->
+    html = request.accept_mimetypes !! 'text/html'
+    json = request.accept_mimetypes !! 'application/json'
+    if html >= json => onhtml **: args
+       otherwise    => jsonify $ json_encode $ onjson **: args
 
 
 pre_upload = title text files ->
