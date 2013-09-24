@@ -15,6 +15,11 @@ import '../database/Post'
 import '../database/Record'
 
 
+as_list = tree ->
+  yield tree.root
+  for subtree in tree.replies => yield from: (as_list subtree)
+
+
 get_or_404 = f *: args -> except
   e => f *: args
   e :: KeyError => abort 404

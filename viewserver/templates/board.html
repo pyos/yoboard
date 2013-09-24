@@ -1,17 +1,18 @@
 #: extends "base.html"
 #: from "post.html" import post, post_form with context
+#: set title, threads, pages = this
 
 #: block title
   {{ title }}
 #: endblock
 
 #: block options
-  #: if pagenum > 1
+  #: if pages > 1
     #: if page
       <li><a href="{{ url_for('.board', board=board, page=page - 1) }}">&laquo;</a></li>
     #: endif
     <li class="disabled"><a>Стр. {{ page }}</a></li>
-    #: if pagenum > page + 1
+    #: if pages > page + 1
       <li><a href="{{ url_for('.board', board=board, page=page + 1) }}">&raquo;</a></li>
     #: endif
   #: endif
@@ -22,7 +23,7 @@
     {{ post_form(url_for('.post_create', board=board), 0) }}
   </div>
 
-  #: for thread in this
+  #: for thread in threads
     <div class="post-view-tree">
       {{ post(thread.root, false, thread.closed, thread.attached) }}
 

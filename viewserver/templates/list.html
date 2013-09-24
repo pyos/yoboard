@@ -21,7 +21,7 @@
 
 #: block content
   <div class="post-view-tree">
-    #: for p in posts|sort(attribute='id')
+    #: for p in as_list(this)|sort(attribute='id')
       {{ post(p, True, this.closed, this.attached) }}
     #: endfor
   </div>

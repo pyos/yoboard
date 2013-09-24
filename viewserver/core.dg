@@ -1,14 +1,13 @@
 import '/flask/Blueprint'
 import '/flask/abort'
-import '/flask/jsonify'
 import '/flask/redirect'
 import '/flask/request'
 import '/flask/render_template'
 import '/flask/url_for'
-import '/itertools/chain'
 
 import 'data'
 import 'config'
+import 'tools/as_list'
 import 'tools/get_or_404'
 import 'tools/pre_upload'
 import 'tools/post_upload'
@@ -37,13 +36,10 @@ board = with_json_equivalent
   board page: 0 -> dict $ zip ('title', 'threads', 'pages') $ get_or_404 data.board board page
   board page: 0 ->
     data.get_cached_board board page or
-      title, threads, pages = get_or_404 data.board board page
       result = render_template 'board.html'
-        this:    threads
-        title:   title
+        this:   (get_or_404 data.board board page)
         page:    page
         board:   board
-        pagenum: pages
       data.set_cached_board board page result
       result
 
@@ -57,18 +53,12 @@ thread = with_json_equivalent
       otherwise      => '.thread_list'
 
 
-thread_render = t template board thread ->
+thread_render = t template -> board thread ->
   data.get_cached_thread board thread t or
-    as_list = None
-    as_list = t ->
-      yield t.root
-      yield from: (chain.from_iterable $ map as_list t.replies)
-
-    thread = get_or_404 data.thread board thread
     result = render_template template
-      this:   thread
-      posts: (as_list thread)
-      board:  board
+      this:   (get_or_404 data.thread board thread)
+      board:   board
+      as_list: as_list
     data.set_cached_thread board thread t result
     result
 
@@ -91,12 +81,12 @@ post_create = board ->
   redirect $ url_for '.thread' board: board thread: thread
 
 
-mod = Blueprint 'html' __name__
+mod = Blueprint 'core' __name__
 mod.add_url_rule '/'                           None root
 mod.add_url_rule '/<board>/'                   None post_create methods: (list' 'POST')
 mod.add_url_rule '/<board>/'                   None board
 mod.add_url_rule '/<board>/p<int:page>/'       None board
 mod.add_url_rule '/<board>/<int:thread>/'      None thread
-mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ bind thread_render 0 'tree.html'
-mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ bind thread_render 1 'list.html'
+mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ thread_render 0 'tree.html'
+mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ thread_render 1 'list.html'
 mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html'
