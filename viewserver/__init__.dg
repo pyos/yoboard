@@ -1,6 +1,4 @@
 import '/os/path'
-import '/traceback/extract_tb'
-
 import '/flask/Flask'
 import '/flask/render_template'
 import '/flask/send_from_directory'
@@ -10,13 +8,9 @@ import '../config'
 import '../database/picklerpc/Client'
 
 
-root    = path.abspath $ path.join (path.dirname __file__) path.pardir
-onerror = code -> err -> page, code where page = render_template 'error.html'
-  config:     config
-  err:        err
-  hascode:   (err :: HTTPException)
-  untrace:   (e -> map    ((fn, a, b, c) -> path.relpath fn root, a, b, c)
-                   filter ((fn, _, _, _) -> fn.startswith root) $ extract_tb e.__traceback__)
+location = path.abspath $ path.join (path.dirname __file__) path.pardir
+relative = p -> path.relpath p location
+onerror  = c -> e -> (render_template 'error.html' err: e code: c relative: relative, c)
 
 
 data = Client config.CLIENT_ADDRESS

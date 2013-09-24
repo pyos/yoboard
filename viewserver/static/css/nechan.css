@@ -38,6 +38,18 @@ a.glyphicon, .navbar a {
   font-size: 1em;
 }
 
+#error-body {
+  background: url(/static/img/error-bg.png) no-repeat center;
+  display: table;
+  height:    466px;
+  min-width: 466px;
+}
+
+#error-body > * {
+  display: table-cell;
+  vertical-align: middle;
+}
+
 .navbar {
   border: none;
   border-radius: 0;
