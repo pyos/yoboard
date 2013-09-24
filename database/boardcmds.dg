@@ -35,7 +35,7 @@ commands = data ->
   #   1. allows flask workers to share cache;
   #   2. makes invalidating them easier.
   VC_BOARD  = defaultdict dict  # :: {str: {int: str}}
-  VC_THREAD = defaultdict dict  # :: {(str, int): {str: str}}
+  VC_THREAD = defaultdict dict  # :: {(str, int): {int: str}}
 
   post_cleanup = None
   post_cleanup = board num ->
@@ -57,8 +57,8 @@ commands = data ->
     'get_cached_board', name page   -> (VC_BOARD !! name).get page
     'set_cached_board', name page x -> (VC_BOARD !! name).__setitem__ page x
 
-    # :: str int str     -> Maybe str
-    # :: str int str str -> ()
+    # :: str int int     -> Maybe str
+    # :: str int int str -> ()
     'get_cached_thread', board num vt   -> (VC_THREAD !! (board, num)).get vt
     'set_cached_thread', board num vt x -> (VC_THREAD !! (board, num)).__setitem__ vt x
 

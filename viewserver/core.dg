@@ -15,7 +15,6 @@ import 'tools/with_json_equivalent'
 
 
 CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
-  # Stuff to return in `/config.json`.
   'SITE_NAME'
   'SITE_TITLE'
   'POSTS_UNTIL_AUTOSAGE'
