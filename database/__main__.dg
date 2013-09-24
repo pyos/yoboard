@@ -39,8 +39,9 @@ save = atexit.register $ ->
 ### 2. Automatic scheduled dumping.
 import '/threading'
 
+lock     = threading.Lock!
 schedule = _ ->
-  timer = threading.Timer config.AUTOSYNC_INTERVAL (schedule <- save)
+  timer = threading.Timer config.AUTOSYNC_INTERVAL $ -> schedule $ with lock => save!
   timer.daemon = True
   timer.start!
 schedule ()
@@ -49,6 +50,6 @@ schedule ()
 import 'picklerpc/Server'
 import 'boardcmds/commands'
 
-except e => Server config.SERVER_ADDRESS $ commands data
+except e => Server config.SERVER_ADDRESS lock $ commands data
        e :: KeyboardInterrupt => exit 0
 ### We have liftoff.

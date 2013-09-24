@@ -4,7 +4,7 @@ import '/pickle/dumps'
 import '/pickle/Unpickler'
 
 
-Server = (family, addr) commands ->
+Server = (family, addr) lock commands ->
   server = socket.socket family
   server.bind addr
   server.listen 10
@@ -18,7 +18,7 @@ Server = (family, addr) commands ->
     otherwise => except
       e =>
         name, args = (read !! s).load!
-        s.sendall $ dumps $ (commands !! name) *: args
+        s.sendall $ dumps $ with lock => (commands !! name) *: args
       e :: EOFError             => read !!~ s
       e :: ConnectionResetError => read !!~ s
       e :: Exception            => s.sendall $ dumps e
