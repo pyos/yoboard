@@ -13,7 +13,7 @@ Server = (family, addr) commands ->
   while True => for s in select read list! list! !! 0 => if
     s is server =>
       sock = fst server.accept!
-      read !! sock = Unpickler $ sock.makefile 'rb' buffering: 8192
+      read !! sock = Unpickler $ open sock.fileno! 'rb' 8192
 
     otherwise => except
       e =>
@@ -29,7 +29,7 @@ Client = subclass object where
   reconnect = ~>
     @socket = socket.socket @family
     @socket.connect @addr
-    @loader = Unpickler $ @socket.makefile 'rb' buffering: 8192
+    @loader = Unpickler $ open @socket.fileno! 'rb' 16384
 
   __getattr__ = name ~> *: args ->
     response = @call name args

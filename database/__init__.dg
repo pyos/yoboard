@@ -1,4 +1,5 @@
 Record = subclass object where
+  __slots__ = tuple!
   # Named tuples are not mutable, but this thing is.
   # It also allows for easier addition of new fields during a migration.
   __init__ = *: args ~>
@@ -7,7 +8,7 @@ Record = subclass object where
     for (n, v) in zip @__slots__ args => setattr self n v
   # Normally, pickle serializes the whole dict.
   # This is, obviously, redundant.
-  __reduce_ex__ = _ ~> (@__class__, tuple $ map (self `getattr`) @__slots__)
+  __reduce_ex__ = _ ~> (@__class__, tuple (None where for x in @__slots__ => yield $ getattr self x))
 
 
 Post   = subclass Record where __slots__ = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' 'ip'
