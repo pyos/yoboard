@@ -17,19 +17,15 @@ remove_uploads = obj -> for (fn, thumb) in obj.files =>
 
 
 commands = data ->
-  # Cutting corners wherever possible.
-  # Using these cells instead of `data` allows us
-  # to replace a dict lookup with two pointer lookups.
   RP_COUNT  = data !! 'ids'       # :: {str: int}
   RP_BOARD  = data !! 'boards'    # :: {str: Board}
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
   RP_POSTS  = data !! 'posts'     # :: {str: {int: Post}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
 
-  # Various data that can be derived from the above stuff.
+  # An {str: int} mapping that contains the number of attached threads
+  # on each board. Note that it's not necessary to store that in the file.
   VD_ATTACHED = dict (None where
-    # An {str: int} mapping that contains the number of attached threads
-    # on each board.
     for (n, b) in RP_BOARD.items! => yield (n, next (None where
       for (i, t) in enumerate b.threads => not t.attached => yield i
       yield $ len b.threads)))
@@ -227,10 +223,14 @@ commands = data ->
     # :: str int -> ()
     'post_remove', board num ->
       curtree = RP_TREES !! board !! num
-      if curtree :: Thread => (RP_BOARD !! board).threads.remove curtree
-         otherwise =>
-           treeobj = RP_TREES !! board !! curtree.root.parent
-           treeobj.replies.remove curtree
+      if
+        curtree.root.parent =>
+          treeobj = RP_TREES !! board !! curtree.root.parent
+          treeobj.replies.remove curtree
+        otherwise =>
+          boardobj = RP_BOARD !! board
+          boardobj.threads.remove curtree
+          VC_ATTACHED !! board -= curtree.attached
 
       post_cleanup board num
       VC_BOARD.pop   board                       None
