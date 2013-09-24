@@ -21,6 +21,7 @@ onerror = code -> err -> page, code where page = render_template 'error.html'
 
 data = Client config.CLIENT_ADDRESS
 app  = Flask __name__
+app.config.from_object config
 app.jinja_env.line_statement_prefix = '#:'
 app.jinja_env.line_comment_prefix   = '##'
 

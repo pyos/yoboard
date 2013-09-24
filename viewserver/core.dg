@@ -30,9 +30,7 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
 
 root = with_json_equivalent
   -> dict config: CONFIG boards: data.boards!
-  -> render_template 'root.html'
-    config: config
-    boards: data.boards!
+  -> render_template 'root.html' boards: data.boards!
 
 
 board = with_json_equivalent
@@ -45,7 +43,6 @@ board = with_json_equivalent
         title:   title
         page:    page
         board:   board
-        config:  config
         pagenum: pages
       data.set_cached_board board page result
       result
@@ -72,7 +69,6 @@ thread_render = t template board thread ->
       this:   thread
       posts: (as_list thread)
       board:  board
-      config: config
     data.set_cached_thread board thread t result
     result
 
@@ -103,4 +99,4 @@ mod.add_url_rule '/<board>/p<int:page>/'       None board
 mod.add_url_rule '/<board>/<int:thread>/'      None thread
 mod.add_url_rule '/<board>/<int:thread>/tree/' 'thread_tree' $ bind thread_render 0 'tree.html'
 mod.add_url_rule '/<board>/<int:thread>/list/' 'thread_list' $ bind thread_render 1 'list.html'
-mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html' config: config
+mod.add_url_rule '/api/'                       'json' $ -> render_template 'api.html'
