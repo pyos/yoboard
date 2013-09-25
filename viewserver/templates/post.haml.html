@@ -25,8 +25,7 @@
 
       %div class="media-body"
         -if list_mode and p.parent and p.parent != p.thread
-          %p
-            %a class="post-anchor" data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
+          %p -> %a class="post-anchor" data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
   
         =p.text|safe
   
