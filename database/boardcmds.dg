@@ -69,7 +69,7 @@ commands = data ->
     'post',   board num -> RP_POSTS !! board !! num
     'thread', board num ->
       th = RP_TREES !! board !! num
-      th :: Tree => raise KeyError
+      th :: Tree => raise $ KeyError num
       th
 
     # Fetch a list of threads on a board.
@@ -80,6 +80,7 @@ commands = data ->
     'board', name page ->
       board    = RP_BOARD !! name
       pages, r = len board.threads `divmod` config.THREADS_PER_PAGE
+      pages < page => raise $ KeyError page
 
       data = None where
         n = page * config.THREADS_PER_PAGE
