@@ -1,0 +1,21 @@
+-extends "base.haml.html"
+-block title
+  =config.SITE_TITLE
+
+-block head
+  %link type="text/css" rel="stylesheet" href="/static/css/nechan-dark.css"
+
+-block navbar
+-block main
+  %div class="container"
+    %h1 class="text-center" -> =config.SITE_TITLE
+    %div id="main-image" -> &nbsp;
+
+    -for row in boards|dictsort|batch(3)
+      %div class="row"
+        -for car, cdr in row
+          %div class="col-sm-4"
+            %h3 -> =car
+            %ul class="list-unstyled board-index"
+              -for bid, bnam in cdr|dictsort(false, 'value')
+                %li -> %a href="{{ url_for('.board', board=bid) }}" -> =bnam

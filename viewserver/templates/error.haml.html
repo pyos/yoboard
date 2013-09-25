@@ -1,0 +1,34 @@
+-extends "base.haml.html"
+-macro traceback_line(tb)
+  -set filename = relative(tb.tb_frame.f_code.co_filename)
+  -if not filename.startswith('..')
+    <span class='gh'>in line</span> <span class='mi'>{{ tb.tb_lineno }}</span>
+    <span class='gh'>of</span> <span class='sc'>{{ filename }}</span><br />
+  -if tb.tb_next
+    =traceback_line(tb.tb_next)
+
+-macro traceback(err)
+  <span class='err'>{{ err.__class__.__name__ }}</span>: {{ err }}</span><br />
+  =traceback_line(err.__traceback__)
+  -if err.__context__
+    <span class='gh'>in context of</span> {{ traceback(err.__context__) }}
+
+-block title
+  ; `err` may be something other than HTTPException.
+  -if code == 500
+    Internal Server Error~
+  -else
+    {{ err.name }}~
+
+-block navbar
+-block main
+  %div class="container" id="error-body"
+    %div
+      %h1 class="text-center" -> =self.title()
+      %samp class="highlight" -> =traceback(err)
+
+      %footer class="text-center"
+        -if code == 404
+          %a href="/" -> Список досок
+          |
+        %a onclick="history.back(-1)" -> Назад

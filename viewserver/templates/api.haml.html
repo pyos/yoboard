@@ -1,0 +1,203 @@
+-extends "base.haml.html"
+-block head
+  %script type="text/javascript" src="/static/js/themes.js"
+
+-block title
+  JSON API
+
+-block navbar
+-block main
+  %div class="container"
+    %h1 -> JSON API
+    %p  -> Send an <code>Accept: application/json</code> header to recieve JSON.
+    %h3 class="api-method" -> <small>method</small> get
+    %table class="table"
+      %tr
+        %td -> %a href="{{ url_for('.root') }}" -> =url_for('.root')
+        %td class="typ"  -> %a href="#struct-index" -> index
+        %td class="desc" -> Various info about the layout and the configuration of this site.
+      %tr
+        %td -> %a href="{{ url_for('.board', board='b') }}" -> =url_for('.board', board='b')
+        %td class="typ" -> %a href="#struct-board" -> board
+        %td class="desc" rowspan="2" -> Fetch the contents of a single page of a board of choice. Note that page indices are 0-based.
+      %tr
+        %td -> %a href="{{ url_for('.board', board='b', page=0) }}" -> =url_for('.board', board='b', page=0)
+        %td class="typ" -> %a href="#struct-board" -> board
+      %tr
+        %td -> %a href="{{ url_for('.thread', board='b', thread=1) }}" -> =url_for('.thread', board='b', thread=1)
+        %td class="typ"  -> %a href="#struct-thread" -> thread
+        %td class="desc" -> Fetch a single thread from a chosen board.
+
+    %h3 class="api-method" -> <small>method</small> post
+    %table class="table"
+      %tr
+        %td -> %a href="{{ url_for('.post_create', board='b') }}" -> =url_for('.post_create', board='b')
+        %td class="desc"
+          %p -> Create a new message on a board named "b".
+          %table
+            %tr -> %th colspan="2" -> Parameters
+            %tr
+              %td -> parent
+              %td class="desc" -> The post to reply to. If not set, assumed to be 0, which means "new thread".
+            %tr
+              %td -> sage
+              %td class="desc" -> Whether to add some hate to this reply. Replies with this field set to true do not bump threads. This field is set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.
+            %tr
+              %td -> title
+              %td class="desc" -> A short (up to <code>MAX_TITLE_LENGTH</code>) one-line description of a topic. (Optional.)
+            %tr
+              %td -> text
+              %td class="desc" -> A longer (up to <code>MAX_TEXT_LENGTH</code> lexemes and <code>MAX_TEXT_LINES</code> line breaks) message to start a discussion with. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or at least one <code>file</code> is given.)
+            %tr
+              %td -> file
+              %td class="desc" -> A multi-field (up to <code>MAX_UPLOADS</code> values) with attachments, all of which must be images. (Optional if either <code>NOT_EMPTY</code> is <code>false</code> or <code>text</code> is not empty.)
+
+          %table
+            %tr -> %th colspan="2" -> Return value
+            %tr
+              %td -> 302
+              %td class="desc" -> A redirect to <a href="{{ url_for('.thread', board='b', thread='1') }}">{{ url_for('.thread', board='b', thread='1') }}</a> where 'b' is the same as in the request and '1' is the id of thread this post was assigned to.
+            %tr
+              %td -> 400
+              %td class="desc" -> One of the conditions described above was not met.
+            %tr
+              %td -> 403
+              %td class="desc" -> Thread is either closed or over capacity.
+
+    %h3 class="api-struct" id="struct-index" -> <small>struct</small> index</h3>
+    %table class="table"
+      %tr
+        %td class="var"  -> boards
+        %td class="typ"  -> {str: {str: str}}
+        %td class="desc" -> A mapping of categories to mappings of board names to board titles.
+      %tr
+        %td class="var"  -> config
+        %td class="typ"  -> %a href="#struct-config" -> config
+        %td class="desc" -> Some of the engine's configuration parameters. Useful for checking posts before actually sending them.
+
+    %h3 class="api-struct" id="struct-config" -> <small>struct</small> config
+    %table class="table"
+      %tr
+        %td class="var"  -> SITE_NAME
+        %td class="typ"  -> str
+        %td class="desc" -> The text to the left side of "-" in the <code>&lt;title&gt;</code>.
+      %tr
+        %td class="var"  -> SITE_TITLE
+        %td class="typ"  -> str
+        %td class="desc" -> The text you see on the <a href="/">index page</a>.
+      %tr
+        %td class="var"  -> POSTS_UNTIL_AUTOSAGE
+        %td class="typ"  -> int
+        %td class="desc" -> How many replies a thread can amass before it can't be bumped.
+      %tr
+        %td class="var"  -> POSTS_PER_THREAD
+        %td class="typ"  -> int
+        %td class="desc" -> How many replies each thread is allowed to contain. Replies over that count will be refused with HTTP 403.
+      %tr
+        %td class="var"  -> MAX_TITLE_LENGTH
+        %td class="typ"  -> int
+        %td class="desc" -> Limit on the length of the <code>title</code> field, in characters. Going over that limit triggers HTTP 400.
+      %tr
+        %td class="var"  -> MAX_TEXT_LENGTH
+        %td class="typ"  -> int
+        %td class="desc" -> Same as <code>MAX_TITLE_LENGTH</code>, only for the <code>text</code> field.
+      %tr
+        %td class="var"  -> MAX_TEXT_LINES
+        %td class="typ"  -> int
+        %td class="desc" -> Limit on the number of line feed (<code>\n</code>) characters in a <code>text</code> field.
+      %tr
+        %td class="var"  -> MAX_UPLOADS
+        %td class="typ"  -> int
+        %td class="desc" -> Limit on the no. of items submitted as <code>file</code>.
+      %tr
+        %td class="var"  -> NOT_EMPTY
+        %td class="typ"  -> bool
+        %td class="desc" -> Whether a post will be refused with HTTP 400 if it has zero attachments and a zero-length body.
+
+    %h3 class="api-struct" id="struct-board" -> <small>struct</small> board
+    %table class="table"
+      %tr
+        %td class="var"  -> pages
+        %td class="typ"  -> int
+        %td class="desc" -> Total no. of pages on that board. Going over that number does not trigger an error, but yields an empty thread list.
+      %tr
+        %td class="var"  -> title
+        %td class="typ"  -> str
+        %td class="desc" -> Name of the board in question.
+      %tr
+        %td class="var"  -> threads
+        %td class="typ"  -> [<a href="#struct-thread">thread</a>]
+        %td class="desc" -> A list of threads on the requested page.
+
+    %h3 class="api-struct" id="struct-thread" -> <small>struct</small> thread
+    %table class="table"
+      %tr
+        %td class="var"  -> attached
+        %td class="typ"  -> bool
+        %td class="desc" -> Whether this thread is fixed at the top of the first page. Note that the API sorts threads automatically; this field is only provided to display some visual feedback to the user.
+      %tr
+        %td class="var"  -> closed
+        %td class="typ"  -> bool
+        %td class="desc" -> Whether this thread cannot be replied to. Note that this setting is independent of a <code>POSTS_PER_THREAD</code> limit; a thread may not be closed but still over capacity.
+      %tr
+        %td class="var"  -> latest
+        %td class="typ"  -> [<a href="#struct-post">post</a>]
+        %td class="desc" -> A list of some of the latest posts, ordered by ID. The maximum length of this list is server-dependent.
+      %tr
+        %td class="var"  -> replies
+        %td class="typ"  -> [<a href="#struct-tree">tree</a>]
+        %td class="desc" -> A tree of posts that were added as replies to this thread. The API does not generate a complete list of replies ordered by ID; that's your job. When fetching a board, this field is set to <code>null</code> in order to conserve traffic.
+      %tr
+        %td class="var"  -> root
+        %td class="typ"  -> %a href="#struct-post" -> post
+        %td class="desc" -> The OP of this thread.
+      %tr
+        %td class="var"  -> skipped
+        %td class="typ"  -> int
+        %td class="desc" -> No. of replies that did not make it into <code>latest</code> but still exist in the thread. Use this to calculate the total size of the thread: <code>thread.skipped + len(thread.latest)</code>.
+
+    %h3 class="api-struct" id="struct-tree" -> <small>struct</small> tree
+    %table class="table"
+      %tr
+        %td class="var"  -> replies
+        %td class="typ"  -> [<a href="#struct-tree">tree</a>]
+        %td class="desc" -> Children nodes.
+      %tr
+        %td class="var"  -> root
+        %td class="typ"  -> %a href="#stuct-post" -> post
+        %td class="desc" -> The value of this node.
+
+    %h3 class="api-struct" id="struct-post" -> <small>struct</small> post
+    %table class="table"
+      %tr
+        %td class="var"  -> files
+        %td class="typ"  -> [(str, str)]
+        %td class="desc" -> A list of (full-size image, thumbnail) pairs. They're all relative to {{ url_for('upload', name='') }}.
+      %tr
+        %td class="var"  -> id
+        %td class="typ"  -> int
+        %td class="desc" -> ID of this post. Board-unique.
+      %tr
+        %td class="var"  -> parent
+        %td class="typ"  -> int
+        %td class="desc" -> ID of the post to which this one is a reply. Guaranteed to be from the same thread. 0 if this post is an OP of a thread.
+      %tr
+        %td class="var"  -> sage
+        %td class="typ"  -> bool
+        %td class="desc" -> Whether the author of this post expressed displeasure with the discussion. Always false for OPs of threads. Set to true automatically once the thread reaches <code>POSTS_UNTIL_AUTOSAGE</code> replies.
+      %tr
+        %td class="var"  -> text
+        %td class="typ"  -> str
+        %td class="desc" -> A pre-rendered message body, in HTML.
+      %tr
+        %td class="var"  -> thread
+        %td class="typ"  -> int
+        %td class="desc" -> ID of the OP of the thread this post is in.
+      %tr
+        %td class="var"  -> timestamp
+        %td class="typ"  -> str
+        %td class="desc" -> A date and time in <code>%a, %d %b %Y %H:%M:%S GMT</code> format. Probably locale-dependent.
+      %tr
+        %td class="var"  -> title
+        %td class="typ"  -> str
+        %td class="desc" -> A short summary of this post, in raw text.
