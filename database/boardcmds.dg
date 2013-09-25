@@ -101,6 +101,7 @@ commands = data ->
           old = RP_BOARD !! name
           RP_BOARD  !! name = Board name title category old.threads
           RP_CATMAP !! old.category !!~ name
+          RP_CATMAP !! old.category or RP_CATMAP !!~ old.category
         otherwise =>
           RP_COUNT !! name = 0
           RP_BOARD !! name = Board name title category list!
