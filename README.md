@@ -17,9 +17,9 @@ python -m yoboard.database &
 python -m yoboard.viewserver
 ```
 
-##### gunicorn
+##### gunicorn or uwsgi
 
-Replace the last command with `gunicorn yoboard.viewserver:app`. This is the recommended modus operandi.
+Replace the last command with `gunicorn yoboard.viewserver:app` or `uwsgi -w yoboard.viewserver:app` or whatever.
 
 ##### nginx
 
@@ -32,6 +32,13 @@ location /static {
 
 location /static/upload {
   alias /path/to/UPLOAD_DIR;
+}
+
+location / {
+  uwsgi_pass ...;
+  # OR
+  proxy_pass ...;
+  proxy-set-header X-Forwarded-For $remote_addr;
 }
 ```
 
