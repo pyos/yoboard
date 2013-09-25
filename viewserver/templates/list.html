@@ -20,7 +20,6 @@
 #: endblock
 
 #: block content
-  #: include "banner.html"
   <div class="post-view-tree">
     #: for p in as_list(this)|sort(attribute='id')
       {{ post(p, True, this.closed, this.attached) }}
