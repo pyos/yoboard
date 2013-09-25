@@ -1,4 +1,5 @@
-import '/os/path'
+import '/os'
+import '/random/choice'
 import '/flask/Flask'
 import '/flask/render_template'
 import '/flask/send_from_directory'
@@ -8,9 +9,10 @@ import '../config'
 import '../database/picklerpc/Client'
 
 
-location = path.abspath $ path.join (path.dirname __file__) path.pardir
-relative = p -> path.relpath p location
+location = os.path.abspath $ os.path.join (os.path.dirname __file__) os.path.pardir
+relative = p -> os.path.relpath p location
 onerror  = c -> e -> (render_template 'error.html' err: e code: c relative: relative, c)
+onstatic = p -> name -> send_from_directory c name as_attachment: True
 
 
 data = Client config.CLIENT_ADDRESS
@@ -18,6 +20,9 @@ app  = Flask __name__
 app.config.from_object config
 app.jinja_env.line_statement_prefix = '#:'
 app.jinja_env.line_comment_prefix   = '##'
+app.jinja_env.globals !! 'random_banner' = ->
+  xs = os.listdir config.BANNER_DIR
+  xs => choice xs
 
 app.before_first_request $ -> data.reconnect
 app.register_blueprint   $ import 'core/mod'
@@ -25,5 +30,5 @@ app.register_error_handler 400 $ onerror 400
 app.register_error_handler 403 $ onerror 403
 app.register_error_handler 404 $ onerror 404
 app.register_error_handler 500 $ onerror 500
-app.add_url_rule '/static/upload/<path:name>' 'upload' $ name ->
-  send_from_directory config.UPLOAD_DIR name as_attachment: True
+app.add_url_rule '/static/upload/<path:name>' 'upload' $ onstatic config.UPLOAD_DIR
+app.add_url_rule '/static/banner/<path:name>' 'banner' $ onstatic config.BANNER_DIR

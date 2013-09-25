@@ -12,17 +12,10 @@ yoboard = yoba & imageboard where
 ```sh
 pip install -r yoboard/requirements.txt
 $EDITOR yoboard/config.dg
-python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'
+python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True, os.makedirs config.BANNER_DIR 0o755 True'
 python -m yoboard.database &
 python -m yoboard.viewserver  # or `some_wsgi_server yoboard.viewserver:app`
 ```
-
-#### Wait, what database is THAT?
-
-It's not a database, it's a non-distributed Python object storage with
-[pickle](http://docs.python.org/3.3/library/pickle.html)-based RPC interface
-that also dumps all the data it has into a file at periodic intervals
-and on shutdown.
 
 #### Accessing the database directly
 

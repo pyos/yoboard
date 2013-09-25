@@ -1,5 +1,6 @@
-import '/socket'
+import '/os'
 import '/os/path'
+import '/socket'
 
 # This is displayed in the navbar on all pages except for the index.
 SITE_NAME = 'Йобач'
@@ -9,9 +10,13 @@ SITE_NAME = 'Йобач'
 SITE_TITLE = 'YOBA SLUSHAET VAS'
 
 # Where to store server-specific data, namely the database
-# and uploaded files.
+# and uploaded files. Uploads should be served on /static/upload/.
 STORAGE_DIR = path.join (path.dirname __file__) 'store'
 UPLOAD_DIR  = path.join STORAGE_DIR 'upload'
+
+# Where the banners are. Should be served on /static/banner/.
+# Leave that directory empty if you don't want to show anything.
+BANNER_DIR = path.join STORAGE_DIR 'banner'
 
 # A file to use for persistent storage.
 # The database will automatically dump stuff into this file

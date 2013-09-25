@@ -1,0 +1,7 @@
+#: set b = random_banner()
+#: if b
+  #: set n = b.partition('_')[0]
+  <a href="{{ url_for('.board', board=n) }}">
+    <img class="board-banner" alt="/{{ n }}/" src="{{ url_for('banner', name=b) }}" />
+  </a>
+#: endif
