@@ -18,7 +18,7 @@
       #: endif
     #: endif
     #: if not closed
-      <a class="glyphicon glyphicon-edit post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"></a>
+      <a class="glyphicon glyphicon-comment post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"></a>
     #: endif
     <a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Развернуть"></a>
     <a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Свернуть"></a>
@@ -56,9 +56,11 @@
 
   <div class="input-group">
     <input type="text" class="form-control" name="title" placeholder="Тема" />
+    #: if parent
     <label class="input-group-addon">
       <input type="checkbox" name="sage" /> Сажа
     </label>
+    #: endif
   </div>
 
   <div class="input-group">

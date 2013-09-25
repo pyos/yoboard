@@ -19,7 +19,8 @@
   <li><a href="{{ url_for('.thread_tree', board=board, thread=this.root.id) }}" data-type="tree" class="thread-view-type">Деревом</a></li>
 #: endblock
 
-#: block content
+#: block main
+  <h1>{{ self.title() }}</h1>
   <div class="post-view-tree">
     #: for p in as_list(this)|sort(attribute='id')
       {{ post(p, True, this.closed, this.attached) }}

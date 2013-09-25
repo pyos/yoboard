@@ -18,8 +18,15 @@
   #: endif
 #: endblock
 
-#: block content
-  <div class="post-form" id="board-form">
+#: block main
+  <h1>
+    {{ self.title() }}
+    <small>
+      <a class="glyphicon glyphicon-comment post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#board-form"></a>
+    </small>
+  </h1>
+
+  <div class="collapse post-form" id="board-form">
     {{ post_form(url_for('.post_create', board=board), 0) }}
   </div>
 
