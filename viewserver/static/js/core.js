@@ -27,7 +27,7 @@ $(function () {
   });
 
   $(".post-reply-btn").click(function () {
-    $(".post-form:not(.collapse):not(" + $(this).attr("data-target") + ")").collapse("hide");
+    $(".post-form:not(.collapse):not(#board-form):not(" + $(this).attr("data-target") + ")").collapse("hide");
   });
 
   $("[type='file']").each(function () {
