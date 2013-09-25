@@ -1,34 +1,40 @@
 import '/os'
 import '/random/choice'
+
 import '/flask/Flask'
 import '/flask/render_template'
 import '/flask/send_from_directory'
-import '/flask/app/HTTPException'
+import '/jinja2/MemcachedBytecodeCache'
+import '/werkzeug/contrib/cache/SimpleCache'
 
 import '../config'
 import '../database/picklerpc/Client'
 
 
-location = os.path.abspath $ os.path.join (os.path.dirname __file__) os.path.pardir
-relative = p -> os.path.relpath p location
-onerror  = c -> e -> (render_template 'error.html' err: e code: c relative: relative, c)
-onstatic = p -> name -> send_from_directory c name as_attachment: True
-
-
 data = Client config.CLIENT_ADDRESS
 app  = Flask __name__
 app.config.from_object config
+app.before_first_request $ -> data.reconnect
+
+# We store a copy of each template in every process and we don't care.
+app.jinja_env.bytecode_cache        = MemcachedBytecodeCache SimpleCache!
 app.jinja_env.line_statement_prefix = '#:'
 app.jinja_env.line_comment_prefix   = '##'
 app.jinja_env.globals !! 'random_banner' = ->
+  # Shouldn't that be cached?
   xs = os.listdir config.BANNER_DIR
   xs => choice xs
 
-app.before_first_request $ -> data.reconnect
+relative = p -> os.path.relpath p $ os.path.dirname config.__file__
+onerror  = c -> e -> (render_template 'error.html' err: e code: c relative: relative, c)
+
 app.register_blueprint   $ import 'core/mod'
 app.register_error_handler 400 $ onerror 400
 app.register_error_handler 403 $ onerror 403
 app.register_error_handler 404 $ onerror 404
 app.register_error_handler 500 $ onerror 500
+
+# That's better handled by nginx, but we still have to support dev servers.
+onstatic = dir -> name -> send_from_directory dir name as_attachment: True
 app.add_url_rule '/static/upload/<path:name>' 'upload' $ onstatic config.UPLOAD_DIR
 app.add_url_rule '/static/banner/<path:name>' 'banner' $ onstatic config.BANNER_DIR
