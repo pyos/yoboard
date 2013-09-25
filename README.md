@@ -14,32 +14,7 @@ pip install -r yoboard/requirements.txt
 $EDITOR yoboard/config.dg
 python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True'
 python -m yoboard.database &
-python -m yoboard.viewserver
-```
-
-##### gunicorn or uwsgi
-
-Replace the last command with `gunicorn yoboard.viewserver:app` or `uwsgi -w yoboard.viewserver:app` or whatever.
-
-##### nginx
-
-Run the view server as above, then make nginx serve static files:
-
-```
-location /static {
-  alias /path/to/viewserver/static;
-}
-
-location /static/upload {
-  alias /path/to/UPLOAD_DIR;
-}
-
-location / {
-  uwsgi_pass ...;
-  # OR
-  proxy_pass ...;
-  proxy-set-header X-Forwarded-For $remote_addr;
-}
+python -m yoboard.viewserver  # or `some_wsgi_server yoboard.viewserver:app`
 ```
 
 #### Wait, what database is THAT?
