@@ -11,16 +11,20 @@ var Admin = {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
     $("#admin-mode").text("Admin mode: ...");
     $.ajax("/_ismod/", {
+      dataType:   'json',
       statusCode: {
         403: Admin.disable,
-        200: function () {
-          Admin.really = true;
+        200: function (data) {
+          Admin.really = data;
           $("#admin-mode").text("Admin mode: on").off('click').click(Admin.disable);
-          $(".post").each(Admin.Posts.entry);
-          $(".board-index li").each(Admin.Boards.entry);
-          $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
-          // TODO add an UI for board creation.
-          // TODO somehow indicate that the operation is being processed
+
+          var board = location.pathname.split("/")[1];
+          if (data === true || data.indexOf(board) >= 0) {
+            $(".post").each(Admin.Posts.entry);
+            $(".board-index li").each(Admin.Boards.entry);
+            $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
+            // TODO add an UI for board creation.
+          }
         }
       }
     });

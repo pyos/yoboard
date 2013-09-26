@@ -1,4 +1,6 @@
+import '/json/dumps'
 import '/functools/update_wrapper'
+
 import '/flask/Blueprint'
 import '/flask/g'
 import '/flask/request'
@@ -16,7 +18,7 @@ reqhost = fn ->
 
 reqboard = fn ->
   update_wrapper wrapped: fn $ board **: k -> if
-    g.usr is False => ('', 403)
+    not g.usr      => ('', 403)
     g.usr is True  => fn board: board **: k
     board in g.usr => fn board: board **: k
     otherwise      => ('', 403)
@@ -29,8 +31,8 @@ method_switch = put delete ->
 
 
 _ismod = -> if
-  g.usr is False => ('', 403)
-  otherwise      => ('', 200)
+  g.usr     => (dumps g.usr, 200)
+  otherwise => (dumps None,  403)
 
 
 board = reqhost $ method_switch
