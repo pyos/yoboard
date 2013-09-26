@@ -3,10 +3,13 @@
 var Admin = {
   really: false,
   prompt: "A TI KTO?",
+  e403:   "Ты не админишь эту борду, пес!",
+  e403g:  "У тебя слишком низкий уровень чтобы менять список борд.",
+  e404:   "Обнови страницу, а то на древнюю копию смотришь как сыч.",
 
   enable: function (uid) {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
-    $("#admin-mode").text("Admin mode: loading");
+    $("#admin-mode").text("Admin mode: ...");
     $.ajax("/_ismod/", {
       statusCode: {
         403: Admin.disable,
@@ -17,7 +20,7 @@ var Admin = {
           $(".board-index li").each(Admin.Boards.entry);
           $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
           // TODO add an UI for board creation.
-          // TODO handle errors properly
+          // TODO somehow indicate that the operation is being processed
         }
       }
     });
@@ -54,7 +57,7 @@ var Admin = {
         data:       { title: title, cat: category },
         statusCode: {
           200: function () { },
-          403: function () { console.log("[errno 403]: cannot create board: " + board); }
+          403: function () { bootbox.alert(Admin.e403g); }
         }
       });
     },
@@ -62,13 +65,12 @@ var Admin = {
     del: function (board) {
       // TODO do something with empty categories
       var name = $(board).children("a[href]").attr("href");
-      $(board).remove();
       $.ajax(name, {
         method:     "DELETE",
         statusCode: {
-          200: function () { },
-          403: function () { console.log("[errno 403]: cannot remove board: "  + name); },
-          404: function () { console.log("[errno 404]: board does not exist: " + name); }
+          200: function () { $(board).remove() },
+          403: function () { bootbox.alert(Admin.e403g); },
+          404: function () { bootbox.alert(Admin.e404);  }
         }
       });
     }
@@ -84,26 +86,24 @@ var Admin = {
 
     close: function (thread) {
       var url = $(thread).find(".post-id").attr("href").split("#")[0];
-      $(thread).parents(".post-view-tree").find(".post").addClass("post-closed");
       $.ajax(url + "close", {
         method:     "PUT",
         statusCode: {
-          200: function () { },
-          403: function () { console.log("[errno 403]: cannot close thread: "   + url); },
-          404: function () { console.log("[errno 404]: thread does not exist: " + url); }
+          200: function () { $(thread).parents(".post-view-tree").find(".post").addClass("post-closed"); },
+          403: function () { bootbox.alert(Admin.e403); },
+          404: function () { bootbox.alert(Admin.e404); }
         }
       });
     },
 
     open: function (thread) {
       var url = $(thread).find(".post-id").attr("href").split("#")[0];
-      $(thread).parents(".post-view-tree").find(".post").removeClass("post-closed");
       $.ajax(url + "close", {
         method:     "DELETE",
         statusCode: {
-          200: function () { },
-          403: function () { console.log("[errno 403]: cannot open thread: "    + url); },
-          404: function () { console.log("[errno 404]: thread does not exist: " + url); }
+          200: function () { $(thread).parents(".post-view-tree").find(".post").removeClass("post-closed"); },
+          403: function () { bootbox.alert(Admin.e403); },
+          404: function () { bootbox.alert(Admin.e404); }
         }
       });
     }
@@ -134,7 +134,8 @@ var Admin = {
         method:     "DELETE",
         statusCode: {
           200: function () { },
-          403: function () { console.log("[errno 403]: cannot remove post: " + board + "/" + pid); }
+          403: function () { bootbox.alert(Admin.e403); },
+          404: function () { bootbox.alert(Admin.e404); }
         }
       });
     }
@@ -143,7 +144,6 @@ var Admin = {
 
 $(function () {
   var uid = $.cookie("userid");
-
   if (uid) Admin.enable(uid);
   else     Admin.disable();
 });
