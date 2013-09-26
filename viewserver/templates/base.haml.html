@@ -11,9 +11,9 @@
     %script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"
     %script type="text/javascript" src="/static/js/jquery.cookie.js"
     %script type="text/javascript" src="/static/js/bootstrap.min.js"
+    %script type="text/javascript" src="/static/js/core.js"
     -block head
       %script type="text/javascript" src="/static/js/themes.js"
-      %script type="text/javascript" src="/static/js/core.js"
   %body
     -block navbar
       %nav class="navbar navbar-default" role="navigation"
@@ -48,3 +48,4 @@
       %small
         + <a href="https://github.com/pyos/yoboard">yoboard</a>
         | <a href="{{ url_for('core.json') }}">JSON API</a>
+        | <a id="admin-mode">Admin mode: unsupported</a>
