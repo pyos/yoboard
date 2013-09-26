@@ -11,29 +11,31 @@ import '../config'
 import '../database/picklerpc/Client'
 
 
-data = Client config.CLIENT_ADDRESS
-app  = Flask __name__
-app.config.from_object config
-app.before_first_request $ -> data.reconnect
+Yoboard = subclass $ Flask where
+  __init__ = *: a **: k ~>
+    Flask.__init__ self *: a **: k
 
-# We store a copy of each template in every process and we don't care.
-app.jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
-app.jinja_env.add_extension  $ import 'bullshit/BullshitExtension'
-app.jinja_env.globals !! 'random_banner' = ->
-  # Shouldn't that be cached?
-  xs = os.listdir config.BANNER_DIR
-  xs => choice xs
+    @config.from_object config
+    @jinja_env.add_extension  $ import 'bullshit/BullshitExtension'
+    @jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
+    @jinja_env.globals.update $ dict'
+      'random_banner', ->
+        xs = os.listdir config.BANNER_DIR
+        xs => choice xs
 
-relative = p -> os.path.relpath p $ os.path.dirname config.__file__
-onerror  = c -> e -> (render_template 'error.haml.html' err: e code: c relative: relative, c)
+    @add_url_rule '/static/upload/<path:filename>' 'upload' $ bind send_from_directory config.UPLOAD_DIR as_attachment: True
+    @add_url_rule '/static/banner/<path:filename>' 'banner' $ bind send_from_directory config.BANNER_DIR as_attachment: True
 
-app.register_blueprint   $ import 'core/mod'
-app.register_error_handler 400 $ onerror 400
-app.register_error_handler 403 $ onerror 403
-app.register_error_handler 404 $ onerror 404
-app.register_error_handler 500 $ onerror 500
+    @before_first_request $ -> data.reconnect
+    @register_blueprint   $ import 'core/mod'
+    @register_error_handler 400 @onerror
+    @register_error_handler 403 @onerror
+    @register_error_handler 404 @onerror
+    @register_error_handler 500 @onexcept
 
-# That's better handled by nginx, but we still have to support dev servers.
-onstatic = dir -> name -> send_from_directory dir name as_attachment: True
-app.add_url_rule '/static/upload/<path:name>' 'upload' $ onstatic config.UPLOAD_DIR
-app.add_url_rule '/static/banner/<path:name>' 'banner' $ onstatic config.BANNER_DIR
+  relative = p ~> os.path.relpath p $ os.path.dirname config.__file__
+  onexcept = e ~> (render_template 'error.haml.html' err: e code: 500    relative: @relative, 500)
+  onerror  = e ~> (render_template 'error.haml.html' err: e code: e.code relative: @relative, e.code)
+
+data = Client  config.CLIENT_ADDRESS
+app  = Yoboard __name__
