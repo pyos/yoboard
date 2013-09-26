@@ -22,6 +22,7 @@ commands = data ->
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
   RP_POSTS  = data !! 'posts'     # :: {str: {int: Post}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
+  RP_USERS  = data !! 'users' = data.get 'users' dict!  # :: {str: Either [str] bool}
 
   # An {str: int} mapping that contains the number of attached threads
   # on each board. Note that it's not necessary to store that in the file.
@@ -61,6 +62,11 @@ commands = data ->
     # :: str int int str -> ()
     'get_cached_thread', board num vt   -> (VC_THREAD !! (board, num)).get vt
     'set_cached_thread', board num vt x -> (VC_THREAD !! (board, num)).__setitem__ vt x
+
+    # :: str            -> Either [str] bool
+    # :: str (Either [str] bool) -> ()
+    'user',     uid        -> RP_USERS.get uid False
+    'user_set', uid boards -> RP_USERS.__setitem__ uid boards
 
     # ::         -> {str: {str: str}}
     # :: str int -> Post
@@ -232,7 +238,7 @@ commands = data ->
         otherwise =>
           boardobj = RP_BOARD !! board
           boardobj.threads.remove curtree
-          VC_ATTACHED !! board -= curtree.attached
+          VD_ATTACHED !! board -= curtree.attached
 
       post_cleanup board num
       VC_BOARD.pop   board                       None

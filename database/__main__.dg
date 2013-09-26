@@ -20,6 +20,7 @@ data = if
     boardmap: dict!
     trees:    dict!
     posts:    dict!
+    users:    dict!
 
 ### 3. Persistence.
 import '/atexit'
