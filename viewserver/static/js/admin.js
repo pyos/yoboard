@@ -7,6 +7,13 @@ var Admin = {
   e403g:  "У тебя слишком низкий уровень чтобы менять список борд.",
   e404:   "Обнови страницу, а то на древнюю копию смотришь как сыч.",
 
+  new_board_id:     "Идентификатор",
+  new_board_cat:    "Категория",
+  new_board_title:  "Название",
+  new_board_header: "Новая борда",
+  new_board_text:   "Если борда с таким идентификатором уже есть, " +
+                    "ее название и категория будут изменены на введенные здесь.",
+
   enable: function (uid) {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
     $("#admin-mode").text("Admin mode: ...");
@@ -22,6 +29,7 @@ var Admin = {
           if (data === true || data.indexOf(board) >= 0) {
             $(".post").each(Admin.Posts.entry);
             $(".board-index li").each(Admin.Boards.entry);
+            $(".board-index").each(Admin.Boards.entry_head);
             $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
             // TODO add an UI for board creation.
           }
@@ -54,25 +62,60 @@ var Admin = {
                 .prependTo(this);
     },
 
+    entry_head: function () {
+      var cat = $(this).siblings("h3").text();
+      $("<a />").addClass("admin-board-new")
+                .addClass("glyphicon")
+                .addClass("glyphicon-plus-sign")
+                .attr("title", Admin.new_board_header)
+                .click(function () { Admin.Boards.addPrompt(cat); })
+                .appendTo($("<li />").addClass("admin").appendTo(this));
+    },
+
+    addPrompt: function (category) {
+      var form = $("<p>" + Admin.new_board_text + "</p>\
+        <div class='input-group'><input class='form-control' placeholder='" + Admin.new_board_id + "' id='new-board-id' /></div>\
+        <div class='input-group'><input class='form-control' placeholder='" + Admin.new_board_title + "' id='new-board-title' /></div>\
+        <div class='input-group'><input class='form-control' placeholder='" + Admin.new_board_cat + "' id='new-board-cat' /></div>");
+
+      form.find("#new-board-cat").val(category);
+
+      bootbox.dialog({
+        title:   Admin.new_board_header,
+        message: form,
+        buttons: {
+          OK: {
+            className: "btn-primary",
+            callback:  function (ok) {
+              if (ok) {
+                var id    = $("#new-board-id").val();
+                var title = $("#new-board-title").val();
+                var cat   = $("#new-board-cat").val();
+                if (id && title && cat) Admin.Boards.add(id, title, cat);
+              }
+            }
+          }
+        }
+      });
+    },
+
     add: function (board, title, category) {
-      // TODO add an item.
       $.ajax("/" + board + "/", {
         method:     "PUT",
         data:       { title: title, cat: category },
         statusCode: {
-          200: function () { },
+          200: function () { location.reload(); },
           403: function () { bootbox.alert(Admin.e403g); }
         }
       });
     },
 
     del: function (board) {
-      // TODO do something with empty categories
       var name = $(board).children("a[href]").attr("href");
       $.ajax(name, {
         method:     "DELETE",
         statusCode: {
-          200: function () { $(board).remove() },
+          200: function () { location.reload(); },
           403: function () { bootbox.alert(Admin.e403g); },
           404: function () { bootbox.alert(Admin.e404);  }
         }
@@ -122,14 +165,12 @@ var Admin = {
     },
 
     del: function (post) {
-      // TODO if this is a thread or we're using a tree view, remove the whole tree.
-      //      If we're on its page, do something else.
       var board = $(post).find(".post-id").attr("href").split("/")[1];
       var pid   = $(post).attr("id");
       $.ajax("/" + board + "/" + pid + "/", {
         method:     "DELETE",
         statusCode: {
-          200: function () { $(post).remove(); },
+          200: function () { location.reload(); },
           403: function () { bootbox.alert(Admin.e403); },
           404: function () { bootbox.alert(Admin.e404); }
         }
