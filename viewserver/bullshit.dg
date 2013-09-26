@@ -149,20 +149,14 @@ Bullshit = subclass Parser where
 
     f == 'newline' =>
       level = len $ m.group 'newline_indent'
-      if
-         level >  last @indent =>
-           @indent.append level
-           @appendleft $ m.group 'newline'
-         level == last @indent =>
-           @appendleft $ Dedent
-           @appendleft $ m.group 'newline'
+      @append $ m.group 'newline'
+      if level > last @indent => @indent.append level
          otherwise =>
+           @append $ Dedent
            while level != last @indent =>
              @indent.pop!
              @indent or @error 'no matching indentation level' pos
-             @appendleft $ Dedent
-           @appendleft $ Dedent
-           @appendleft $ m.group 'newline'
+             @append $ Dedent
       ''
 
     otherwise => @error 'parser error' pos
