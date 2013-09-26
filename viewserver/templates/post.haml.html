@@ -1,5 +1,5 @@
 -macro post(p, list_mode, closed, attached)
-  %div class="post media" id="{{ p.id }}"
+  %div class="post media {{ 'post-attached' if attached else '' }} {{ 'post-closed' if closed else '' }}" id="{{ p.id }}"
     %div class="media-heading"
       %a href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id" -> =p.id
       -if p.title
@@ -8,12 +8,9 @@
       -if p.sage
         %span class="post-sage"
       -if not p.parent
-        -if attached
-          %span class="glyphicon glyphicon-cloud-upload" title="Прикреплен"
-        -if closed
-          %span class="glyphicon glyphicon-lock" title="Закрыт"
-      -if not closed
-        %a class="glyphicon glyphicon-comment post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
+        %span class="post-attached-mark glyphicon glyphicon-cloud-upload" title="Прикреплен"
+        %span class="post-closed-mark glyphicon glyphicon-lock" title="Закрыт"
+      %a class="glyphicon glyphicon-comment post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
       %a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Развернуть"
       %a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Свернуть"
 
@@ -29,9 +26,8 @@
   
         =p.text|safe
   
-    -if not closed
-      %div class="collapse post-form" id="post-form-{{ p.id }}"
-        =post_form(url_for('.post_create', board=board), p.id)
+    %div class="collapse post-form" id="post-form-{{ p.id }}"
+      =post_form(url_for('.post_create', board=board), p.id)
 
 
 -macro post_form(url, parent)

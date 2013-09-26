@@ -97,6 +97,14 @@ body > .post-view-tree {
   margin: 15px;
 }
 
+.post-closed .post-reply-btn,
+.post-closed .admin-tree-close,
+.post:not(.post-attached) .post-attached-mark,
+.post:not(.post-closed)   .post-closed-mark,
+.post:not(.post-closed)   .admin-tree-open {
+  display: none;
+}
+
 .post-id:before {
   content: '#';
 }
