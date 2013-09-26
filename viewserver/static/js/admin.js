@@ -1,22 +1,30 @@
 "use strict";
 
 var Admin = {
+  really: false,
   prompt: "A TI KTO?",
 
   enable: function (uid) {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
-    $("#admin-mode").text("Admin mode: on").off('click').click(function () {
-      Admin.disable();
+    $("#admin-mode").text("Admin mode: loading");
+    $.ajax("/_ismod/", {
+      statusCode: {
+        403: Admin.disable,
+        200: function () {
+          Admin.really = true;
+          $("#admin-mode").text("Admin mode: on").off('click').click(Admin.disable);
+          $(".post").each(Admin.Posts.entry);
+          $(".board-index li").each(Admin.Boards.entry);
+          $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
+          // TODO add an UI for board creation.
+          // TODO handle errors properly
+        }
+      }
     });
-
-    $(".post").each(Admin.Posts.entry);
-    $(".board-index li").each(Admin.Boards.entry);
-    $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
-    // TODO add an UI for board creation.
-    // TODO handle errors properly
   },
 
   disable: function () {
+    Admin.really = false;
     $.removeCookie("userid", { "path": "/" });
     $(".admin").remove();
     $("#admin-mode").text("Admin mode: off").off('click').click(function () {
