@@ -20,8 +20,8 @@
     %div class="post-content clearfix"
       -for file, thumb in p.files
         %div class="media-object pull-left"
-          %a href="{{ url_for('upload', name=file) }}"
-            %img alt="image" src="{{ url_for('upload', name=thumb) }}"
+          %a href="{{ url_for('upload', filename=file) }}"
+            %img alt="image" src="{{ url_for('upload', filename=thumb) }}"
 
       %div class="media-body"
         -if list_mode and p.parent and p.parent != p.thread
