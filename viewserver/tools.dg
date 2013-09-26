@@ -11,7 +11,6 @@ import '/flask/request'
 import 'data'
 import 'config'
 
-import '../database/Post'
 import '../database/Record'
 
 
@@ -27,22 +26,13 @@ get_or_404 = f *: args -> except
 
 
 json_encode = x -> if
-  x :: Post   => dict (None where for k in x.__slots__ => if k != 'ip' => yield (k, getattr x k))
-  x :: Record => dict (None where for k in x.__slots__ => yield (k, json_encode $ getattr x k))
-  x :: list   => list  $ map json_encode x
-  x :: tuple  => tuple $ map json_encode x
-  x :: dict   => dict  $ zip x.keys! $ map json_encode x.values!
+  x :: Record => dict (-> for k in x.__slots__ => if k !! 0 != '_' => yield (k, json_encode $ getattr x k))!
+  x :: dict   => dict $ zip x.keys! $ map json_encode x.values!
+  x :: list   => list $ map json_encode x
   otherwise   => x
 
 
 with_json_equivalent = onjson onhtml ->
-  '''Create a function that returns either JSON or HTML.
-
-    Routing is done using the Accept header.
-
-    with_json_equivalent :: (** -> object, ** -> Response) -> ** -> Response
-
-  '''
   update_wrapper wrapped: onjson $ **: args ->
     html = request.accept_mimetypes !! 'text/html'
     json = request.accept_mimetypes !! 'application/json'
