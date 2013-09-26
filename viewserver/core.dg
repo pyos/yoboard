@@ -1,5 +1,4 @@
 import '/flask/Blueprint'
-import '/flask/abort'
 import '/flask/redirect'
 import '/flask/request'
 import '/flask/render_template'
@@ -8,9 +7,8 @@ import '/flask/url_for'
 import 'data'
 import 'config'
 import 'tools/as_list'
+import 'tools/make_post'
 import 'tools/get_or_404'
-import 'tools/pre_upload'
-import 'tools/post_upload'
 import 'tools/with_json_equivalent'
 
 
@@ -63,21 +61,13 @@ thread_render = t template -> board thread ->
 
 
 post_create = board ->
-  parent = int  $ request.form.get 'parent' 0
-  sage   = bool $ request.form.get 'sage'   False
-  fnames = pre_upload
-    title  = request.form.get      'title' ''
-    text   = request.form.get      'text'  ''
-    files  = request.files.getlist 'file'
-
-  except
-    err => thread = if
-      parent == 0 => data.thread_create board        title      text fnames request.remote_addr
-      otherwise   => data.post_create   board parent title sage text fnames request.remote_addr
-    err :: OverflowError => abort 403
-    err :: KeyError      => abort 404
-    err is None          => post_upload files fnames
-  redirect $ url_for '.thread' board: board thread: thread
+  redirect $ url_for '.thread' board: board thread:
+    make_post board
+      int  $ request.form.get 'parent' 0
+      bool $ request.form.get 'sage'   False
+      request.form.get      'title' ''
+      request.form.get      'text'  ''
+      request.files.getlist 'file'
 
 
 mod = Blueprint 'core' __name__

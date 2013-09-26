@@ -22,7 +22,8 @@ as_list = tree ->
 
 get_or_404 = f *: args -> except
   e => f *: args
-  e :: KeyError => abort 404
+  e :: OverflowError => abort 403
+  e :: KeyError      => abort 404
 
 
 json_encode = x -> if
@@ -49,12 +50,7 @@ with_json_equivalent = onjson onhtml ->
        otherwise    => jsonify $ json_encode $ onjson **: args
 
 
-pre_upload = title text files ->
-  '''Ensure that a post is valid & make a list of safe filenames.
-
-    pre_upload :: str str [File] -> [(str, str)]
-
-  '''
+make_post = board parent sage title text files ->
   len files == 1 and (head files).filename == '' =>
     # Werkzeug adds a file with an empty filename for some reason.
     files.pop 0
@@ -65,21 +61,20 @@ pre_upload = title text files ->
   config.MAX_TEXT_LENGTH  < len text         => abort 400
   config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
 
-  list xs where xs = None where for f in files => if
+  fnames = list xs where xs = None where for f in files => if
     f.mimetype.startswith 'image/' => yield $ tuple'
       name = str time! + '.full.' + uuid4!.hex + path.splitext f.filename !! 1
       name.replace '.full.' '.min.'
     otherwise => abort 400
 
+  thread = if
+    parent == 0 => get_or_404 data.thread_create board        title      text fnames request.remote_addr
+    otherwise   => get_or_404 data.post_create   board parent title sage text fnames request.remote_addr
 
-post_upload = files fnames ->
-  '''Store the files in a local filesystem & generate thumbnails.
-
-    post_upload :: [File] [(str, str)] -> ()
-
-  '''
   for (file, (fn, tn)) in zip files fnames =>
     fp = path.join config.UPLOAD_DIR fn
     tp = path.join config.UPLOAD_DIR tn
     file.save fp
     Popen $ list' 'convert' fp '-resize' ('{0}x{0}>'.format config.THUMBNAIL_SIZE) tp
+
+  thread
