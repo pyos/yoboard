@@ -11,9 +11,15 @@ yoboard = yoba & imageboard where
 
 ```sh
 pip install -r yoboard/requirements.txt
+# Tweak the configuration.
 $EDITOR yoboard/config.dg
+# Create the necessary directories.
 python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True, os.makedirs config.BANNER_DIR 0o755 True'
+# Initialize an empty database.
 python -m yoboard.database &
+# Create an admin user.
+python -m yoboard.database.cli <<< 'd.user_set "YOUR_ADMIN_PASSWORD" True'
+# Start the server.
 python -m yoboard.viewserver  # or `some_wsgi_server yoboard.viewserver:app`
 ```
 
@@ -28,7 +34,3 @@ $ python -m yoboard.database.cli
 ```
 
 etc. See `/database/boardcmds.dg` for a list of commands.
-
-### What's the point in all of this?
-
-There is none.
