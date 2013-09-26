@@ -99,7 +99,9 @@ body > .post-view-tree {
 
 .post-closed .post-reply-btn,
 .post-closed .admin-tree-close,
+.post-attached .admin-tree-attach,
 .post:not(.post-attached) .post-attached-mark,
+.post:not(.post-attached) .admin-tree-detach,
 .post:not(.post-closed)   .post-closed-mark,
 .post:not(.post-closed)   .admin-tree-open {
   display: none;

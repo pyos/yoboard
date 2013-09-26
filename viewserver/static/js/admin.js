@@ -80,33 +80,26 @@ var Admin = {
     entry: function () {
       Admin.Posts.button(this, 'tree-close',  'Закрыть',    'stop',       Admin.Threads.close);
       Admin.Posts.button(this, 'tree-open',   'Открыть',    'play',       Admin.Threads.open);
-      //Admin.Posts.button(this, 'tree-attach', 'Прикрепить', 'arrow-up',   Admin.Threads.attach);
-      //Admin.Posts.button(this, 'tree-detach', 'Открепить',  'addow-down', Admin.Threads.detach);
+      Admin.Posts.button(this, 'tree-attach', 'Прикрепить', 'arrow-up',   Admin.Threads.attach);
+      Admin.Posts.button(this, 'tree-detach', 'Открепить',  'arrow-down', Admin.Threads.detach);
     },
 
-    close: function (thread) {
+    setState: function (thread, state, cls, enabled) {
       var url = $(thread).find(".post-id").attr("href").split("#")[0];
-      $.ajax(url + "close", {
-        method:     "PUT",
+      $.ajax(url + state, {
+        method:     enabled ? "PUT" : "DELETE",
         statusCode: {
-          200: function () { $(thread).parents(".post-view-tree").find(".post").addClass("post-closed"); },
+          200: function () { $(thread).parents(".post-view-tree").find(".post").toggleClass(cls); },
           403: function () { bootbox.alert(Admin.e403); },
           404: function () { bootbox.alert(Admin.e404); }
         }
       });
     },
 
-    open: function (thread) {
-      var url = $(thread).find(".post-id").attr("href").split("#")[0];
-      $.ajax(url + "close", {
-        method:     "DELETE",
-        statusCode: {
-          200: function () { $(thread).parents(".post-view-tree").find(".post").removeClass("post-closed"); },
-          403: function () { bootbox.alert(Admin.e403); },
-          404: function () { bootbox.alert(Admin.e404); }
-        }
-      });
-    }
+    close:  function (thread) { Admin.Threads.setState(thread, "close",  "post-closed",   true);  },
+    open:   function (thread) { Admin.Threads.setState(thread, "close",  "post-closed",   false); },
+    attach: function (thread) { Admin.Threads.setState(thread, "attach", "post-attached", true);  },
+    detach: function (thread) { Admin.Threads.setState(thread, "attach", "post-attached", false); }
   },
 
   Posts: {
@@ -129,11 +122,10 @@ var Admin = {
       //      If we're on its page, do something else.
       var board = $(post).find(".post-id").attr("href").split("/")[1];
       var pid   = $(post).attr("id");
-      $(post).remove();
       $.ajax("/" + board + "/" + pid + "/", {
         method:     "DELETE",
         statusCode: {
-          200: function () { },
+          200: function () { $(post).remove(); },
           403: function () { bootbox.alert(Admin.e403); },
           404: function () { bootbox.alert(Admin.e404); }
         }
