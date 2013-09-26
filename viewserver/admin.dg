@@ -1,0 +1,60 @@
+import '/functools/update_wrapper'
+import '/flask/Blueprint'
+import '/flask/g'
+import '/flask/request'
+
+import 'data'
+import 'config'
+import 'tools/get_or_404'
+
+
+reqhost = fn ->
+  update_wrapper wrapped: fn $ **: k -> if
+    g.usr is True => fn **: k
+    otherwise     => ('', 403)
+
+
+reqboard = fn ->
+  update_wrapper wrapped: fn $ board **: k -> if
+    g.usr is False => ('', 403)
+    g.usr is True  => fn board: board **: k
+    board in g.usr => fn board: board **: k
+    otherwise      => ('', 403)
+
+
+method_switch = put delete ->
+  update_wrapper wrapped: put $ **: k -> if
+    request.method == 'PUT'    => ('', 200) where put    **: k
+    request.method == 'DELETE' => ('', 200) where delete **: k
+
+
+board = reqhost $ method_switch
+  board -> get_or_404 data.board_create board (request.form !! 'title') (request.form !! 'cat')
+  board -> get_or_404 data.board_remove board
+
+
+tree_attach = reqboard $ method_switch
+  board tree -> get_or_404 data.thread_set_attached board tree True
+  board tree -> get_or_404 data.thread_set_attached board tree False
+
+
+tree_close  = reqboard $ method_switch
+  board tree -> get_or_404 data.thread_set_closed board tree True
+  board tree -> get_or_404 data.thread_set_closed board tree False
+
+
+tree_remove = reqboard $ method_switch
+  board tree ->
+  board tree -> get_or_404 data.post_remove board tree
+
+
+# TODO: /<board>/bans/ or something.
+mod = Blueprint 'admin' __name__
+mod.add_url_rule '/<board>/'                  None board       methods: (list' 'PUT' 'DELETE')
+mod.add_url_rule '/<board>/<int:tree>/attach' None tree_attach methods: (list' 'PUT' 'DELETE')
+mod.add_url_rule '/<board>/<int:tree>/close'  None tree_close  methods: (list' 'PUT' 'DELETE')
+mod.add_url_rule '/<board>/<int:tree>/'       None tree_remove methods: (list' 'DELETE')
+mod.before_request $ ->
+  g.uid = request.cookies.get 'userid' False
+  g.usr = if g.uid => data.user g.uid
+  None
