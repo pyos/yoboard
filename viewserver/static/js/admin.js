@@ -5,7 +5,7 @@ var Admin = {
 
   enable: function (uid) {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
-    $("#admin-mode").text("Admin mode: on").click(function () {
+    $("#admin-mode").text("Admin mode: on").off('click').click(function () {
       Admin.disable();
     });
 
@@ -19,9 +19,9 @@ var Admin = {
   disable: function () {
     $.removeCookie("userid", { "path": "/" });
     $(".admin").remove();
-    $("#admin-mode").text("Admin mode: off").click(function () {
-      bootbox.prompt(prompt, function (val) {
-        if (val) Admin.enable(val);
+    $("#admin-mode").text("Admin mode: off").off('click').click(function () {
+      bootbox.prompt(Admin.prompt, function (val) {
+        if (val !== null) Admin.enable(val);
       });
     });
   },
