@@ -28,6 +28,11 @@ method_switch = put delete ->
     request.method == 'DELETE' => ('', 200) where delete **: k
 
 
+_ismod = -> if
+  g.usr is False => ('', 403)
+  otherwise      => ('', 200)
+
+
 board = reqhost $ method_switch
   board -> get_or_404 data.board_create board (request.form !! 'title') (request.form !! 'cat')
   board -> get_or_404 data.board_remove board
@@ -50,6 +55,7 @@ tree_remove = reqboard $ method_switch
 
 # TODO: /<board>/bans/ or something.
 mod = Blueprint 'admin' __name__
+mod.add_url_rule '/_ismod/'                   None _ismod
 mod.add_url_rule '/<board>/'                  None board       methods: (list' 'PUT' 'DELETE')
 mod.add_url_rule '/<board>/<int:tree>/attach' None tree_attach methods: (list' 'PUT' 'DELETE')
 mod.add_url_rule '/<board>/<int:tree>/close'  None tree_close  methods: (list' 'PUT' 'DELETE')
