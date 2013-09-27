@@ -21,6 +21,8 @@
       =post(thread.root, false, thread.closed, thread.attached)
       -if thread.skipped
         %p class="post-missing-notice"
-          Всего {{ thread.skipped + thread.latest|length }} постов, из них {{ thread.skipped }} пропущен{{ "о" if thread.skipped > 1 else "" }}.
+          %a href="{{ url_for('.thread', board=board, thread=thread.root.id) }}"
+            Всего {{ thread.skipped + thread.latest|length }} постов,
+          из них {{ thread.skipped }} пропущен{{ "о" if thread.skipped > 1 else "" }}.
       -for reply in thread.latest
         =post(reply, true, thread.closed, thread.attached)
