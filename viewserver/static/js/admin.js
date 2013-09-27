@@ -57,9 +57,8 @@ var Admin = {
                 .addClass("glyphicon")
                 .addClass("glyphicon-remove-circle")
                 .attr("title", "Удалить")
-                .css("padding-right", "5px")
                 .click(function () { Admin.Boards.del(board); })
-                .prependTo(this);
+                .prependTo(this).after(" ");
     },
 
     entry_head: function () {
@@ -125,10 +124,10 @@ var Admin = {
 
   Threads: {
     entry: function () {
-      Admin.Posts.button(this, 'tree-close',  'Закрыть',    'stop',       Admin.Threads.close);
-      Admin.Posts.button(this, 'tree-open',   'Открыть',    'play',       Admin.Threads.open);
-      Admin.Posts.button(this, 'tree-attach', 'Прикрепить', 'arrow-up',   Admin.Threads.attach);
-      Admin.Posts.button(this, 'tree-detach', 'Открепить',  'arrow-down', Admin.Threads.detach);
+      Admin.Posts.button(this, 'tree-close',  'Закрыть',    'floppy-remove', '.post-reply-btn',     Admin.Threads.close);
+      Admin.Posts.button(this, 'tree-open',   'Открыть',    'floppy-saved',  '.post-reply-btn',     Admin.Threads.open);
+      Admin.Posts.button(this, 'tree-attach', 'Прикрепить', 'upload',        '.post-attached-mark', Admin.Threads.attach);
+      Admin.Posts.button(this, 'tree-detach', 'Открепить',  'unchecked',     '.post-attached-mark', Admin.Threads.detach);
     },
 
     setState: function (thread, state, cls, enabled) {
@@ -151,17 +150,17 @@ var Admin = {
 
   Posts: {
     entry: function () {
-      Admin.Posts.button(this, 'tree-rm', 'Удалить', 'remove', Admin.Posts.del);
+      Admin.Posts.button(this, 'tree-rm', 'Удалить', 'trash', '.post-reply-btn', Admin.Posts.del);
     },
 
-    button: function (post, cls, title, icon, fn) {
+    button: function (post, cls, title, icon, anchor, fn) {
       return $("<a />").addClass("admin")
                        .addClass("admin-" + cls)
                        .addClass("glyphicon")
                        .addClass("glyphicon-" + icon)
                        .attr("title", title)
                        .click(function () { fn(post); })
-                       .appendTo($(post).find(".media-heading"));
+                       .insertAfter($(post).find(anchor)).after(" ").before(" ");
     },
 
     del: function (post) {
