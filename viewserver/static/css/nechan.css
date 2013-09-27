@@ -100,10 +100,13 @@ body > .post-view-tree {
 .post-closed .post-reply-btn,
 .post-closed .admin-tree-close,
 .post-attached .admin-tree-attach,
+.post-expanded .post-expand-btn,
 .post:not(.post-attached) .post-attached-mark,
 .post:not(.post-attached) .admin-tree-detach,
 .post:not(.post-closed)   .post-closed-mark,
-.post:not(.post-closed)   .admin-tree-open {
+.post:not(.post-closed)   .admin-tree-open,
+.post:not(.post-expanded) .post-collapse-btn,
+.post:not(.post-expandable) .post-expand-btn {
   display: none;
 }
 
@@ -129,11 +132,6 @@ body > .post-view-tree {
 .post-timestamp:before {
   color: #aaaaaa;
   content: "@ ";
-}
-
-.post-collapse-btn,
-.post-expand-btn {
-  display: none;
 }
 
 .post-content {
