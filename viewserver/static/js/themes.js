@@ -1,35 +1,34 @@
 "use strict";
 
-var current = $.cookie("style") || "photon";
-var themes  = {"bootstrap": "white",
-               "photon":    "gray",
-               "neutron":   "dark"};
 
-
-var theme_get = function (name) {
-  return "/static/css/nechan-" + (themes[name] || themes["photon"]) + ".css";
+var Theme = {
+    choice: ["bootstrap", "photon", "neutron"]
+  , default: "photon"
+  , current: null
+  , element: null
+  , select: function (name) {
+      Theme.current = Theme.choice.indexOf(name) >= 0 ? name : Theme.default;
+      Theme.element.attr("href", "/static/css/yoba-theme-" + Theme.current + ".css");
+      $.cookie("theme", Theme.current, { "expires": 365, "path": "/" });
+    }
 }
 
 
-var injected = $("<link type='text/css' rel='stylesheet' />")
-  .attr("href", theme_get(current))
-  .appendTo("head");
+if (!$("[data-theme-override]").length) {
+  Theme.element = $("<link type='text/css' rel='stylesheet' />").appendTo("head");
+  Theme.select($.cookie("theme"));
 
+  $(function () {
+    for (var i = 0; i < Theme.choice.length; i++)
+      $("<li />").addClass("board-style-type")
+        .append($("<a />").text(Theme.choice[i]))
+        .appendTo("#view-options")
+        .addClass(Theme.current == Theme.choice[i] ? "active" : "");
 
-$(function () {
-  var options = $("#view-options");
-
-  for (var k in themes) {
-    var container = $("<li />").attr("class", "board-style-type");
-    var child     = $("<a  />").attr("data-style", k).text(k).click(function () {
-      current = $(this).attr("data-style");
-      injected.attr("href", theme_get(current));
+    $(".board-style-type > a").click(function () {
+      Theme.select($(this).text());
       $(".board-style-type").removeClass("active");
       $(this).parent().addClass("active");
-      $.cookie("style", current, { "expires": 365, "path": "/" });
     });
-
-    container.append(child).appendTo(options);
-    if (k == current) container.addClass("active");
-  };
-});
+  });
+}
