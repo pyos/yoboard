@@ -18,7 +18,6 @@ reqhost = fn ->
 
 reqboard = fn ->
   update_wrapper wrapped: fn $ board **: k -> if
-    not g.usr      => ('', 403)
     g.usr is True  => fn board: board **: k
     board in g.usr => fn board: board **: k
     otherwise      => ('', 403)
@@ -28,11 +27,6 @@ method_switch = put delete ->
   update_wrapper wrapped: put $ **: k -> if
     request.method == 'PUT'    => ('', 200) where put    **: k
     request.method == 'DELETE' => ('', 200) where delete **: k
-
-
-_ismod = -> if
-  g.usr     => (dumps g.usr, 200)
-  otherwise => (dumps None,  403)
 
 
 board = reqhost $ method_switch
@@ -57,12 +51,12 @@ tree_remove = reqboard $ method_switch
 
 # TODO: /<board>/bans/ or something.
 mod = Blueprint 'admin' __name__
-mod.add_url_rule '/_ismod/'                   None _ismod
+mod.add_url_rule '/_ismod/'                   '_ismod' $ -> (dumps g.usr, 200)
 mod.add_url_rule '/<board>/'                  None board       methods: (list' 'PUT' 'DELETE')
 mod.add_url_rule '/<board>/<int:tree>/attach' None tree_attach methods: (list' 'PUT' 'DELETE')
 mod.add_url_rule '/<board>/<int:tree>/close'  None tree_close  methods: (list' 'PUT' 'DELETE')
 mod.add_url_rule '/<board>/<int:tree>/'       None tree_remove methods: (list' 'DELETE')
 mod.before_request $ ->
-  g.uid = request.cookies.get 'userid' False
+  g.uid = request.cookies.get 'userid' None
   g.usr = if g.uid => data.user g.uid
-  None
+  if not g.usr => ('null', 403)
