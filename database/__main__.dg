@@ -1,56 +1,32 @@
-### 5. SIGTERM to exit.
+import '/pekel'
+import '/atexit'
+import '/threading'
 import '/signal/signal'
 import '/signal/SIGTERM'
 
+import 'boardcmds/commands'
+import '../config'
+
+### 5. SIGTERM to exit.
 signal SIGTERM $ _ _ -> raise KeyboardInterrupt
 
 ### 4. Data loader.
-import '/os'
-import '/gzip'
-import '/pickle'
-import '../config'
-
-data = if
-  # If this fails, the operator has to either fix corruption manually
-  # or remove the database altogether.
-  os.path.exists config.DATABASE => with fd = gzip.open config.DATABASE 'rb' => pickle.load fd
-  otherwise => dict
-    ids:      dict!
-    boards:   dict!
-    boardmap: dict!
-    trees:    dict!
-    posts:    dict!
-    users:    dict!
+data = pekel.persistence.load config.DATABASE $ dict
+  ids:      dict!
+  boards:   dict!
+  boardmap: dict!
+  trees:    dict!
+  posts:    dict!
+  users:    dict!
 
 ### 3. Persistence.
-import '/atexit'
-import '/uuid/uuid4'
-
-save = atexit.register $ ->
-  os.fork! == 0 =>
-    dt = pickle.dumps data
-    fn = config.DATABASE + '.save.' + uuid4!.hex
-    with fd = gzip.open fn 'wb' =>
-      fd.write dt
-      fd.flush!
-      os.fsync fd.fileno!
-    os.rename fn config.DATABASE
-    os._exit 0
+atexit.register $ bind pekel.persistence.save config.DATABASE data
 
 ### 2. Automatic scheduled dumping.
-import '/threading'
-
-lock     = threading.Lock!
-schedule = _ ->
-  timer = threading.Timer config.AUTOSYNC_INTERVAL $ -> schedule $ with lock => save!
-  timer.daemon = True
-  timer.start!
-schedule ()
+lock = threading.Lock!
+pekel.persistence.timed config.DATABASE data config.AUTOSYNC_INTERVAL lock
 
 ### 1. The socket server.
-import 'picklerpc/Server'
-import 'boardcmds/commands'
-
-except e => Server config.SERVER_ADDRESS lock $ commands data
+except e => pekel.rpc.Server config.SERVER_ADDRESS lock $ commands data
        e :: KeyboardInterrupt => exit 0
 ### We have liftoff.
