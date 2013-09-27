@@ -189,9 +189,11 @@ commands = data ->
       threadobj = RP_TREES !! board !! parentobj.thread
 
       threadlen = len threadobj.latest + threadobj.skipped
-      threadlen >= config.POSTS_UNTIL_AUTOSAGE => sage = True
-      threadlen >= config.POSTS_PER_THREAD     => raise OverflowError
       threadobj.closed                         => raise OverflowError
+      threadlen >= config.POSTS_PER_THREAD     => raise OverflowError
+      threadlen >= config.POSTS_UNTIL_AUTOSAGE =>
+        config.IMAGES_ALWAYS_BUMP and files => raise OverflowError
+        sage = True
 
       postid  = RP_COUNT !! board += 1
       postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now! ip
@@ -206,7 +208,7 @@ commands = data ->
         threadobj.latest.pop 0
         threadobj.skipped += 1
 
-      not sage and not threadobj.attached =>
+      not ((sage and not (files and config.IMAGES_ALWAYS_BUMP)) or threadobj.attached) =>
         boardobj.threads.remove                        threadobj
         boardobj.threads.insert (VD_ATTACHED !! board) threadobj
 

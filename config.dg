@@ -57,6 +57,11 @@ POSTS_PER_THREAD = POSTS_UNTIL_AUTOSAGE + 50
 # is not retroactive.
 THUMBNAIL_SIZE = 128
 
+# Whether to ignore the `sage` field if the post contains attachments.
+# Any posts with attachments will be refused if the thread has already
+# reached its POSTS_UNTIL_AUTOSAGE limit.
+IMAGES_ALWAYS_BUMP = True
+
 # Various limits on message sizes.
 # Note that there's no limit on the size of uploaded files;
 # use nginx as a proxy for that (it can limit the size of a request.)

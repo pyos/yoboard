@@ -22,6 +22,7 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'MAX_TEXT_LINES'
   'MAX_UPLOADS'
   'NOT_EMPTY'
+  'IMAGES_ALWAYS_BUMP'
 
 
 root = with_json_equivalent
