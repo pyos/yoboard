@@ -1,7 +1,6 @@
 import '/os'
 import '/random/choice'
 
-import '/pekel/rpc/Client'
 import '/flask/Flask'
 import '/flask/render_template'
 import '/flask/send_from_directory'
@@ -9,6 +8,7 @@ import '/jinja2/MemcachedBytecodeCache'
 import '/werkzeug/contrib/cache/SimpleCache'
 
 import '../config'
+import '../database/picklerpc/Client'
 
 
 Yoboard = subclass $ Flask where

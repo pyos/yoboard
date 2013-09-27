@@ -1,7 +1,7 @@
-import '/pekel'
 import '/builtins'
 
 builtins.__dict__.update $ dict
+  Client: (import 'picklerpc/Client')
   Post:   (import 'Post')
   Tree:   (import 'Tree')
   Board:  (import 'Board')
@@ -9,7 +9,7 @@ builtins.__dict__.update $ dict
   markup: (import 'markup')
   config: (import '../config')
 
-builtins.d = pekel.rpc.Client config.CLIENT_ADDRESS
+builtins.d = Client config.CLIENT_ADDRESS
 builtins.d.reconnect
 
 import '/dg/__main__'
