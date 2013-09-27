@@ -1,0 +1,166 @@
+r'''A HAML-like preprocessor for Jinja2.
+
+Inspired by hamlish-jinja (https://github.com/Pitmairen/hamlish-jinja).
+
+Unlike hamlish-jinja, however, this thing actually works because it uses
+a real regex-based parser instead of some shitty string manipulations.
+
+A short guide:
+
+  %html lang="en"
+    %head
+      %meta charset="utf-8"
+      %link rel="stylesheet" src="yoba.css"
+      %link rel="stylesheet" src="peka.css"
+    %body
+      -block heading
+        -set title = "Bullshit"
+        %h1 -> =title
+        %h2 -> Like HAML, only Jinja2.
+
+      -block content
+        Bullshit is indentation-sensitive.
+        It also preserves all line breaks and indentation in the output.
+          You can insert indented blocks anywhere, actually.
+          They will simply appear as indented blocks in the output,
+          unless a control line appears before such a block.
+
+        Empty lines are ignored.
+
+        %div class="container"
+          Prefix a line with `%` to create a tag. After the tag name there may be
+          one or more attributes in form `name="value"` or `name='value'`.
+
+          %hr
+            Tags that can be void as per the html5 spec will be void in the output.
+            Even though this block is indented, it is in no way inside a &lt;hr%gt; tag.
+            Also, notice how I escaped the tag in the previous line? Everything
+            you write here is not escaped, so you can easily insert raw HTML whenever
+            the need arises. Make sure to use proper indentation, though.
+
+        -if not knows_about_blocks
+          Lines prefixed with `-` are Jinja control statements.
+          The first word on such a line is assumed to be a keyword, and a respective
+          `endstuff` tag is inserted at the end of a block.
+        -elif not knows_about_clauses
+          Except if one of the supported clauses comes after that block.
+          In this case, "endif" will be inserted below this text,
+          not before an "elif". Same thing happens with "else" when used
+          after "if"/"for" and "pluralize" when used after "trans".
+
+        -include "some_other_stuff.html"
+          Some control statements are void, too; namely, `extends`, `from`,
+          `include`, `set`, `import`, `do`, `break`, and `continue`.
+          They don't have a corresponding "endstuff" tag, obviously.
+
+        ; Comments begin with a semicolon.
+        ; They are passed to the output as Jinja comments,
+        ; so avoid using the magical # } sequence in them.
+        ; (Also, they need to be properly indented, too.)
+
+        \- If you actually need to start a line with any of the
+        \= special characters, prefix it with a backslash.
+
+      -block footer
+        %strong -> One last note.
+        This thing is actually pretty slow, so make sure you
+        use bytecode caching in Jinja. That's all, folks.
+
+'''
+import '/re'
+import '/dg/Dedent'
+import '/dg/EOFTok'
+import '/dg/Parser'
+import '/jinja2/ext/Extension'
+
+
+parse = data filename: '<string>' trim: False ->
+  p = (subclass Bullshit) data filename
+  ''.join $ filter (x -> not $ x is Dedent) $
+         takewhile (x -> not $ x is EOFTok) p
+
+
+BullshitExtension = subclass Extension where
+  preprocess = data name _: None ~> if
+    name.endswith '.haml.html' => parse data name $ getattr @environment 'trim_bullshit' False
+    otherwise                  =>       data
+
+
+ControlStmt = subclass str where __new__ = t x ~> self where
+  self = str.__new__ self x
+  self.type = t
+
+
+Bullshit = subclass Parser where
+  VOID_JINJA = set' 'extends' 'from' 'include' 'set' 'import' 'do' 'break' 'continue'
+  VOID_HTML  = set' 'area' 'base' 'br' 'col' 'command' 'embed' 'hr' 'img' 'input' 'keygen' 'link' 'meta' 'param' 'source' 'track' 'wbr'
+
+  CLAUSES = dict'
+    'else', set' 'if' 'for'
+    'elif', set' 'if'
+    'pluralize', set' 'trans'
+
+  trim  = False  # Whether to replace `\s*\n\ *` with a single space.
+  regex = re.compile r'''(?imx)
+     (?P<newline>\s*\n(?P<newline_indent>\ *))
+    |(?P<space>\ +)
+    |(?P<comment>;[^\S\n]*(?P<comment_data>.*))
+    |(?P<control>-[^\S\n]*(?P<control_data>(?P<control_name>\w+)(?:\ .*)?))
+    |(?P<insert>=[^\S\n]*(?P<insert_expr>.*))
+    |(?P<tag>%[^\S\n]*(?P<tag_data>(?P<tag_name>\w+)(?:[^\S\n]+[\w-]+(?:=(?:'(?:\\?.)*?'|"(?:\\?.)*?"))?)*)[^\S\n]*(?:->|$))
+    |(?P<escape>\\(?P<escaped_text>.*))
+    |(?P<text>[^=%\-].*)
+    |.
+  '''
+
+  token = pos f m ~> if
+    f is None      => @error 'invalid input' pos
+    f == 'text'    => @inline $ m.group 'text'
+    f == 'escape'  => @inline $ m.group 'escaped_text'
+    f == 'insert'  => @inline $ '{{{{ {} }}}}'.format $ m.group 'insert_expr'
+    f == 'comment' => @inline $ '{{# {} #}}'.format   $ m.group 'comment_data'
+    f == 'space'   => '' where @indent.append $ last @indent + 2
+    f == 'tag'     => if
+      m.group 'tag_name' in @VOID_HTML => @inline $ '<{} />'.format $ m.group 'tag_data'
+      otherwise                        => @block
+        -> '<{}>'.format  $ m.group 'tag_data'
+        -> '</{}>'.format $ m.group 'tag_name'
+
+    f == 'control' =>
+      name = m.group 'control_name'
+      if name in @VOID_JINJA => @inline $ '{{% {} %}}'.format $ m.group 'control_data'
+         otherwise           => ControlStmt name $ @block
+           -> '{{% {} %}}'.format $ m.group 'control_data'
+           -> '' where name in @CLAUSES or
+             # We'll take a quick peek to see if the next block
+             # is an additional clause by any chance.
+             b = list!
+             x = next self
+             while (x :: str and x.isspace!) or (x :: ControlStmt and name in @CLAUSES.get x.type set!) =>
+               b.append x
+               x = next self
+
+             @append x
+             @append $ '{{% end{} %}}'.format (m.group 'control_name')
+             @extend $ reversed b
+
+    f == 'newline' =>
+      level = len $ m.group 'newline_indent'
+      @append $ if (@trim => ' ') (otherwise => m.group 'newline')
+      if level > last @indent => @indent.append level
+         otherwise =>
+           @append $ Dedent
+           while level != last @indent =>
+             @indent.pop!
+             @indent or @error 'no matching indentation level' pos
+             @append $ Dedent
+      ''
+
+  inline = data      ~> data + ''.join (takewhile (x -> not $ x in (Dedent, EOFTok)) self)
+  block  = start end ~> @inline start! + end!
+
+
+if __name__ == '__main__' =>
+  import '/sys/stdin'
+
+  print $ parse $ stdin.read -1
