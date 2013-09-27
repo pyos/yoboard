@@ -31,7 +31,6 @@ var Admin = {
             $(".board-index li").each(Admin.Boards.entry);
             $(".board-index").each(Admin.Boards.entry_head);
             $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
-            // TODO add an UI for board creation.
           }
         }
       }
