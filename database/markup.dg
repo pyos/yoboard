@@ -3,11 +3,8 @@ import '/itertools/groupby'
 import '/collections/deque'
 import '/xml/sax/saxutils/escape'
 
-except
-  e =>
-    import '/pygments/lexers'     qualified
-    import '/pygments/formatters' qualified
-  e :: ImportError => ()
+import '/pygments/lexers'     qualified
+import '/pygments/formatters' qualified
 
 
 wrapped = o c -> _ s -> if
