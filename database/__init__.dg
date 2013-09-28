@@ -15,6 +15,9 @@ RecordMeta = subclass type where
           b.add_opcode 'LOAD_ATTR' $ b.names s
         b.add_opcode 'BUILD_TUPLE' $ len $ data !! 'fields'
         b.add_opcode 'RETURN_VALUE'
+        # dg automatically adds all varnames to cellvars.
+        # If we don't account for that, Python will set all varnames to NULL.
+        b.cellvars.clear!
 
       '__new__', FunctionType a.frozen globals! where
         a = Generator '__new__' True $ tuple' 'cls' + data !! 'fields'
@@ -28,6 +31,7 @@ RecordMeta = subclass type where
           a.add_opcode 'ROT_TWO'
           a.add_opcode 'STORE_ATTR' $ a.names s
         a.add_opcode 'RETURN_VALUE'
+        a.cellvars.clear!
 
     type.__new__ self name bases data
 
