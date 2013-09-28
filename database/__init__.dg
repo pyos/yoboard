@@ -1,17 +1,39 @@
-Record = subclass object where
-  __slots__ = tuple!
-  # Named tuples are not mutable, but this thing is.
-  # It also allows for easier addition of new fields during a migration.
-  __init__ = *: args ~>
-  __new__  = *: args ~> self where
-    self = object.__new__ self
-    for (n, v) in zip @__slots__ args => setattr self n v
-  # Normally, pickle serializes the whole dict.
-  # This is, obviously, redundant.
-  __reduce_ex__ = _ ~> (@__class__, tuple (None where for x in @__slots__ => yield $ getattr self x))
+import '/dg/Generator'
+import '/types/FunctionType'
 
 
-Post   = subclass Record where __slots__ = list' 'id' 'title' 'sage' 'text' 'files' 'thread' 'parent' 'timestamp' '_ip'
-Board  = subclass Record where __slots__ = list' 'id' 'title' 'category' 'threads'
-Tree   = subclass Record where __slots__ = list' 'root' 'replies'
-Thread = subclass Record where __slots__ = list' 'root' 'replies' 'latest' 'skipped' 'attached' 'closed'
+RecordMeta = subclass type where
+  __new__ = name bases data ~>
+    data.update $ dict'
+      '__slots__',      data !! 'fields'
+      '__getstate__',   self -> None
+      '__getnewargs__', FunctionType b.frozen globals! where
+        b = Generator '__getnewargs__' True $ tuple' 'self'
+        b.stacksize = len $ data !! 'fields'
+        for s in data !! 'fields' =>
+          b.add_opcode 'LOAD_FAST' 0
+          b.add_opcode 'LOAD_ATTR' $ b.names s
+        b.add_opcode 'BUILD_TUPLE' $ len $ data !! 'fields'
+        b.add_opcode 'RETURN_VALUE'
+
+      '__new__', FunctionType a.frozen globals! where
+        a = Generator '__new__' True $ tuple' 'cls' + data !! 'fields'
+        a.stacksize = 3
+        a.load_const object.__new__
+        a.add_opcode 'LOAD_FAST'     0
+        a.add_opcode 'CALL_FUNCTION' 1
+        for (i, s) in enumerate (data !! 'fields') 1 =>
+          a.add_opcode 'DUP_TOP'
+          a.add_opcode 'LOAD_FAST'  i
+          a.add_opcode 'ROT_TWO'
+          a.add_opcode 'STORE_ATTR' $ a.names s
+        a.add_opcode 'RETURN_VALUE'
+
+    type.__new__ self name bases data
+
+
+Record = subclass object metaclass: RecordMeta where fields = tuple!
+Post   = subclass Record where fields = 'id', 'title', 'sage', 'text', 'files', 'thread', 'parent', 'timestamp', '_ip'
+Board  = subclass Record where fields = 'id', 'title', 'category', 'threads'
+Tree   = subclass Record where fields = 'root', 'replies'
+Thread = subclass Record where fields = 'root', 'replies', 'latest', 'skipped', 'attached', 'closed'
