@@ -1,56 +1,105 @@
-### 5. SIGTERM to exit.
-import '/signal/signal'
-import '/signal/SIGTERM'
-
-signal SIGTERM $ _ _ -> raise KeyboardInterrupt
-
-### 4. Data loader.
 import '/os'
 import '/gzip'
+import '/uuid'
+import '/atexit'
 import '/pickle'
+import '/signal'
+import '/threading'
+import '/socket/socket'
+import '/select/select'
+
+import 'boardcmds/commands'
 import '../config'
 
-data = if
-  # If this fails, the operator has to either fix corruption manually
-  # or remove the database altogether.
-  os.path.exists config.DATABASE => with fd = gzip.open config.DATABASE 'rb' => pickle.load fd
-  otherwise => dict
-    ids:      dict!
-    boards:   dict!
-    boardmap: dict!
-    trees:    dict!
-    posts:    dict!
-    users:    dict!
 
-### 3. Persistence.
-import '/atexit'
-import '/uuid/uuid4'
+data = except
+  err => with fd = gzip.open config.DATABASE 'rb' => pickle.load fd
+  err :: FileNotFoundError => dict
+    ids:      dict!  # :: {str: int}
+    boards:   dict!  # :: {str: Board}
+    boardmap: dict!  # :: {str: {str: str}}
+    trees:    dict!  # :: {str: {int: Either Thread Tree}}
+    posts:    dict!  # :: {str: {int: Post}}
+    users:    dict!  # :: {str: Either [str] bool}
 
-save = atexit.register $ ->
-  os.fork! == 0 =>
-    dt = pickle.dumps data
-    fn = config.DATABASE + '.save.' + uuid4!.hex
-    with fd = gzip.open fn 'wb' =>
-      fd.write dt
-      fd.flush!
-      os.fsync fd.fileno!
-    os.rename fn config.DATABASE
-    os._exit 0
 
-### 2. Automatic scheduled dumping.
-import '/threading'
+save = name data -> if os.fork! == 0 =>
+  # By forking, we
+  #   1. ensure that the database is still up for requests;
+  #   2. create a complete copy of the data without wasting
+  #      valuable processor time. This assumes copy-on-write semantice.
+  #
+  # NOTE: SIGCHLD must be handled properly to avoid trashing the process table.
+  #
+  with fd = gzip.open ('{}.{.hex}~'.format name uuid.uuid4!) 'wb' =>
+    # Use a temporary file to prevent partial writes.
+    fd.write $ pickle.dumps data
+    fd.flush!
+    # XXX does this flush the drive's write buffers? Probably not.
+    #   Thus, the data may still be lost after a power failure.
+    os.fsync fd.fileno!
+  os.rename fd.name config.DATABASE
+  os._exit 0
 
-lock     = threading.Lock!
-schedule = _ ->
-  timer = threading.Timer config.AUTOSYNC_INTERVAL $ -> schedule $ with lock => save!
-  timer.daemon = True
-  timer.start!
-schedule ()
 
-### 1. The socket server.
-import 'picklerpc/Server'
-import 'boardcmds/commands'
+repeat = interval fn -> (lock, stop.set) where
+  lock = threading.Lock!
+  stop = threading.Event!
+  # `threading.Timer` only runs a function once. This is a *strict*
+  # infinitely looping equivalent. (Except for the `cancel` method,
+  # which is replaced with `stop.set!`.)
+  thread = threading.Thread target:
+    -> while not stop.is_set! =>
+      stop.wait interval
+      stop.is_set! or with lock => fn!
+  thread.daemon = True
+  thread.start!
 
-except e => Server config.SERVER_ADDRESS lock $ commands data
-       e :: KeyboardInterrupt => exit 0
-### We have liftoff.
+
+# A closure is simply faster that the equivalent in a global namespace.
+runserver = data (family, addr) cmds ->
+  # Can't just KeyboardInterrupt a database.
+  # That may leave it in a corrupt state.
+  run = True
+  # Even though we handle both relevant signals, using `atexit`
+  # allows us to save the data even if an unexpected exception occurs.
+  lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> save config.DATABASE data
+  signal.signal signal.SIGINT  $ _ _ -> (run = False)
+  signal.signal signal.SIGTERM $ _ _ -> (run = False)
+  signal.signal signal.SIGCHLD signal.SIG_IGN
+
+  server = socket family
+  server.bind addr
+  server.listen 128  # Slightly more random than 4.
+
+  dumps = pickle.dumps  # Attribute cache, I guess?
+  read  = dict' (server, None)
+
+  while run => except
+    err => sk = select read list! list! !! 0
+    # Obviously, signals don't wait for syscalls to finish.
+    # This exception is what we get on SIGINT/SIGTERM.
+    err :: InterruptedError => run = False
+    err is None => for s in sk => if
+      s is server =>
+        sock, _ = server.accept!
+        # All pickles end with a STOP (`.`) opcode.
+        # Normally, it would be hard to find with all the strings and stuff.
+        # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
+        read !! sock = pickle.Unpickler $ sock.makefile 'rb' 8192
+      otherwise => except
+        e =>
+          cmd, args = (read !! s).load!
+          # We hold that lock created in `repeat` to prevent `save`
+          # from forking off with an inconsistent database.
+          s.sendall $ dumps $ with lock => (cmds !! cmd) *: args
+        e :: EOFError             => read !!~ s
+        e :: ConnectionResetError => read !!~ s
+        # If a signal arrives while we're executing a command
+        # AND in a syscall, we've pretty much lost the database.
+        # The only option now is to bail out without triggering `atexit`.
+        e :: InterruptedError     => os._exit 1
+        e :: Exception            => s.sendall $ dumps e
+
+# I wonder what kind of an idiot does syscalls in a database command.
+runserver data config.SERVER_ADDRESS $ commands data

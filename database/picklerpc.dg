@@ -4,26 +4,6 @@ import '/pickle/dumps'
 import '/pickle/Unpickler'
 
 
-Server = (family, addr) lock commands ->
-  server = socket.socket family
-  server.bind addr
-  server.listen 10
-  read = dict' (server, None)
-
-  while True => for s in select read list! list! !! 0 => if
-    s is server =>
-      sock = fst server.accept!
-      read !! sock = Unpickler $ sock.makefile 'rb' 8192
-
-    otherwise => except
-      e =>
-        name, args = (read !! s).load!
-        s.sendall $ dumps $ with lock => (commands !! name) *: args
-      e :: EOFError             => read !!~ s
-      e :: ConnectionResetError => read !!~ s
-      e :: Exception            => s.sendall $ dumps e
-
-
 Client = subclass object where
   __init__  = (@family, @addr) ~>
   reconnect = ~>
