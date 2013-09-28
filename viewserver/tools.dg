@@ -21,7 +21,7 @@ as_list = tree ->
 
 get_or_404 = f *: args -> except
   e => f *: args
-  e :: OverflowError => abort 403
+  e :: OverflowError => abort 403 'This thread is closed.'
   e :: KeyError      => abort 404
 
 
@@ -45,17 +45,17 @@ make_post = board parent sage title text files ->
     # Werkzeug adds a file with an empty filename for some reason.
     files.pop 0
 
-  config.NOT_EMPTY and not (text or files)   => abort 400
-  config.MAX_UPLOADS      < len files        => abort 400
-  config.MAX_TITLE_LENGTH < len title        => abort 400
-  config.MAX_TEXT_LENGTH  < len text         => abort 400
-  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400
+  config.NOT_EMPTY and not (text or files)   => abort 400 'Either a message or a file is required.'
+  config.MAX_UPLOADS      < len files        => abort 400 'Too many files.'
+  config.MAX_TITLE_LENGTH < len title        => abort 400 'The title is too long.'
+  config.MAX_TEXT_LENGTH  < len text         => abort 400 'The text is too long.'
+  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400 'The text contains too many lines.'
 
   fnames = list xs where xs = None where for f in files => if
     f.mimetype.startswith 'image/' => yield $ tuple'
       name = str time! + '.full.' + uuid4!.hex + path.splitext f.filename !! 1
       name.replace '.full.' '.min.'
-    otherwise => abort 400
+    otherwise => abort 400 'Unknown file type.'
 
   thread = if
     parent == 0 => get_or_404 data.thread_create board        title      text fnames request.remote_addr
