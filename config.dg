@@ -7,7 +7,7 @@ import '/socket'
 JSON_AS_ASCII = False
 
 # This is displayed in the navbar on all pages except for the index.
-SITE_NAME = 'Йобач'
+SITE_NAME = 'Yobach'
 
 # This is displayed above a big image on the index page.
 # Edit /static/img/main-image.png to replace the image.

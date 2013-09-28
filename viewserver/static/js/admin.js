@@ -3,16 +3,15 @@
 var Admin = {
   really: false,
   prompt: "A TI KTO?",
-  e403:   "Ты не админишь эту борду, пес!",
-  e403g:  "У тебя слишком низкий уровень чтобы менять список борд.",
-  e404:   "Обнови страницу, а то на древнюю копию смотришь как сыч.",
+  e403:   "Your powers do not work on this board.",
+  e403g:  "Your powers are too weak to affect this page.",
+  e404:   "You really ought to refresh the page. The stuff you're looking at doesn't even exist anymore.",
 
-  new_board_id:     "Идентификатор",
-  new_board_cat:    "Категория",
-  new_board_title:  "Название",
-  new_board_header: "Новая борда",
-  new_board_text:   "Если борда с таким идентификатором уже есть, " +
-                    "ее название и категория будут изменены на введенные здесь.",
+  new_board_id:     "ID",
+  new_board_cat:    "Category",
+  new_board_title:  "Title",
+  new_board_header: "Create a new board",
+  new_board_text:   "Or update an existing one if the ID is already in use.",
 
   enable: function (uid) {
     $.cookie("userid", uid, { "expires": 365, "path": "/" });
@@ -55,7 +54,7 @@ var Admin = {
                 .addClass("admin-board-rm")
                 .addClass("glyphicon")
                 .addClass("glyphicon-remove-circle")
-                .attr("title", "Удалить")
+                .attr("title", "Remove")
                 .click(function () { Admin.Boards.del(board); })
                 .prependTo(this).after(" ");
     },
@@ -123,10 +122,10 @@ var Admin = {
 
   Threads: {
     entry: function () {
-      Admin.Posts.button(this, 'tree-close',  'Закрыть',    'floppy-remove', '.post-reply-btn',     Admin.Threads.close);
-      Admin.Posts.button(this, 'tree-open',   'Открыть',    'floppy-saved',  '.post-reply-btn',     Admin.Threads.open);
-      Admin.Posts.button(this, 'tree-attach', 'Прикрепить', 'upload',        '.post-attached-mark', Admin.Threads.attach);
-      Admin.Posts.button(this, 'tree-detach', 'Открепить',  'unchecked',     '.post-attached-mark', Admin.Threads.detach);
+      Admin.Posts.button(this, 'tree-close',  'Close',  'floppy-remove', '.post-reply-btn',     Admin.Threads.close);
+      Admin.Posts.button(this, 'tree-open',   'Open',   'floppy-saved',  '.post-reply-btn',     Admin.Threads.open);
+      Admin.Posts.button(this, 'tree-attach', 'Attach', 'upload',        '.post-attached-mark', Admin.Threads.attach);
+      Admin.Posts.button(this, 'tree-detach', 'Detach', 'unchecked',     '.post-attached-mark', Admin.Threads.detach);
     },
 
     setState: function (thread, state, cls, enabled) {
@@ -149,7 +148,7 @@ var Admin = {
 
   Posts: {
     entry: function () {
-      Admin.Posts.button(this, 'tree-rm', 'Удалить', 'trash', '.post-reply-btn', Admin.Posts.del);
+      Admin.Posts.button(this, 'tree-rm', 'Remove', 'trash', '.post-reply-btn', Admin.Posts.del);
     },
 
     button: function (post, cls, title, icon, anchor, fn) {

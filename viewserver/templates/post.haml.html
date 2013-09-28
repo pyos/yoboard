@@ -8,11 +8,11 @@
       -if p.sage
         %span class="post-sage"
       -if not p.parent
-        %span class="post-attached-mark glyphicon glyphicon-pushpin" title="Прикреплен"
-        %span class="post-closed-mark glyphicon glyphicon-lock" title="Закрыт"
-      %a class="glyphicon glyphicon-comment post-reply-btn" title="Ответить" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
-      %a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Развернуть"
-      %a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Свернуть"
+        %span class="post-attached-mark glyphicon glyphicon-pushpin" title="Attached"
+        %span class="post-closed-mark glyphicon glyphicon-lock" title="Closed"
+      %a class="glyphicon glyphicon-comment post-reply-btn" title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
+      %a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Expand"
+      %a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Collapse"
 
     %div class="post-content clearfix"
       -for file, thumb in p.files
@@ -35,14 +35,14 @@
     %input type="hidden" name="parent" value="{{ parent }}"
 
     %div class="input-group"
-      %input type="text" class="form-control" name="title" placeholder="Тема"
+      %input type="text" class="form-control" name="title" placeholder="Title"
       -if parent
         %label class="input-group-addon"
           %input type="checkbox" name="sage"
-          Сажа
+          SAGE
 
     %div class="input-group"
-      %textarea class="form-control" name="text" rows="5" cols="40" placeholder="Ценное сообщение"
+      %textarea class="form-control" name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
 
     %div class="input-group"
       %div class="input-group-addon adjacent-file-control btn btn-default"
@@ -51,4 +51,4 @@
       %input type="text" class="form-control adjacent-file-display" disabled
 
     %div class="input-group"
-      %button type="submit" class="btn btn-default" -> ="Ответить" if parent else "Создать тред"
+      %button type="submit" class="btn btn-default" -> ="Reply" if parent else "New thread"

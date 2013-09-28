@@ -8,7 +8,7 @@
   -if this[2] > 1
     -if page
       %li -> %a href="{{ url_for('.board', board=board, page=page - 1) }}" -> &laquo;
-    %li class="disabled" -> %a -> Стр. {{ page }}
+    %li class="disabled" -> %a -> p. {{ page }}
     -if this[2] > page + 1
       %li -> %a href="{{ url_for('.board', board=board, page=page + 1) }}" -> &raquo;
 
@@ -22,7 +22,7 @@
       -if thread.skipped
         %p class="post-missing-notice"
           %a href="{{ url_for('.thread', board=board, thread=thread.root.id) }}"
-            Всего {{ thread.skipped + thread.latest|length }} постов,
-          из них {{ thread.skipped }} пропущен{{ "о" if thread.skipped > 1 else "" }}.
+            {{ thread.skipped }} more post{{ "s" if thread.skipped > 1 else "" }}
+          are not displayed.
       -for reply in thread.latest
         =post(reply, true, thread.closed, thread.attached)

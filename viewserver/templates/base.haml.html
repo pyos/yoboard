@@ -1,5 +1,5 @@
 <!doctype html>
-%html lang="ru"
+%html lang="en-US"
   %head
     %meta charset="utf-8"
     %title
@@ -9,19 +9,20 @@
     %link type="text/css" rel="stylesheet" href="/static/css/bootstrap-theme.min.css"
     %link type="text/css" rel="stylesheet" href="/static/css/yoba-core.css"
     -block styles
-    %script type="text/javascript" src="/static/js/jquery-2.0.3.min.js"
+    %script type="text/javascript" src="/static/js/jquery.js"
     %script type="text/javascript" src="/static/js/jquery.cookie.js"
-    %script type="text/javascript" src="/static/js/bootstrap.min.js"
-    %script type="text/javascript" src="/static/js/bootbox.min.js"
-    %script type="text/javascript" src="/static/js/core.js"
-    %script type="text/javascript" src="/static/js/admin.js"
-    %script type="text/javascript" src="/static/js/themes.js"
+    %script type="text/javascript" src="/static/js/bootstrap.js"
+    %script type="text/javascript" src="/static/js/bootbox.js"
+    %script type="text/javascript" src="/static/js/coffeescript.js"
+    %script type="text/coffeescript" src="/static/js/10.theme.coffee"
+    %script type="text/coffeescript" src="/static/js/20.core.coffee"
+    %script type="text/coffeescript" src="/static/js/30.admin.coffee"
   %body
     -block navbar
       %nav class="navbar navbar-default" role="navigation"
         %div class="navbar-header"
           %button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#board-list"
-            %span class="sr-only" -> Меню
+            %span class="sr-only" -> Navigation
             %span class="icon-bar"
             %span class="icon-bar"
             %span class="icon-bar"
@@ -30,10 +31,10 @@
         %div class="collapse navbar-collapse" id="board-list"
           %ul class="nav navbar-nav"
             %li class="dropdown"
-              %a href="#" class="dropdown-toggle" data-toggle="dropdown" -> Настройки <b class="caret"></b>
+              %a href="#" class="dropdown-toggle" data-toggle="dropdown" -> Settings <b class="caret"></b>
               %ul class="dropdown-menu" id="view-options"
                 -block view_options
-                %li class="disabled" -> %a -> Тема
+                %li class="disabled" -> %a -> Style
             -block options
 
     -block main
