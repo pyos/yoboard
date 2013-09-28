@@ -27,7 +27,7 @@ save = name data -> if os.fork! == 0 =>
   # By forking, we
   #   1. ensure that the database is still up for requests;
   #   2. create a complete copy of the data without wasting
-  #      valuable processor time. This assumes copy-on-write semantice.
+  #      valuable processor time. This assumes copy-on-write semantics.
   #
   # NOTE: SIGCHLD must be handled properly to avoid trashing the process table.
   #
