@@ -18,4 +18,4 @@
             %h3 -> =car
             %ul class="list-unstyled board-index"
               -for bid, bnam in cdr|dictsort(false, 'value')
-                %li -> %a href="{{ url_for('.board', board=bid) }}" -> =bnam
+                %li -> %a href="{{ url_for('.board', board=bid) }}" -> /{{ bid }}/ - {{ bnam }}
