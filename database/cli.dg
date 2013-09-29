@@ -1,15 +1,6 @@
 import '/builtins'
-
-builtins.__dict__.update $ dict
-  Client: (import 'picklerpc/Client')
-  Post:   (import 'Post')
-  Tree:   (import 'Tree')
-  Board:  (import 'Board')
-  Thread: (import 'Thread')
-  markup: (import 'markup')
-  config: (import '../config')
-
+builtins.Client = import 'picklerpc/Client'
+builtins.config = import '../config'
 builtins.d = Client config.CLIENT_ADDRESS
 builtins.d.reconnect
-
 import '/dg/__main__'
