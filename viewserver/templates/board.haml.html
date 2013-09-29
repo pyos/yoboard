@@ -21,8 +21,9 @@
       =post(thread.root, false, thread.closed, thread.attached)
       -if thread.skipped
         %p class="post-missing-notice"
+          ...
           %a href="{{ url_for('.thread', board=board, thread=thread.root.id) }}"
             {{ thread.skipped }} more post{{ "s" if thread.skipped > 1 else "" }}
-          are not displayed.
+          ...
       -for reply in thread.latest
         =post(reply, true, thread.closed, thread.attached)
