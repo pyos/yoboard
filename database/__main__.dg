@@ -49,9 +49,7 @@ repeat = interval fn -> (lock, stop.set) where
   # infinitely looping equivalent. (Except for the `cancel` method,
   # which is replaced with `stop.set!`.)
   thread = threading.Thread target:
-    -> while not stop.is_set! =>
-      stop.wait interval
-      stop.is_set! or with lock => fn!
+    -> while not stop.is_set! => stop.wait interval or with lock => fn!
   thread.daemon = True
   thread.start!
 
