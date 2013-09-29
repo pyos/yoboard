@@ -70,10 +70,11 @@ runserver = data (family, addr) cmds ->
   server.listen 128  # Slightly more random than 4.
 
   dumps = pickle.dumps  # Attribute cache, I guess?
+  elist = list!         # Creating empty lists is probably expensive.
   read  = dict' (server, None)
 
   while run => except
-    err => sk = select read list! list! !! 0
+    err => sk = select read elist elist !! 0
     # Obviously, signals don't wait for syscalls to finish.
     # This exception is what we get on SIGINT/SIGTERM.
     err :: InterruptedError => run = False
@@ -83,10 +84,10 @@ runserver = data (family, addr) cmds ->
         # All pickles end with a STOP (`.`) opcode.
         # Normally, it would be hard to find with all the strings and stuff.
         # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
-        read !! sock = pickle.Unpickler $ sock.makefile 'rb' 8192
+        read !! sock = (pickle.Unpickler $ sock.makefile 'rb' 8192).load
       otherwise => except
         e =>
-          cmd, args = (read !! s).load!
+          cmd, args = (read !! s)!
           # We hold that lock created in `repeat` to prevent `save`
           # from forking off with an inconsistent database.
           s.sendall $ dumps $ with lock => (cmds !! cmd) *: args
