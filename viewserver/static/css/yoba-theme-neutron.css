@@ -20,13 +20,6 @@ body > .post-view-tree {
   border-top: 1px solid #333;
 }
 
-#main-image {
-  background: #050505 url(/static/img/main-image.png) center top no-repeat;
-  height: 240px;
-  margin-left: -30px;
-  margin-right: -30px;
-}
-
 .navbar {
   background: #222;
   border: none;

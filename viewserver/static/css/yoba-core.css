@@ -38,6 +38,13 @@ a.glyphicon, .navbar a {
   font-size: 1em;
 }
 
+#main-image {
+  background: url(/static/img/main-image.png) center top no-repeat;
+  height: 240px;
+  margin-left: -30px;
+  margin-right: -30px;
+}
+
 .board-index {
   margin-left: 20px;
 }
