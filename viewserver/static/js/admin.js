@@ -27,7 +27,7 @@ var Admin = {
           var board = location.pathname.split("/")[1];
           if (data === true || data.indexOf(board) >= 0) {
             $(".post").each(Admin.Posts.entry);
-            $(".board-index li").each(Admin.Boards.entry);
+            $(".board-index tr").each(Admin.Boards.entry);
             $(".board-index").each(Admin.Boards.entry_head);
             $("body > .post-view-tree > .post:first-child").each(Admin.Threads.entry);
           }
@@ -50,23 +50,18 @@ var Admin = {
   Boards: {
     entry: function () {
       var board = this;
-      $("<a />").addClass("admin")
-                .addClass("admin-board-rm")
-                .addClass("glyphicon")
-                .addClass("glyphicon-remove-circle")
-                .attr("title", "Remove")
-                .click(function () { Admin.Boards.del(board); })
-                .prependTo(this).after(" ");
+      $("<a class='glyphicon glyphicon-remove' />")
+        .attr("title", "Remove")
+        .click(function () { Admin.Boards.del(board); })
+        .appendTo($("<td class='admin' />").prependTo(this)).after(" ");
     },
 
     entry_head: function () {
       var cat = $(this).siblings("h3").text();
-      $("<a />").addClass("admin-board-new")
-                .addClass("glyphicon")
-                .addClass("glyphicon-plus-sign")
-                .attr("title", Admin.new_board_header)
-                .click(function () { Admin.Boards.addPrompt(cat); })
-                .appendTo($("<li />").addClass("admin").appendTo(this));
+      $("<a class='glyphicon glyphicon-plus' />")
+        .attr("title", Admin.new_board_header)
+        .click(function () { Admin.Boards.addPrompt(cat); })
+        .appendTo($("<td />").appendTo($("<tr class='admin' />").appendTo(this)));
     },
 
     addPrompt: function (category) {

@@ -16,6 +16,8 @@
         -for car, cdr in row
           %div class="col-sm-4"
             %h3 -> =car
-            %ul class="list-unstyled board-index"
+            %table class="board-index"
               -for bid, bnam in cdr|dictsort(false, 'value')
-                %li -> %a href="{{ url_for('.board', board=bid) }}" -> /{{ bid }}/ - {{ bnam }}
+                %tr
+                  %td class="text-muted" -> /{{ bid }}/
+                  %td class="text-muted" -> %a href="{{ url_for('.board', board=bid) }}" -> {{ bnam }}

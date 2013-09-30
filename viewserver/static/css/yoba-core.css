@@ -49,6 +49,10 @@ a.glyphicon, .navbar a {
   margin-left: 20px;
 }
 
+.board-index td {
+  padding-left: 3px;
+}
+
 #error-body {
   background: url(/static/img/error-bg.png) no-repeat center;
   display: table;
