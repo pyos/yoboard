@@ -43,8 +43,9 @@ commands = data ->
     postobj   = (RP_POSTS !! board).pop num
     treeobj   = (RP_TREES !! board).pop num
     threadobj = (RP_TREES !! board).get postobj.thread None
+    threadobj => if postobj in threadobj.latest => threadobj.latest.remove postobj
+                    otherwise                   => threadobj.skipped -= 1
     remove_uploads postobj
-    if threadobj and (threadobj.latest !! 0).id <= num => threadobj.latest.remove postobj
     for subtree in treeobj.replies => post_cleanup board subtree.root.id
 
   dict'
