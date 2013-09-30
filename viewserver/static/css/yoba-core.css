@@ -38,6 +38,10 @@ a.glyphicon, .navbar a {
   font-size: 1em;
 }
 
+.board-index {
+  margin-left: 20px;
+}
+
 #error-body {
   background: url(/static/img/error-bg.png) no-repeat center;
   display: table;
