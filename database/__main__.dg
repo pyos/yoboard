@@ -93,11 +93,6 @@ runserver = data (family, addr) cmds ->
           s.sendall $ dumps $ with lock => (cmds !! cmd) *: args
         e :: EOFError             => read !!~ s
         e :: ConnectionResetError => read !!~ s
-        # If a signal arrives while we're executing a command
-        # AND in a syscall, we've pretty much lost the database.
-        # The only option now is to bail out without triggering `atexit`.
-        e :: InterruptedError     => os._exit 1
         e :: Exception            => s.sendall $ dumps e
 
-# I wonder what kind of an idiot does syscalls in a database command.
 runserver data config.SERVER_ADDRESS $ commands data
