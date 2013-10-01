@@ -2,6 +2,18 @@ body {
   margin: 15px;
 }
 
+#admin-mode:after {
+  content: "off";
+}
+
+body.admin #admin-mode:after {
+  content: "on";
+}
+
+body:not(.admin) .admin {
+  display: none;
+}
+
 footer {
   margin-top: 15px;
   padding: 15px;
