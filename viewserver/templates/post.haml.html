@@ -23,7 +23,7 @@
       -for file, thumb in p.files
         %div class="media-object pull-left"
           %a href="{{ url_for('upload', filename=file) }}"
-            %img alt="image" src="{{ url_for('upload', filename=thumb) }}"
+            %img alt="image" class="img-thumbnail" src="{{ url_for('upload', filename=thumb) }}"
 
       %div class="media-body"
         -if list_mode and p.parent and p.parent != p.thread
