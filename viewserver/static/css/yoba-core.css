@@ -192,3 +192,11 @@ blockquote p {
   font-size: inherit;
   font-weight: inherit;
 }
+
+.gallery-item {
+  margin: 8px;
+}
+
+.gallery-caption {
+  display: block;
+}
