@@ -14,7 +14,7 @@
     <span class='gh'>in context of</span> {{ traceback(err.__context__) }}
 
 -block title
-  ; `err` may be something other than HTTPException.
+  // `err` may be something other than HTTPException.
   -if code == 500
     Internal Server Error~
   -else

@@ -47,7 +47,7 @@ Bullshit = subclass Parser where
   regex = re.compile r'''(?imx)
      (?P<newline>\s*\n(?P<newline_indent>\ *))
     |(?P<space>\ +)
-    |(?P<comment>;[^\S\n]*(?P<comment_data>.*))
+    |(?P<comment>//[^\S\n]*(?P<comment_data>.*))
     |(?P<control>-[^\S\n]*(?P<control_data>(?P<control_name>\w+)(?:\ .*)?))
     |(?P<insert>=[^\S\n]*(?P<insert_expr>.*))
     |(?P<tag>%[^\S\n]*(?P<tag_data>(?P<tag_name>\w+)(?:[^\S\n]+[\w-]+(?:=(?:'(?:\\?.)*?'|"(?:\\?.)*?"))?)*)[^\S\n]*(?P<tag_end>->|$))

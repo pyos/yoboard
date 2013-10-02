@@ -9,7 +9,7 @@
 -block main
   %div class="container root-page"
     %h1 class="text-center" -> =config.SITE_TITLE
-    %div id="main-image" -> &nbsp;
+    %div id="main-image"
 
     -for row in boards|dictsort|batch(3)
       %div class="row"
