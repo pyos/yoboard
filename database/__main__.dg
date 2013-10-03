@@ -35,8 +35,6 @@ save = name data -> if os.fork! == 0 =>
     # Use a temporary file to prevent partial writes.
     fd.write $ pickle.dumps data
     fd.flush!
-    # XXX does this flush the drive's write buffers? Probably not.
-    #   Thus, the data may still be lost after a power failure.
     os.fsync fd.fileno!
   os.rename fd.name config.DATABASE
   os._exit 0
