@@ -5,7 +5,6 @@
   %li class="disabled" -> %a -> Layout
   %li -> %a href="{{ url_for('.thread_list', board=board, thread=this.root.id) }}" data-type="list" class="thread-view-type" -> List
   %li class="active" -> %a data-type="tree" class="thread-view-type" -> Tree
-  %li -> %a href="{{ url_for('.thread_gallery', board=board, thread=this.root.id) }}" -> Gallery
 
 -macro node(t)
   %div class="post-view-tree"
