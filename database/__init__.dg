@@ -7,7 +7,12 @@ import '/dg/Generator'
 
 
 Client = subclass object where
-  __init__  = (@family, @addr) ~>
+  __init__ = (@family, @addr) ~> None where except
+    e => @reconnect
+    # This error must not prevent the app from starting up.
+    # `call` will automatically reconnect on first request.
+    e :: OSError => None
+
   reconnect = ~>
     @socket = socket @family
     @socket.connect @addr

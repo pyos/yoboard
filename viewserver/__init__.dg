@@ -27,9 +27,8 @@ Yoboard = subclass $ Flask where
     @add_url_rule '/static/upload/<path:filename>' 'upload' $ bind send_from_directory config.UPLOAD_DIR as_attachment: True
     @add_url_rule '/static/banner/<path:filename>' 'banner' $ bind send_from_directory config.BANNER_DIR as_attachment: True
 
-    @before_first_request $ -> data.reconnect
-    @register_blueprint   $ import 'core/mod'
-    @register_blueprint   $ import 'admin/mod'
+    @register_blueprint $ import 'core/mod'
+    @register_blueprint $ import 'admin/mod'
     @register_error_handler 400 @onerror
     @register_error_handler 403 @onerror
     @register_error_handler 404 @onerror
