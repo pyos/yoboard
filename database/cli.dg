@@ -1,5 +1,5 @@
 import '/builtins'
-builtins.Client = import 'picklerpc/Client'
+builtins.Client = import 'Client'
 builtins.config = import '../config'
 builtins.d = Client config.CLIENT_ADDRESS
 builtins.d.reconnect

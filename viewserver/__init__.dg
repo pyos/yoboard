@@ -8,7 +8,7 @@ import '/jinja2/MemcachedBytecodeCache'
 import '/werkzeug/contrib/cache/SimpleCache'
 
 import '../config'
-import '../database/picklerpc/Client'
+import '../database/Client'
 
 
 Yoboard = subclass $ Flask where

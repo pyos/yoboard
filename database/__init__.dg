@@ -1,5 +1,30 @@
-import '/dg/Generator'
+import '/socket/socket'
+import '/pickle/dumps'
+import '/pickle/Unpickler'
 import '/types/FunctionType'
+
+import '/dg/Generator'
+
+
+Client = subclass object where
+  __init__  = (@family, @addr) ~>
+  reconnect = ~>
+    @socket = socket @family
+    @socket.connect @addr
+    @loader = Unpickler $ @socket.makefile 'rb' 16384
+
+  __getattr__ = name ~> *: args ->
+    response = @call name args
+    response :: Exception => raise response
+    response
+
+  call = name args ~> except
+    e =>
+      @socket.sendall $ dumps (name, args)
+      @loader.load!
+    e :: OSError and e.errno in (32, 107) =>
+      @reconnect
+      @call name args
 
 
 RecordMeta = subclass type where
