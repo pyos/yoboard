@@ -45,7 +45,6 @@ stage2re = compile r'''(?isx)
   |(?P<invert>    %%   (?P<invert_>(?:\\?.)*?) %%)
   # Not sure what this shitty group matches. IIRC, I "borrowed" it from Tornado.
   |(?P<hyperlink> \b[a-z][a-z0-9+\.-]*:(?:[,\.?]?[^\s(<>)"\',\.?%]|%[0-9a-f]{2}|\([^\s(<>)"\']+\))+)
-  |(?P<namedlink> \[(?P<linktitle>.*?)\]\((?P<linktarget>(?:[^()]+|\(.*?\)|[^)])*)\))
   |(?P<text>      [\w-]*[^\W_-])
   |(?P<escape>    \\?(?P<escaped>.))
 '''
@@ -75,6 +74,5 @@ stage2 = x -> stage2re.sub
        g == 'invert'    => '<span class="spoiler">{}</span>'.format $ stage2 $ m.group 'invert_'
        g == 'strike'    => '<del>{}</del>'                  .format $ stage2 $ m.group 'strike_'
        g == 'code'      => '<code>{}</code>'                .format $          m.group 'code_'
-       g == 'hyperlink' => '<a href="{}">{}</a>'.format (m.group 'hyperlink')  (m.group 'hyperlink')
-       g == 'namedlink' => '<a href="{}">{}</a>'.format (m.group 'linktarget') (m.group 'linktitle')
+       g == 'hyperlink' => '<a href="{0}">{0}</a>'          .format $          m.group 'hyperlink'
   escape x
