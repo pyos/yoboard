@@ -1,12 +1,12 @@
 -macro post(p, list_mode, closed, attached)
-  %div class="post media {{ 'post-attached' if attached else '' }} {{ 'post-closed' if closed else '' }}" id="{{ p.id }}"
+  %div class="post media{{ ' post-attached' if attached else '' }}{{ ' post-closed' if closed else '' }}" id="{{ p.id }}"
     %div class="media-heading"
       %a href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id" -> =p.id
       -if p.title
         %span class="post-title" -> =p.title
-      %span class="post-timestamp" -> =p.timestamp.strftime('%d.%m.%Y %H:%M:%S')
+      %span class="post-time" -> =p.timestamp.strftime('%d.%m.%Y %H:%M:%S')
       -if p.sage
-        %span class="post-sage"
+        %span class="post-sage" -> SAGE
       -if not p.parent
         %a class="glyphicon glyphicon-upload admin admin-tree-attach" title="Attach"
         %a class="glyphicon glyphicon-unchecked admin admin-tree-detach" title="Detach"
@@ -28,7 +28,6 @@
       %div class="media-body"
         -if list_mode and p.parent and p.parent != p.thread
           %p -> %a class="post-anchor" data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
-  
         =p.text|safe
   
     %div class="collapse post-form" id="post-form-{{ p.id }}"

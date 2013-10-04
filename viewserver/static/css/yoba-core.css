@@ -150,13 +150,12 @@ body > .post-view-tree {
   font-weight: bold;
 }
 
-.post-sage:before {
+.post-sage {
   color: #aa0000;
-  content: "SAGE";
   font-weight: bold;
 }
 
-.post-timestamp:before {
+.post-time:before {
   color: #aaaaaa;
   content: "@ ";
 }
