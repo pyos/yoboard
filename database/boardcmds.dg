@@ -21,7 +21,7 @@ commands = data ->
   RP_BOARD  = data !! 'boards'    # :: {str: Board}
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
-  RP_USERS  = data !! 'users' = data.get 'users' dict!  # :: {str: Either [str] bool}
+  RP_USERS  = data !! 'users'     # :: {str: Either [str] bool}
 
   # An {str: int} mapping that contains the number of attached threads
   # on each board. Note that it's not necessary to store that in the file.
