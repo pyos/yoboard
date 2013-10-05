@@ -21,8 +21,6 @@ data = except
     trees:    dict!  # :: {str: {int: Either Thread Tree}}
     users:    dict!  # :: {str: Either [str] bool}
 
-# XXX Migration.
-data.pop 'posts' None
 
 save = name data -> if os.fork! == 0 =>
   # By forking, we
