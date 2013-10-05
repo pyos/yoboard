@@ -25,10 +25,8 @@ commands = data ->
 
   # An {str: int} mapping that contains the number of attached threads
   # on each board. Note that it's not necessary to store that in the file.
-  VD_ATTACHED = dict (None where
-    for (n, b) in RP_BOARD.items! => yield (n, next (None where
-      for (i, t) in enumerate b.threads => not t.attached => yield i
-      yield $ len b.threads)))
+  VD_ATTACHED = dict (None where for (n, b) in RP_BOARD.items! =>
+    yield (n, sum $ map (x -> x.attached) b.threads))
 
   # Volatile cache containers.
   # These are in the database because that
@@ -68,10 +66,8 @@ commands = data ->
     'user_set', uid boards -> RP_USERS.__setitem__ uid boards
 
     # ::         -> {str: {str: str}}
-    # :: str int -> Post
-    # :: str int -> Either Thread Tree
+    # :: str int -> Thread
     'boards',           -> RP_CATMAP
-    'post',   board num -> (RP_TREES !! board !! num).root
     'thread', board num ->
       th = RP_TREES !! board !! num
       th :: Tree => raise $ KeyError num
