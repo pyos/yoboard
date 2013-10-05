@@ -19,9 +19,10 @@ data = except
     boards:   dict!  # :: {str: Board}
     boardmap: dict!  # :: {str: {str: str}}
     trees:    dict!  # :: {str: {int: Either Thread Tree}}
-    posts:    dict!  # :: {str: {int: Post}}
     users:    dict!  # :: {str: Either [str] bool}
 
+# XXX Migration.
+data.pop 'posts' None
 
 save = name data -> if os.fork! == 0 =>
   # By forking, we

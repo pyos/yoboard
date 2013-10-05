@@ -20,7 +20,6 @@ commands = data ->
   RP_COUNT  = data !! 'ids'       # :: {str: int}
   RP_BOARD  = data !! 'boards'    # :: {str: Board}
   RP_CATMAP = data !! 'boardmap'  # :: {str: {str: str}}
-  RP_POSTS  = data !! 'posts'     # :: {str: {int: Post}}
   RP_TREES  = data !! 'trees'     # :: {str: {int: Either Thread Tree}}
   RP_USERS  = data !! 'users' = data.get 'users' dict!  # :: {str: Either [str] bool}
 
@@ -40,13 +39,12 @@ commands = data ->
 
   post_cleanup = None
   post_cleanup = board num ->
-    postobj   = (RP_POSTS !! board).pop num
-    treeobj   = (RP_TREES !! board).pop num
-    threadobj = (RP_TREES !! board).get postobj.thread None
-    threadobj => if postobj in threadobj.latest => threadobj.latest.remove postobj
-                    otherwise                   => threadobj.skipped -= 1
-    remove_uploads postobj
-    for subtree in treeobj.replies => post_cleanup board subtree.root.id
+    tree   = (RP_TREES !! board).pop num
+    thread = (RP_TREES !! board).get tree.root.thread None
+    thread => if tree.root in thread.latest => thread.latest.remove tree.root
+                 otherwise                  => thread.skipped -= 1
+    remove_uploads tree.root
+    for subtree in tree.replies => post_cleanup board subtree.root.id
 
   dict'
     # :: -> ()
@@ -73,7 +71,7 @@ commands = data ->
     # :: str int -> Post
     # :: str int -> Either Thread Tree
     'boards',           -> RP_CATMAP
-    'post',   board num -> RP_POSTS !! board !! num
+    'post',   board num -> (RP_TREES !! board !! num).root
     'thread', board num ->
       th = RP_TREES !! board !! num
       th :: Tree => raise $ KeyError num
@@ -112,7 +110,6 @@ commands = data ->
         otherwise =>
           RP_COUNT !! name = 0
           RP_BOARD !! name = Board name title category list!
-          RP_POSTS !! name = dict!
           RP_TREES !! name = dict!
           VD_ATTACHED !! name = 0
       RP_CATMAP !! category = RP_CATMAP.get category dict!
@@ -136,7 +133,6 @@ commands = data ->
 
       VC_BOARD.pop board None  # All pages are invalid now.
       RP_TREES !! board !! rootid = thread
-      RP_POSTS !! board !! rootid = root
       rootid
 
     # Set the `closed` flag of a thread.
@@ -185,8 +181,8 @@ commands = data ->
     #
     'post_create', board parent title sage text files ip ->
       boardobj  = RP_BOARD !! board
-      parentobj = RP_POSTS !! board !! parent
       treeobj   = RP_TREES !! board !! parent
+      parentobj = treeobj.root
       threadobj = RP_TREES !! board !! parentobj.thread
 
       threadlen = len threadobj.latest + threadobj.skipped
@@ -200,7 +196,6 @@ commands = data ->
       postobj = Post postid title sage (markup.parse text) files parentobj.thread parent datetime.now! ip
       curtree = Tree postobj list!
 
-      RP_POSTS !! board !! postid = postobj
       RP_TREES !! board !! postid = curtree
       treeobj.replies.append curtree
       threadobj.latest.append postobj
@@ -220,10 +215,9 @@ commands = data ->
     # :: str -> ()
     'board_remove', name ->
       board = RP_BOARD.pop name
-      for p in (RP_POSTS !! name).values! => remove_uploads p
+      for p in (RP_TREES !! name).values! => remove_uploads p.root
       RP_CATMAP !! board.category !!~ name
       RP_CATMAP !! board.category or RP_CATMAP !!~ board.category
-      RP_POSTS !!~ name
       RP_TREES !!~ name
       RP_COUNT !!~ name
       VD_ATTACHED !!~ name
