@@ -38,11 +38,11 @@ stage1re = compile r'''(?isx)
 
 
 stage2re = compile r'''(?isx)
-   (?P<code>      (`+) (?P<code_>        . *?) \2)
-  |(?P<bold>      \*\* (?P<bold_>  (?:\\?.)*?) \*\*)
-  |(?P<italic>    \*   (?P<italic_>(?:\\?.)*?) \*)
-  |(?P<strike>    ~~   (?P<strike_>(?:\\?.)*?) ~~)
-  |(?P<invert>    %%   (?P<invert_>(?:\\?.)*?) %%)
+   (?P<code>      (`+) (?P<code_>        . +?) \2)
+  |(?P<bold>      \*\* (?P<bold_>  (?:\\?.)+?) \*\*)
+  |(?P<italic>    \*   (?P<italic_>(?:\\?.)+?) \*)
+  |(?P<strike>    ~~   (?P<strike_>(?:\\?.)+?) ~~)
+  |(?P<invert>    %%   (?P<invert_>(?:\\?.)+?) %%)
   # Not sure what this shitty group matches. IIRC, I "borrowed" it from Tornado.
   |(?P<hyperlink> \b[a-z][a-z0-9+\.-]*:(?:[,\.?]?[^\s(<>)"\',\.?%]|%[0-9a-f]{2}|\([^\s(<>)"\']+\))+)
   |(?P<text>      [\w-]*[^\W_-])
