@@ -1,15 +1,18 @@
 -extends "base.haml.html"
--macro traceback_line(tb)
+-macro traceback_line(tb, n)
   -set filename = relative(tb.tb_frame.f_code.co_filename)
   -if not filename.startswith('..')
     <span class='gh'>in line</span> <span class='mi'>{{ tb.tb_lineno }}</span>
     <span class='gh'>of</span> <span class='sc'>{{ filename }}</span><br />
   -if tb.tb_next
-    =traceback_line(tb.tb_next)
+    -if n < 20
+      =traceback_line(tb.tb_next, n + 1)
+    -else
+      <span class='gc'>...</span>
 
 -macro traceback(err)
   <span class='err'>{{ err.__class__.__name__ }}</span>: {{ err }}</span><br />
-  =traceback_line(err.__traceback__)
+  =traceback_line(err.__traceback__, 0)
   -if err.__context__
     <span class='gh'>in context of</span> {{ traceback(err.__context__) }}
 
