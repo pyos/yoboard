@@ -7,7 +7,6 @@ import 'Post'
 import 'Tree'
 import 'Board'
 import 'Thread'
-import 'markup'
 import '../config'
 
 
@@ -117,10 +116,9 @@ commands = data ->
     # :: str str str [(str, str)] str -> int
     #
     'thread_create', board title text files ip ->
-      htext  = markup.parse text
       boardo = RP_BOARD !! board
       rootid = RP_COUNT !! board += 1
-      root   = Post rootid title False htext files rootid 0 datetime.now! ip
+      root   = Post rootid title False text files rootid 0 datetime.now! ip
       thread = Thread root list! list! 0 False False
 
       boardo.threads.insert (VD_ATTACHED !! board) thread
@@ -189,9 +187,8 @@ commands = data ->
         config.IMAGES_ALWAYS_BUMP and files => raise OverflowError
         sage = True
 
-      htext   = markup.parse text
       postid  = RP_COUNT !! board += 1
-      postobj = Post postid title sage htext files parentobj.thread parent datetime.now! ip
+      postobj = Post postid title sage text files parentobj.thread parent datetime.now! ip
       curtree = Tree postobj list!
 
       RP_TREES !! board !! postid = curtree

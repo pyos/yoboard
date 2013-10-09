@@ -10,6 +10,7 @@ import '/flask/request'
 
 import 'data'
 import 'config'
+import 'markup/parse'
 
 import '../database/Record'
 
@@ -57,9 +58,10 @@ make_post = board parent sage title text files ->
       name.replace '.full.' '.min.'
     otherwise => abort 400 'Unknown file type.'
 
+  htext  = parse text
   thread = if
-    parent == 0 => get_or_404 data.thread_create board        title      text fnames request.remote_addr
-    otherwise   => get_or_404 data.post_create   board parent title sage text fnames request.remote_addr
+    parent == 0 => get_or_404 data.thread_create board        title      htext fnames request.remote_addr
+    otherwise   => get_or_404 data.post_create   board parent title sage htext fnames request.remote_addr
 
   for (file, (fn, tn)) in zip files fnames =>
     fp = path.join config.UPLOAD_DIR fn
