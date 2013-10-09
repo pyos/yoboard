@@ -93,7 +93,7 @@ blockquote {
 pre, code { background: #242424; color: #f6f3e8; border-color: #333 }
 .highlight .hll { background-color: #ffffcc }
 .highlight .c { color: #99968b; font-style: italic}
-.highlight .err { color: #f6f3e8}
+.highlight .err { background-color: #990000; color: #f6f3e8}
 .highlight .g { color: #f6f3e8}
 .highlight .k { color: #8ac6f2}
 .highlight .l { color: #f6f3e8}
