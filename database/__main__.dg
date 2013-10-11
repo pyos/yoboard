@@ -60,7 +60,6 @@ runserver = data (family, addr) cmds ->
   lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> save config.DATABASE data
   signal.signal signal.SIGINT  $ _ _ -> (run = False)
   signal.signal signal.SIGTERM $ _ _ -> (run = False)
-  signal.signal signal.SIGCHLD signal.SIG_IGN
 
   server = socket family
   server.bind addr
