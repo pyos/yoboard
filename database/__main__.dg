@@ -5,6 +5,7 @@ import '/atexit'
 import '/pickle'
 import '/signal'
 import '/threading'
+import '/socket/AF_UNIX'
 import '/socket/socket'
 import '/select/select'
 
@@ -63,7 +64,9 @@ runserver = data (family, addr) cmds ->
 
   server = socket family
   server.bind addr
-  server.listen 128  # Slightly more random than 4.
+  server.listen 128
+  # POSIX socket API states that UNIX sockets must be unlinked manually.
+  if family is AF_UNIX => atexit.register $ -> os.unlink addr
 
   dumps = pickle.dumps  # Attribute cache, I guess?
   elist = list!         # Creating empty lists is probably expensive.
