@@ -13,8 +13,6 @@ yoboard = yoba & imageboard where
 pip install -r yoboard/requirements.txt
 # Tweak the configuration.
 $EDITOR yoboard/config.dg
-# Create the necessary directories.
-python -m dg <<< 'import "/os", import "/yoboard/config", os.makedirs config.STORAGE_DIR 0o755 True, os.makedirs config.UPLOAD_DIR 0o755 True, os.makedirs config.BANNER_DIR 0o755 True'
 # Initialize an empty database.
 python -m yoboard.database &
 # Create an admin user.
