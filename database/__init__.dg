@@ -3,7 +3,7 @@ import '/pickle/dumps'
 import '/pickle/Unpickler'
 import '/types/FunctionType'
 
-import '/dg/Generator'
+import '/dg/CodeType'
 
 
 Client = subclass object where
@@ -38,31 +38,26 @@ RecordMeta = subclass type where
       '__slots__',      data !! 'fields'
       '__getstate__',   self -> None
       '__getnewargs__', FunctionType b.frozen globals! where
-        b = Generator '__getnewargs__' True $ tuple' 'self'
+        b = CodeType '__getnewargs__' ('self',) function: True
         b.stacksize = len $ data !! 'fields'
         for s in data !! 'fields' =>
-          b.add_opcode 'LOAD_FAST' 0
-          b.add_opcode 'LOAD_ATTR' $ b.names s
-        b.add_opcode 'BUILD_TUPLE' $ len $ data !! 'fields'
-        b.add_opcode 'RETURN_VALUE'
-        # dg automatically adds all varnames to cellvars.
-        # If we don't account for that, Python will set all varnames to NULL.
-        b.cellvars.clear!
+          b.append 'LOAD_FAST' 0
+          b.append 'LOAD_ATTR' $ b.names !! s
+        b.append 'BUILD_TUPLE' $ len $ data !! 'fields'
+        b.append 'RETURN_VALUE'
 
       '__new__', FunctionType a.frozen globals! where
-        a = Generator '__new__' True $ tuple' 'cls' + data !! 'fields'
+        a = CodeType '__new__' (('cls',) + data !! 'fields') function: True
         a.stacksize = 3
-        a.load_const object.__new__
-        a.add_opcode 'LOAD_FAST'     0
-        a.add_opcode 'CALL_FUNCTION' 1
+        a.pushconst object.__new__
+        a.append 'LOAD_FAST'     0
+        a.append 'CALL_FUNCTION' 1
         for (i, s) in enumerate (data !! 'fields') 1 =>
-          a.add_opcode 'DUP_TOP'
-          a.add_opcode 'LOAD_FAST'  i
-          a.add_opcode 'ROT_TWO'
-          a.add_opcode 'STORE_ATTR' $ a.names s
-        a.add_opcode 'RETURN_VALUE'
-        a.cellvars.clear!
-
+          a.append 'DUP_TOP'
+          a.append 'LOAD_FAST'  i
+          a.append 'ROT_TWO'
+          a.append 'STORE_ATTR' $ a.names !! s
+        a.append 'RETURN_VALUE'
     type.__new__ self name bases data
 
 

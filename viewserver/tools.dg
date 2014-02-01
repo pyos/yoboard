@@ -17,7 +17,7 @@ import '../database/Record'
 
 as_list = tree ->
   yield tree.root
-  for subtree in tree.replies => yield from: (as_list subtree)
+  for subtree in tree.replies => for i in as_list subtree => yield i
 
 
 get_or_404 = f *: args -> except
