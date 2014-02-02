@@ -35,8 +35,8 @@ Yoboard = subclass $ Flask where
     @register_error_handler 500 @onexcept
 
   relative = p ~> os.path.relpath p $ os.path.dirname config.__file__
-  onexcept = e ~> (render_template 'error.haml.html' err: e code: 500    relative: @relative, 500)
-  onerror  = e ~> (render_template 'error.haml.html' err: e code: e.code relative: @relative, e.code)
+  onexcept = e ~> (render_template 'error.hamlish' err: e code: 500    relative: @relative, 500)
+  onerror  = e ~> (render_template 'error.hamlish' err: e code: e.code relative: @relative, e.code)
 
 data = Client  config.CLIENT_ADDRESS
 app  = Yoboard __name__

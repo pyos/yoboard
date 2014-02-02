@@ -21,7 +21,7 @@ BullshitExtension = subclass Extension where
 
   '''
   preprocess = data name _: None ~> if
-    name.endswith '.haml.html' => (cls data name).inline '' where
+    name.endswith '.hamlish' => (cls data name).inline '' where
       cls = subclass Bullshit where
         TRIM_SPACES = getattr @environment 'trim_bullshit' False
 

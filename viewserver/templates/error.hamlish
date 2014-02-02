@@ -1,4 +1,4 @@
--extends "base.haml.html"
+-extends "base.hamlish"
 -macro traceback_line(tb, n)
   -set filename = relative(tb.tb_frame.f_code.co_filename)
   -if not filename.startswith('..')

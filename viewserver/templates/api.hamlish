@@ -1,4 +1,4 @@
--extends "base.haml.html"
+-extends "base.hamlish"
 -block title
   JSON API
 
