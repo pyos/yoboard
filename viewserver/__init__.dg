@@ -16,9 +16,9 @@ Yoboard = subclass $ Flask where
     Flask.__init__ self *: a **: k
 
     @config.from_object config
-    @jinja_env.trim_bullshit  = not @debug
+    @jinja_env.trim_hamlish   = not @debug
     @jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
-    @jinja_env.add_extension  $ import 'bullshit/BullshitExtension'
+    @jinja_env.add_extension  $ import 'hamlish/HamlishExtension'
     @jinja_env.globals.update $ dict'
       'random_banner', ->
         xs = os.listdir config.BANNER_DIR

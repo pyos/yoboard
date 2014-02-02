@@ -11,7 +11,7 @@ ControlStmt = subclass str where __new__ = t x ~> self where
   self.type = t
 
 
-BullshitExtension = subclass Extension where
+HamlishExtension = subclass Extension where
   '''A HAML-like preprocessor for Jinja2.
 
     Inspired by hamlish-jinja (https://github.com/Pitmairen/hamlish-jinja).
@@ -22,8 +22,8 @@ BullshitExtension = subclass Extension where
   '''
   preprocess = data name _: None ~> if
     name.endswith '.hamlish' => (cls data name).inline '' where
-      cls = subclass Bullshit where
-        TRIM_SPACES = getattr @environment 'trim_bullshit' False
+      cls = subclass Hamlish where
+        TRIM_SPACES = getattr @environment 'trim_hamlish' False
 
         # TODO support non-standard delimiters.
         CODE_INLINE  = '{{{{ {} }}}}'.format
@@ -40,7 +40,7 @@ BullshitExtension = subclass Extension where
     otherwise => data
 
 
-Bullshit = subclass Parser where
+Hamlish = subclass Parser where
   inline = data      ~> data + ''.join (takewhile (x -> not $ x in (Dedent, EOFTok)) self)
   block  = start end ~> @inline start! + end!
 
