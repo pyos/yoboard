@@ -1,4 +1,4 @@
--extends "base.hamlish"
+-extends "base.hamlike"
 -block title
   JSON API
 

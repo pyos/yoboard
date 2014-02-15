@@ -1,5 +1,5 @@
--extends "list.hamlish"
--from "post.hamlish" import post with context
+-extends "list.hamlike"
+-from "post.hamlike" import post with context
 
 -block view_options
   %li class="disabled" -> %a -> Layout

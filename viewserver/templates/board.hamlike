@@ -1,5 +1,5 @@
--extends "base.hamlish"
--from "post.hamlish" import post, post_form with context
+-extends "base.hamlike"
+-from "post.hamlike" import post, post_form with context
 
 -block title
   =this[0]
