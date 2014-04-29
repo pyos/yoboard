@@ -16,7 +16,7 @@ Yoboard = subclass $ Flask where
     Flask.__init__ self *: a **: k
 
     @config.from_object config
-    @jinja_env.trim_hamlike   = not @debug
+    @jinja_env.autoescape     = True
     @jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
     @jinja_env.add_extension  $ import '/hamlike/HamlikeExtension'
     @jinja_env.globals.update $ dict'
