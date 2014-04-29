@@ -4,10 +4,10 @@ import '/uuid'
 import '/atexit'
 import '/pickle'
 import '/signal'
+import '/threading'
 import '/socket/AF_UNIX'
 import '/socket/socket'
 import '/select/select'
-import '/dg/addon/fork'
 
 import 'boardcmds/commands'
 import '../config'
@@ -23,7 +23,7 @@ data = except
     users:    dict!  # :: {str: Either [str] bool}
 
 
-save = name data -> fork.process $ ->
+save = name data -> if os.fork! == 0 =>
   # By forking, we
   #   1. ensure that the database is still up for requests;
   #   2. create a complete copy of the data without wasting
@@ -37,6 +37,18 @@ save = name data -> fork.process $ ->
     fd.flush!
     os.fsync fd.fileno!
   os.rename fd.name config.DATABASE
+  os._exit 0
+
+
+repeat = interval fn -> (lock, stop.set) where
+  lock = threading.Lock!
+  stop = threading.Event!
+  # `threading.Timer` only runs a function once. This is a *strict*
+  # infinitely looping equivalent. (Except for the `cancel` method,
+  # which is replaced with `stop.set!`.)
+  thread = threading.Thread target: (-> while not $ stop.wait interval => with lock => fn!)
+  thread.daemon = True
+  thread.start!
 
 
 # A closure is simply faster that the equivalent in a global namespace.
@@ -46,10 +58,7 @@ runserver = data (family, addr) cmds ->
   run = True
   # Even though we handle both relevant signals, using `atexit`
   # allows us to save the data even if an unexpected exception occurs.
-  dump = atexit.register $ -> save config.DATABASE data
-  lock = fork.thread.Lock!
-  _, _ = fork.repeat.thread.daemon config.AUTOSYNC_INTERVAL $ -> with lock => dump!
-
+  lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> save config.DATABASE data
   signal.signal signal.SIGINT  $ _ _ -> (run = False)
   signal.signal signal.SIGTERM $ _ _ -> (run = False)
 
