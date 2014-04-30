@@ -2,9 +2,7 @@
 %html lang="en-US"
   %head
     %meta charset="utf-8"
-    %title
-      {{ config.SITE_NAME }} -
-      -block title
+    %title -> {{ config.SITE_NAME }} - {% block title %}{% endblock %}
     %link rel="stylesheet" href="/static/css/bootstrap.min.css"
     %link rel="stylesheet" href="/static/css/bootstrap-theme.min.css"
     %link rel="stylesheet" href="/static/css/yoba-core.css"
