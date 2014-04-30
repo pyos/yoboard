@@ -32,7 +32,7 @@
 ... get("/b/1/", headers={"Accept": "application/json"})
 
 {
-  # Whether this thread is fixed at the to of the first page.
+  # Whether this thread is fixed at the top of the first page.
   # NOTE: the API sorts threads automatically.
   "attached": bool,
   # Whether this thread cannot be replied to under any circumstances.
