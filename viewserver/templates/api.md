@@ -20,7 +20,7 @@
 
 >>> # Assuming you want the contents of a board with ID "b":
 ... get("/b/", headers={"Accept": "application/json"}) or \
-... get("/board/page/0/", headers={"Accept": "application/json"})
+... get("/b/page/0/", headers={"Accept": "application/json"})
 
 {
   "pages": int,  # Total no. of non-empty pages on that board
