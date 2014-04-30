@@ -25,15 +25,15 @@
 
 -block navbar
 -block main
-  %div class="container" id="error-body"
+  %div.container id="error-body"
     %div
-      %h1 class="text-center" -> =self.title()
+      %h1.text-center -> =self.title()
       -if code == 500
-        %samp class="highlight" -> =traceback(err)
+        %samp.highlight -> =traceback(err)
       -elif 'description' in err.__dict__
-        %h3 class="text-center" -> =err.description
+        %h3.text-center -> =err.description
 
-      %footer class="text-center"
+      %footer.text-center
         -if code == 404
           %a href="/" -> Index page
           |

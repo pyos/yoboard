@@ -1,36 +1,36 @@
 -macro post(p, list_mode, closed, attached)
   %div class="post media{{ ' post-attached' if attached else '' }}{{ ' post-closed' if closed else '' }}" id="{{ p.id }}"
-    %div class="media-heading"
-      %a href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" class="post-id" -> =p.id
+    %div.media-heading
+      %a.post-id href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" -> =p.id
       -if p.title
-        %span class="post-title" -> =p.title
-      %span class="post-time" -> =p.timestamp.strftime('%d.%m.%Y %H:%M:%S')
+        %span.post-title -> =p.title
+      %span.post-time -> =p.timestamp.strftime('%d.%m.%Y %H:%M:%S')
       -if p.sage
-        %span class="post-sage" -> SAGE
+        %span.post-sage -> SAGE
       -if not p.parent
-        %a class="glyphicon glyphicon-upload admin admin-tree-attach" title="Attach"
-        %a class="glyphicon glyphicon-unchecked admin admin-tree-detach" title="Detach"
-        %span class="post-attached-mark glyphicon glyphicon-pushpin" title="Attached"
-        %a class="glyphicon glyphicon-floppy-remove admin admin-tree-close" title="Close"
-        %a class="glyphicon glyphicon-floppy-saved admin admin-tree-open" title="Open"
-        %span class="post-closed-mark glyphicon glyphicon-lock" title="Closed"
-      %a class="glyphicon glyphicon-comment post-reply-btn" title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
-      %a class="glyphicon glyphicon-trash admin admin-tree-rm" title="Remove"
-      %a class="glyphicon glyphicon-collapse-down post-expand-btn" title="Expand"
-      %a class="glyphicon glyphicon-collapse-up post-collapse-btn" title="Collapse"
+        %a.admin.admin-tree-attach.glyphicon.glyphicon-upload       title="Attach"
+        %a.admin.admin-tree-detach.glyphicon.glyphicon-unchecked    title="Detach"
+        %span.post-attached-mark.glyphicon.glyphicon-pushpin        title="Attached"
+        %a.admin.admin-tree-close.glyphicon.glyphicon-floppy-remove title="Close"
+        %a.admin.admin-tree-open.glyphicon.glyphicon-floppy-saved   title="Open"
+        %span.post-closed-mark.glyphicon.glyphicon-lock             title="Closed"
+      %a.glyphicon.glyphicon-comment.post-reply-btn        title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
+      %a.glyphicon.glyphicon-trash.admin.admin-tree-rm     title="Remove"
+      %a.glyphicon.glyphicon-collapse-down.post-expand-btn title="Expand"
+      %a.glyphicon.glyphicon-collapse-up.post-collapse-btn title="Collapse"
 
-    %div class="post-content clearfix"
+    %div.post-content.clearfix
       -for file, thumb in p.files
-        %div class="media-object pull-left"
+        %div.media-object.pull-left
           %a href="{{ url_for('upload', filename=file) }}"
             %img alt="image" src="{{ url_for('upload', filename=thumb) }}"
 
-      %div class="media-body"
+      %div.media-body
         -if list_mode and p.parent and p.parent != p.thread
-          %p -> %a class="post-anchor" data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
+          %p -> %a.post-anchor data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
         =p.text|safe
   
-    %div class="collapse post-form" id="post-form-{{ p.id }}"
+    %div.collapse.post-form id="post-form-{{ p.id }}"
       =post_form(url_for('.post_create', board=board), p.id)
 
 
@@ -38,21 +38,20 @@
   %form method="post" role="form" enctype="multipart/form-data" action="{{ url }}"
     %input type="hidden" name="parent" value="{{ parent }}"
 
-    %div class="input-group"
-      %input type="text" class="form-control" name="title" placeholder="Title"
+    %div.input-group
+      %input.form-control type="text" name="title" placeholder="Title"
       -if parent
-        %label class="input-group-addon"
+        %label.input-group-addon
           %input type="checkbox" name="sage"
           SAGE
 
-    %div class="input-group"
-      %textarea class="form-control" name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
+    %div.input-group
+      %textarea.form-control name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
 
-    %div class="input-group"
-      %div class="input-group-addon adjacent-file-control btn btn-default"
-        %span class="glyphicon glyphicon-hdd"
-      %input type="file" class="adjacent-file-target" name="file"
-      %input type="text" class="form-control adjacent-file-display" disabled
+    %div.input-group
+      %div.input-group-addon.adjacent-file-control.btn.btn-default -> %span.glyphicon.glyphicon-hdd
+      %input.adjacent-file-target type="file" name="file"
+      %input.adjacent-file-display.form-control type="text" disabled
 
-    %div class="input-group"
-      %button type="submit" class="btn btn-default" -> ="Reply" if parent else "New thread"
+    %div.input-group
+      %button.btn.btn-default type="submit" -> ="Reply" if parent else "New thread"

@@ -8,19 +8,19 @@
   -if this[2] > 1
     -if page
       %li -> %a href="{{ url_for('.board', board=board, page=page - 1) }}" -> &laquo;
-    %li class="disabled" -> %a -> p. {{ page }}
+    %li.disabled -> %a -> p. {{ page }}
     -if this[2] > page + 1
       %li -> %a href="{{ url_for('.board', board=board, page=page + 1) }}" -> &raquo;
 
 -block content
-  %div class="post-form" id="board-form"
+  %div.post-form id="board-form"
     =post_form(url_for('.post_create', board=board), 0)
 
   -for thread in this[1]
-    %div class="post-view-tree"
+    %div.post-view-tree
       =post(thread.root, false, thread.closed, thread.attached)
       -if thread.skipped
-        %p class="post-missing-notice"
+        %p.post-missing-notice
           ...
           %a href="{{ url_for('.thread', board=board, thread=thread.root.id) }}"
             {{ thread.skipped }} more post{{ "s" if thread.skipped > 1 else "" }}
