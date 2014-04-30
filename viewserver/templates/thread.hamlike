@@ -1,0 +1,32 @@
+-extends "base.hamlike"
+-from "post.hamlike" import post with context
+
+-block title
+  -if this.root.title
+    {{ this.root.title }}
+  -else
+    #{{ this.root.id }}
+
+-block options
+  %li -> %a href="{{ url_for('.board', board=board) }}" -> Back to /{{ board }}/
+
+-block view_options
+  %li.disabled -> %a -> Layout
+  -for vt in ['list', 'tree']
+    -set url = url_for('.thread_' + vt, board=board, thread=this.root.id)
+    %li class="{{ 'active' if vt == view else '' }}"
+      %a.thread-view-type data-type="{{ vt }}" href="{{ url }}"
+        =vt.capitalize()
+
+-macro tree(t, op, limit)
+  %div.post-view-tree
+    -if limit
+      =post(t.root, False, op.closed, op.attached)
+      -for st in t.replies
+        =tree(st, op, limit - 1)
+    -else
+      -for p in as_list(t)|sort(attribute='id')
+        =post(p, True, op.closed, op.attached)
+
+-block content
+  =tree(this, this, 0 if view == "list" else 6)
