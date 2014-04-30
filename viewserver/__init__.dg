@@ -19,6 +19,7 @@ Yoboard = subclass $ Flask where
     @jinja_env.autoescape     = True
     @jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
     @jinja_env.add_extension  $ import '/hamlike/HamlikeExtension'
+    @jinja_env.add_extension  $ import 'markup/MdExtension'
     @jinja_env.globals.update $ dict'
       'random_banner', ->
         xs = os.listdir config.BANNER_DIR

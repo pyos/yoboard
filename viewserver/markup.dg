@@ -6,23 +6,20 @@ import '/pygments/lexers'     qualified
 import '/pygments/formatters' qualified
 
 
-parse = x ->
-  '''Convert a markdownish text into HTML.
-
-    parse :: str -> str
-
-  '''
-  stage1 $ iter x.splitlines!
+#: Convert a markdownish text into HTML.
+#:
+#: parse :: str -> str
+#:
+parse = x -> stage1 $ iter x.splitlines!
 
 
-highlight = lang code formatter: pygments.formatters.HtmlFormatter! ->
-  '''Highlight a piece of code with Pygments. (Or simply wrap it in <pre> tags.)
-
-    highlight :: (Maybe str) str (Optional Formatter) -> str
-
-  '''
-  except e => pygments.highlight code (pygments.lexers.get_lexer_by_name lang) formatter
-         e => '<pre>{}</pre>'.format $ escape code
+#: Highlight a piece of code with Pygments. (Or simply wrap it in <pre> tags.)
+#:
+#: highlight :: (Maybe str) str (Optional Formatter) -> str
+#:
+highlight = lang code formatter: pygments.formatters.HtmlFormatter! -> except
+  e => pygments.highlight code (pygments.lexers.get_lexer_by_name lang) formatter
+  e :: Exception => '<pre>{}</pre>'.format $ escape code
 
 
 stage1re = compile r'''(?isx)
@@ -76,3 +73,11 @@ stage2 = x -> stage2re.sub
        g == 'code'      => '<code>{}</code>'                .format $          m.group 'code_'
        g == 'hyperlink' => '<a href="{0}">{0}</a>'          .format $          m.group 'hyperlink'
   escape x
+
+
+MdExtension = except
+  err => import '/jinja2/ext/Extension'
+  err :: ImportError => None
+  err is None        => subclass Extension where preprocess = data name *: _ ~> if
+    name.endswith '.md' => parse data
+    otherwise           => data
