@@ -28,7 +28,7 @@
   "threads": [thread],  # See below
 }
 
->>> # Fetch a thread with it "1" on a board with ID "b":
+>>> # Fetch a thread with id "1" on a board with ID "b":
 ... get("/b/1/", headers={"Accept": "application/json"})
 
 {
