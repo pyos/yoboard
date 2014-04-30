@@ -91,6 +91,7 @@ blockquote {
  * Source: http://igniteflow.com/static/css/pygments/wombat.css
  */
 pre, code { background: #242424; color: #f6f3e8; border-color: #333 }
+.api-markdown pre { background: none; border: none; }
 .highlight .hll { background-color: #ffffcc }
 .highlight .c { color: #99968b; font-style: italic}
 .highlight .err { background-color: #990000; color: #f6f3e8}

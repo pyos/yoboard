@@ -29,27 +29,6 @@ a.glyphicon, .navbar a {
   text-decoration: none;
 }
 
-.table .var,
-.table .typ {
-  font-family: monospace;
-  white-space: nowrap;
-  width: auto;
-}
-
-.table .typ:before {
-  content: " :: ";
-  opacity: 0.8;
-}
-
-.table .desc {
-  width: 100%;
-}
-
-.api-struct small,
-.api-method small {
-  font-size: 1em;
-}
-
 #main-image {
   background: url(/static/img/main-image.png) center top no-repeat;
   height: 240px;
