@@ -29,6 +29,10 @@ a.glyphicon, .navbar a {
   text-decoration: none;
 }
 
+blockquote {
+  font-size: inherit;
+}
+
 #main-image {
   background: url(/static/img/main-image.png) center top no-repeat;
   height: 240px;
