@@ -19,11 +19,10 @@ var Core = {
       var post = $(this);
       var body = post.find(".post-content");
       var head = post.find(".media-heading");
+      var min_size = body.innerHeight();
+      var max_size = body[0].scrollHeight;
 
-      if (body.innerHeight() < body[0].scrollHeight) {
-        var min_size = body.innerHeight();
-        var max_size = body[0].scrollHeight;
-
+      if (min_size < max_size) {
         post.addClass("post-expandable");
         head.find(".post-expand-btn").click(function () {
           body.animate({'min-height': max_size}, 300);
@@ -36,8 +35,15 @@ var Core = {
         });
       }
 
-      head.find(".post-reply-btn").click(function () {
-        $(".post-form:not(.collapse):not(#board-form):not(" + $(this).attr("data-target") + ")").collapse("hide");
+      head.find(".post-reply-btn").on('click', function () {
+        $(".post-form:not(.tpl)").collapse("hide");
+
+        if (!post.find('.post-form').length) {
+          var form = $('.post-form.tpl').clone().removeClass('tpl hidden');
+          form.find('[name="parent"]').attr('value', post.attr('id'));
+          form.find('[type="file"]').each(Core.FileInputs.entry);
+          form.appendTo(post).on('hidden.bs.collapse', function () { form.remove(); }).collapse('show');
+        }
       });
     }
   },

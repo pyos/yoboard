@@ -17,7 +17,7 @@
       %a.fa.fa-trash-o.admin.admin-tree-rm title="Remove"
       %a.fa.fa-eye.post-expand-btn         title="Expand"
       %a.fa.fa-eye-slash.post-collapse-btn title="Collapse"
-      %a.fa.fa-comment.post-reply-btn      title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
+      %a.fa.fa-comment.post-reply-btn      title="Reply"
 
     %div.post-content.clearfix
       -for file, thumb in p.files
@@ -29,29 +29,21 @@
         -if list_mode and p.parent and p.parent != p.thread
           %p -> %a.post-anchor data-id="{{ p.parent }}" data-board="{{ board }}" data-thread="{{ p.thread }}" -> =p.parent
         =p.text|safe
-  
-    %div.collapse.post-form id="post-form-{{ p.id }}"
-      =post_form(url_for('.post_create', board=board), p.id)
 
 
--macro post_form(url, parent)
-  %form method="post" role="form" enctype="multipart/form-data" action="{{ url }}"
-    %input type="hidden" name="parent" value="{{ parent }}"
-
+-macro post_form()
+  %form method="post" enctype="multipart/form-data" action="{{ url_for('.post_create', board=board) }}"
+    %input type="hidden" name="parent" value="0"
     %div.input-group
       %input.form-control type="text" name="title" placeholder="Title"
-      -if parent
-        %label.input-group-addon
-          %input type="checkbox" name="sage"
-          SAGE
-
+      %label.input-group-addon
+        %input type="checkbox" name="sage"
+        SAGE
     %div.input-group
       %textarea.form-control name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
-
     %div.input-group
       %div.input-group-addon.adjacent-file-control.btn.btn-default -> %span.fa.fa-upload
       %input.adjacent-file-target type="file" name="file"
       %input.adjacent-file-display.form-control type="text" disabled
-
     %div.input-group
-      %button.btn.btn-default type="submit" -> ="Reply" if parent else "New thread"
+      %button.btn.btn-default type="submit" -> I'm done

@@ -1,5 +1,5 @@
 -extends "base.hamlike"
--from "post.hamlike" import post with context
+-from "post.hamlike" import post, post_form with context
 
 -block title
   -if this.root.title
@@ -29,4 +29,6 @@
         =post(p, True, op.closed, op.attached)
 
 -block content
+  %div.hidden.post-form.tpl -> =post_form()
+
   =tree(this, this, 0 if view == "list" else 6)
