@@ -3,7 +3,7 @@
   =config.SITE_TITLE
 
 -block styles
-  %link type="text/css" rel="stylesheet" href="/static/css/yoba-theme-neutron.css" data-theme-override
+  %link rel="stylesheet" href="/static/css/yoba-theme-neutron.css" data-theme-override
 
 -block navbar
 -block main
