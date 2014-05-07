@@ -6,6 +6,7 @@
     %title -> {{ config.SITE_NAME }} - {% block title %}{% endblock %}
     %link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
     %link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css"
+    %link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css"
     %link rel="stylesheet" href="/static/css/yoba-core.css"
     -block styles
     %script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"
@@ -47,6 +48,6 @@
 
     %footer
       %small
-        + <a href="https://github.com/pyos/yoboard">yoboard</a>
+        + <a href="https://github.com/pyos/yoboard" class="fa fa-github">yoboard</a>
         | <a href="{{ url_for('core.json') }}">JSON API</a>
         | <a id="admin-mode">Admin mode: </a>

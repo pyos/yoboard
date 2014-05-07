@@ -8,16 +8,16 @@
       -if p.sage
         %span.post-sage -> SAGE
       -if not p.parent
-        %a.admin.admin-tree-attach.glyphicon.glyphicon-upload       title="Attach"
-        %a.admin.admin-tree-detach.glyphicon.glyphicon-unchecked    title="Detach"
-        %span.post-attached-mark.glyphicon.glyphicon-pushpin        title="Attached"
-        %a.admin.admin-tree-close.glyphicon.glyphicon-floppy-remove title="Close"
-        %a.admin.admin-tree-open.glyphicon.glyphicon-floppy-saved   title="Open"
-        %span.post-closed-mark.glyphicon.glyphicon-lock             title="Closed"
-      %a.glyphicon.glyphicon-comment.post-reply-btn        title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
-      %a.glyphicon.glyphicon-trash.admin.admin-tree-rm     title="Remove"
-      %a.glyphicon.glyphicon-collapse-down.post-expand-btn title="Expand"
-      %a.glyphicon.glyphicon-collapse-up.post-collapse-btn title="Collapse"
+        %a.admin.admin-tree-attach.fa.fa-thumb-tack title="Attach"
+        %span.post-attached-mark.fa.fa-thumb-tack   title="Attached"
+        %a.admin.admin-tree-detach.fa.fa-level-down title="Detach"
+        %a.admin.admin-tree-close.fa.fa-lock  title="Close"
+        %span.post-closed-mark.fa.fa-lock     title="Closed"
+        %a.admin.admin-tree-open.fa.fa-unlock title="Open"
+      %a.fa.fa-trash-o.admin.admin-tree-rm title="Remove"
+      %a.fa.fa-eye.post-expand-btn         title="Expand"
+      %a.fa.fa-eye-slash.post-collapse-btn title="Collapse"
+      %a.fa.fa-comment.post-reply-btn      title="Reply" data-toggle="collapse" data-target="#post-form-{{ p.id }}"
 
     %div.post-content.clearfix
       -for file, thumb in p.files
@@ -49,7 +49,7 @@
       %textarea.form-control name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
 
     %div.input-group
-      %div.input-group-addon.adjacent-file-control.btn.btn-default -> %span.glyphicon.glyphicon-hdd
+      %div.input-group-addon.adjacent-file-control.btn.btn-default -> %span.fa.fa-upload
       %input.adjacent-file-target type="file" name="file"
       %input.adjacent-file-display.form-control type="text" disabled
 
