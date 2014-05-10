@@ -1,9 +1,8 @@
 import '/socket/socket'
 import '/pickle/dumps'
 import '/pickle/Unpickler'
-import '/types/FunctionType'
 
-import '/dg/CodeType'
+import '/dg/compile'
 
 
 Client = subclass object where
@@ -33,35 +32,16 @@ Client = subclass object where
 
 
 RecordMeta = subclass type where
-  __new__ = name bases data ~>
+  __new__ = name bases data ~> type.__new__ self name bases data where
+    fields = data !! 'fields'
+    xattrs = list $ map ('@' +) fields
     data.update $ dict'
-      '__slots__',      data !! 'fields'
-      '__getstate__',   self -> None
-      '__getnewargs__', FunctionType b.frozen globals! where
-        b = CodeType '__getnewargs__' ('self',) function: True
-        b.stacksize = len $ data !! 'fields'
-        for s in data !! 'fields' =>
-          b.append 'LOAD_FAST' 0
-          b.append 'LOAD_ATTR' $ b.names !! s
-        b.append 'BUILD_TUPLE' $ len $ data !! 'fields'
-        b.append 'RETURN_VALUE'
-
-      '__new__', FunctionType a.frozen globals! where
-        a = CodeType '__new__' (('cls',) + data !! 'fields') function: True
-        a.stacksize = 3
-        a.pushconst object.__new__
-        a.append 'LOAD_FAST'     0
-        a.append 'CALL_FUNCTION' 1
-        for (i, s) in enumerate (data !! 'fields') 1 =>
-          a.append 'DUP_TOP'
-          a.append 'LOAD_FAST'  i
-          a.append 'ROT_TWO'
-          a.append 'STORE_ATTR' $ a.names !! s
-        a.append 'RETURN_VALUE'
-    type.__new__ self name bases data
+      '__slots__',  data !! 'fields'
+      '__init__',   eval $ compile $ 'self '                  + ' '.join xattrs + ' -> None'
+      '__reduce__', eval $ compile $ 'self -> (@__class__, (' + ','.join xattrs + '))'
 
 
-Record = subclass object metaclass: RecordMeta where fields = tuple!
+Record = subclass object metaclass: RecordMeta where fields = ()
 Post   = subclass Record where fields = 'id', 'title', 'sage', 'text', 'files', 'thread', 'parent', 'timestamp', '_ip'
 Board  = subclass Record where fields = 'id', 'title', 'category', 'threads'
 Tree   = subclass Record where fields = 'root', 'replies'
