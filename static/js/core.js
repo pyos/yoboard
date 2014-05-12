@@ -72,12 +72,14 @@ var Core = {
           // Some browsers support resetting file inputs.
           if (display.val() == '') remove();
 
-          reset = $("<div class='input-group-addon btn btn-default'>")
-            .append("<span class='fa fa-times'>")
-            .appendTo(group)
-            .on('click', remove);
+          if (reset === null) {
+            reset = $("<div class='input-group-addon btn btn-default'>")
+              .append("<span class='fa fa-times'>")
+              .appendTo(group)
+              .on('click', remove);
 
-          form.each(Core.FileInputs.extend);
+            form.each(Core.FileInputs.extend);
+          }
         });
 
       var display = $("<input type='text' disabled class='form-control'>")
