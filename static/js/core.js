@@ -11,7 +11,7 @@ var Core = {
     }
 
     $(this).find(".post").each(Core.Posts.entry);
-    $(this).find("[type='file']").each(Core.FileInputs.entry);
+    $(this).find(".post-form:not(.tpl)").each(Core.FileInputs.extend);
   },
 
   Posts: {
@@ -41,7 +41,7 @@ var Core = {
         if (!post.find('.post-form').length) {
           var form = $('.post-form.tpl').clone().removeClass('tpl hidden');
           form.find('[name="parent"]').attr('value', post.attr('id'));
-          form.find('[type="file"]').each(Core.FileInputs.entry);
+          form.each(Core.FileInputs.extend);
           form.appendTo(post).on('hidden.bs.collapse', function () { form.remove(); }).collapse('show');
         }
       });
@@ -49,17 +49,40 @@ var Core = {
   },
 
   FileInputs: {
-    entry: function () {
-      var self = $(this);
-      var reset   = null;
-      var display = self.siblings(".adjacent-file-display");
-      var control = self.siblings(".adjacent-file-control");
+    extend: function () {
+      var form     = $(this);
+      var activate = function () { field.click();  };
+      var remove   = function () { group.remove(); };
+      var reset    = null;
 
-      self.change(function () {
-        display.val(self.val().split("\\").pop().split("/").pop());
-      });
+      var group = $("<div class='input-group'>")
+        .insertBefore(form.find('.input-group:last-child'));
 
-      control.click(function () { self.click(); });
+      var control = $("<div class='input-group-addon btn btn-default'>")
+        .append("<span class='fa fa-upload'>")
+        .appendTo(group)
+        .on('click', activate);
+
+      var field = $("<input type='file' name='file' class='hidden'>")
+        .appendTo(group)
+        .on('change', function () {
+          // The path is mangled to prevent whatever, only the filename is important.
+          display.val(field.val().split("\\").pop().split("/").pop());
+
+          // Some browsers support resetting file inputs.
+          if (display.val() == '') remove();
+
+          reset = $("<div class='input-group-addon btn btn-default'>")
+            .append("<span class='fa fa-times'>")
+            .appendTo(group)
+            .on('click', remove);
+
+          form.each(Core.FileInputs.extend);
+        });
+
+      var display = $("<input type='text' disabled class='form-control'>")
+        .appendTo(group)
+        .on('click', activate);
     }
   }
 };

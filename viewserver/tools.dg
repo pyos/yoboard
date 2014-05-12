@@ -44,28 +44,28 @@ with_json_equivalent = onjson onhtml ->
 
 
 make_post = board parent sage title text files ->
-  len files == 1 and (head files).filename == '' =>
-    # Werkzeug adds a file with an empty filename for some reason.
-    files.pop 0
+  files = list
+    where for f in files => if
+      f.filename == '' =>  # An empty form field.
+      f.mimetype.startswith 'image/' =>
+        name = ''.join randname! + path.splitext f.filename !! 1
+        yield (f, (name, 'm.' + name))
+      # TODO support other file types?
+      otherwise => abort 400 'Unknown file type.'
+  fnames = list $ map snd files
 
-  config.NOT_EMPTY and not (text or files)   => abort 400 'Either a message or a file is required.'
-  config.MAX_UPLOADS      < len files        => abort 400 'Too many files.'
-  config.MAX_TITLE_LENGTH < len title        => abort 400 'The title is too long.'
-  config.MAX_TEXT_LENGTH  < len text         => abort 400 'The text is too long.'
-  config.MAX_TEXT_LINES <= text.count '\n'   => abort 400 'The text contains too many lines.'
-
-  fnames = list xs where xs = None where for f in files => if
-    f.mimetype.startswith 'image/' => yield $ tuple'
-      name = 'f.' + ''.join randname! + path.splitext f.filename !! 1
-      name.replace 'f.' 'm.' 1
-    otherwise => abort 400 'Unknown file type.'
+  config.NOT_EMPTY and not (text or files) => abort 400 'Either a message or a file is required.'
+  config.MAX_UPLOADS      < len files      => abort 400 'Too many files.'
+  config.MAX_TITLE_LENGTH < len title      => abort 400 'The title is too long.'
+  config.MAX_TEXT_LENGTH  < len text       => abort 400 'The text is too long.'
+  config.MAX_TEXT_LINES <= text.count '\n' => abort 400 'The text contains too many lines.'
 
   htext  = parse text
   thread = if
     parent == 0 => get_or_404 data.thread_create board        title      htext fnames request.remote_addr
     otherwise   => get_or_404 data.post_create   board parent title sage htext fnames request.remote_addr
 
-  for (file, (fn, tn)) in zip files fnames =>
+  for (file, (fn, tn)) in files =>
     fp = path.join config.UPLOAD_DIR fn
     tp = path.join config.UPLOAD_DIR tn
     file.save fp

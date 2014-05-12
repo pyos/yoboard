@@ -42,8 +42,4 @@
     %div.input-group
       %textarea.form-control name="text" rows="5" cols="40" placeholder="A very important and undoubtedly valid opinion"
     %div.input-group
-      %div.input-group-addon.adjacent-file-control.btn.btn-default -> %span.fa.fa-upload
-      %input.adjacent-file-target type="file" name="file"
-      %input.adjacent-file-display.form-control type="text" disabled
-    %div.input-group
       %button.btn.btn-default type="submit" -> I'm done

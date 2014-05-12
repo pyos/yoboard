@@ -13,7 +13,8 @@
       %li -> %a href="{{ url_for('.board', board=board, page=page + 1) }}" -> &raquo;
 
 -block content
-  %div.post-form.tpl -> =post_form()
+  %div.post-form.tpl.hidden -> =post_form()
+  %div.post-form -> =post_form()
 
   -for thread in this[1]
     %div.post-view-tree
