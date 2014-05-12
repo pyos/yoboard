@@ -38,7 +38,8 @@ RecordMeta = subclass type where
     data.update $ dict'
       '__slots__',  data !! 'fields'
       '__init__',   eval $ compile $ 'self '                  + ' '.join xattrs + ' -> None'
-      '__reduce__', eval $ compile $ 'self -> (@__class__, (' + ','.join xattrs + '))'
+      '__iter__',   eval $ compile $ 'self -> iter ('         + ','.join xattrs + ',)'
+      '__reduce__', eval $ compile $ 'self -> (@__class__, (' + ','.join xattrs + ',))'
 
 
 Record = subclass object metaclass: RecordMeta where fields = ()
