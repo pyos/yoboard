@@ -25,7 +25,7 @@
       -for st in t.replies
         =tree(st, op, limit - 1)
     -else
-      -for p in as_list(t)|sort(attribute='id')
+      -for p in t|flattree|sort(attribute='id')
         =post(p, True, op.closed, op.attached)
 
 -block content

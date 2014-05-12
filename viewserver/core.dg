@@ -6,7 +6,6 @@ import '/flask/url_for'
 
 import 'data'
 import 'config'
-import 'tools/as_list'
 import 'tools/make_post'
 import 'tools/get_or_404'
 import 'tools/with_json_equivalent'
@@ -53,10 +52,10 @@ thread = with_json_equivalent
 
 thread_render = t view -> board thread ->
   data.get_cached_thread board thread t or
-    result = render_template 'thread.hamlike' view: view
-      this:   (get_or_404 data.thread board thread)
-      board:   board
-      as_list: as_list
+    result = render_template 'thread.hamlike'
+      this: (get_or_404 data.thread board thread)
+      view:  view
+      board: board
     data.set_cached_thread board thread t result
     result
 

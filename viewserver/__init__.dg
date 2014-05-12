@@ -1,4 +1,5 @@
 import '/os'
+import '/time'
 import '/random/choice'
 
 import '/flask/Flask'
@@ -22,10 +23,16 @@ Yoboard = subclass $ Flask where
     @jinja_env.autoescape     = True
     @jinja_env.trim_blocks    = True
     @jinja_env.lstrip_blocks  = True
-    @jinja_env.globals.update $ dict'
-      'random_banner', ->
-        xs = os.listdir config.BANNER_DIR
-        xs => choice xs
+    @jinja_env.filters.update $ dict'
+      'randfile', fd -> choice (os.listdir fd or list' None)
+      'relpath',  fp -> os.path.relpath fp $ os.path.dirname config.__file__
+      'strftime', ts fmt: '%d.%m.%Y %H:%M:%S' -> time.strftime fmt $ time.localtime ts
+      'flattree', xs ->
+        ys = list' xs
+        for (i, y) in enumerate ys =>
+          ys !! i = y.root
+          ys.extend y.replies
+        ys
 
     @add_url_rule '/static/upload/<path:filename>' 'upload' $ bind send_from_directory config.UPLOAD_DIR as_attachment: True
     @add_url_rule '/static/banner/<path:filename>' 'banner' $ bind send_from_directory config.BANNER_DIR as_attachment: True
@@ -37,9 +44,8 @@ Yoboard = subclass $ Flask where
     @register_error_handler 404 @onerror
     @register_error_handler 500 @onexcept
 
-  relative = p ~> os.path.relpath p $ os.path.dirname config.__file__
-  onexcept = e ~> (render_template 'error.hamlike' err: e code: 500    relative: @relative, 500)
-  onerror  = e ~> (render_template 'error.hamlike' err: e code: e.code relative: @relative, e.code)
+  onexcept = e ~> render_template 'error.hamlike' err: e code: 500,    500
+  onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
 
 data = Client  config.CLIENT_ADDRESS
 app  = Yoboard __name__

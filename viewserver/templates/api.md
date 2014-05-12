@@ -70,7 +70,7 @@ struct post = {
   "text": str,
   # ID of the OP of the thread this post is in.
   "thread": int,
-  # A date and time in `%a, %d %b %Y %H:%M:%S GMT` format.
+  # A date and time as a UNIX timestamp (UTC).
   "timestamp": str,
   # A short summary of this post, in non-escaped plaintext.
   "title": str,

@@ -1,5 +1,4 @@
 import '/os/path'
-import '/time/time'
 import '/uuid/uuid4'
 import '/functools/update_wrapper'
 import '/subprocess/Popen'
@@ -15,22 +14,25 @@ import 'markup/parse'
 import '../database/Record'
 
 
-as_list = tree ->
-  yield tree.root
-  for subtree in tree.replies => for i in as_list subtree => yield i
-
-
 get_or_404 = f *: args -> except
   e => f *: args
   e :: OverflowError => abort 403 'This thread is closed.'
   e :: KeyError      => abort 404
 
 
-json_encode = x -> if
-  x :: Record => dict (-> for k in x.__slots__ => if k !! 0 != '_' => yield (k, json_encode $ getattr x k))!
-  x :: dict   => dict $ zip x.keys! $ map json_encode x.values!
-  x :: list   => list $ map json_encode x
+jsprepare = x -> if
+  x :: Record => dict (where for (k, v) in zip x.fields x => k !! 0 != '_' => yield (k, jsprepare v))
+  x :: dict   => dict $ zip x.keys! $ map jsprepare x.values!
+  x :: list   => list $ map jsprepare x
   otherwise   => x
+
+
+randname = alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.' ->
+  c = uuid4!.int
+  s = len alphabet
+  while c =>
+    yield $ alphabet !! (c % s)
+    c //= s
 
 
 with_json_equivalent = onjson onhtml ->
@@ -38,7 +40,7 @@ with_json_equivalent = onjson onhtml ->
     html = request.accept_mimetypes !! 'text/html'
     json = request.accept_mimetypes !! 'application/json'
     if html >= json => onhtml **: args
-       otherwise    => jsonify $ json_encode $ onjson **: args
+       otherwise    => jsonify $ jsprepare $ onjson **: args
 
 
 make_post = board parent sage title text files ->
@@ -54,8 +56,8 @@ make_post = board parent sage title text files ->
 
   fnames = list xs where xs = None where for f in files => if
     f.mimetype.startswith 'image/' => yield $ tuple'
-      name = str time! + '.full.' + uuid4!.hex + path.splitext f.filename !! 1
-      name.replace '.full.' '.min.'
+      name = 'f.' + ''.join randname! + path.splitext f.filename !! 1
+      name.replace 'f.' 'm.' 1
     otherwise => abort 400 'Unknown file type.'
 
   htext  = parse text

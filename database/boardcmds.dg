@@ -1,5 +1,5 @@
 import '/os'
-import '/datetime/datetime'
+import '/time'
 import '/collections/deque'
 import '/collections/defaultdict'
 
@@ -118,7 +118,8 @@ commands = data ->
     'thread_create', board title text files ip ->
       boardo = RP_BOARD !! board
       rootid = RP_COUNT !! board += 1
-      root   = Post rootid title False text files rootid 0 datetime.now! ip
+      rootts = int $ time.mktime time.gmtime!
+      root   = Post rootid title False text files rootid 0 rootts ip
       thread = Thread root list! list! 0 False False
 
       boardo.threads.insert (VD_ATTACHED !! board) thread
@@ -188,7 +189,8 @@ commands = data ->
         sage = True
 
       postid  = RP_COUNT !! board += 1
-      postobj = Post postid title sage text files parentobj.thread parent datetime.now! ip
+      postts  = int $ time.mktime time.gmtime!
+      postobj = Post postid title sage text files parentobj.thread parent postts ip
       curtree = Tree postobj list!
 
       RP_TREES !! board !! postid = curtree

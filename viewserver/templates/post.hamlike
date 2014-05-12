@@ -4,7 +4,7 @@
       %a.post-id href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" -> =p.id
       -if p.title
         %span.post-title -> =p.title
-      %span.post-time -> =p.timestamp.strftime('%d.%m.%Y %H:%M:%S')
+      %span.post-time -> =p.timestamp|strftime
       -if p.sage
         %span.post-sage -> SAGE
       -if not p.parent

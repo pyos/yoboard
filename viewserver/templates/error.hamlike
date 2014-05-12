@@ -1,6 +1,6 @@
 -extends "base.hamlike"
 -macro traceback_line(tb, n)
-  -set filename = relative(tb.tb_frame.f_code.co_filename)
+  -set filename = tb.tb_frame.f_code.co_filename|relpath
   -if not filename.startswith('..')
     <span class='gh'>in line</span> <span class='mi'>{{ tb.tb_lineno }}</span>
     <span class='gh'>of</span> <span class='sc'>{{ filename }}</span><br />

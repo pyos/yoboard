@@ -37,7 +37,7 @@
             -block options
 
     -block main
-      -set b = random_banner()
+      -set b = config.BANNER_DIR|randfile
       -if b
         -set n = b.partition('_')[0]
         %a href="{{ url_for('.board', board=n) }}"
