@@ -13,14 +13,18 @@ SITE_NAME = 'Yobach'
 # Edit /static/img/main-image.png to replace the image.
 SITE_TITLE = 'YOBA SLUSHAET VAS'
 
-# Where to store server-specific data, namely the database
-# and uploaded files. Uploads should be served on /static/upload/.
-STORAGE_DIR = path.join (path.dirname __file__) 'store'
-UPLOAD_DIR  = path.join STORAGE_DIR 'upload'
+# Where to store the database. Do not serve this.
+STORAGE_DIR = path.dirname __file__
+
+# Location of `/static/` in the filesystem.
+STATIC_DIR = path.join (path.dirname __file__) 'static'
+
+# Where to save the uploaded files. Serve them on `/static/upload/`.
+UPLOAD_DIR = path.join STATIC_DIR 'upload'
 
 # Where the banners are. Should be served on /static/banner/.
 # Leave that directory empty if you don't want to show anything.
-BANNER_DIR = path.join STORAGE_DIR 'banner'
+BANNER_DIR = path.join STATIC_DIR 'banner'
 
 # A file to use for persistent storage.
 # The database will automatically dump stuff into this file

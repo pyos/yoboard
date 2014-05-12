@@ -1,3 +1,5 @@
 *.pyc
 *.pyo
-/store
+/data-*
+/static/upload
+/static/banner

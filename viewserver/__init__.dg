@@ -48,4 +48,4 @@ Yoboard = subclass $ Flask where
   onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
 
 data = Client  config.CLIENT_ADDRESS
-app  = Yoboard __name__
+app  = Yoboard __name__ static_url_path: '/static' static_folder: config.STATIC_DIR
