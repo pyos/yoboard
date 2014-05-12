@@ -13,11 +13,11 @@ yoboard = yoba & imageboard where
 pip install -r yoboard/requirements.txt
 # Tweak the configuration.
 $EDITOR yoboard/config.dg
-# Initialize an empty database.
+# Start the database.
 python -m yoboard.database &
 # Create an admin user.
 python -m yoboard.database.cli <<< 'd.user_set "YOUR_ADMIN_PASSWORD" True'
-# Start the server.
+# Start the HTTP server.
 python -m yoboard.viewserver  # or `some_wsgi_server yoboard.viewserver:app`
 ```
 
