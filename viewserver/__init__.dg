@@ -13,7 +13,7 @@ import '../database/Client'
 
 
 Yoboard = subclass $ Flask where
-  __init__ = *: a **: k ~>
+  __init__ = *: a upload_dir: 'upload' **: k ~>
     Flask.__init__ self *: a **: k
 
     @config.from_object config
@@ -34,9 +34,6 @@ Yoboard = subclass $ Flask where
           ys.extend y.replies
         ys
 
-    @add_url_rule '/static/upload/<path:filename>' 'upload' $ bind send_from_directory config.UPLOAD_DIR as_attachment: True
-    @add_url_rule '/static/banner/<path:filename>' 'banner' $ bind send_from_directory config.BANNER_DIR as_attachment: True
-
     @register_blueprint $ import 'core/mod'
     @register_blueprint $ import 'admin/mod'
     @register_error_handler 400 @onerror
@@ -48,4 +45,4 @@ Yoboard = subclass $ Flask where
   onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
 
 data = Client  config.CLIENT_ADDRESS
-app  = Yoboard __name__ static_url_path: '/static' static_folder: config.STATIC_DIR
+app  = Yoboard __name__

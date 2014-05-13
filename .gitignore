@@ -1,5 +1,4 @@
 *.pyc
 *.pyo
-/data-*
-/static/upload
-/static/banner
+/database/contents
+/viewserver/static/upload

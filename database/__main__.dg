@@ -66,7 +66,7 @@ runserver = data (family, addr) cmds ->
   server.bind addr
   server.listen 128
   # POSIX socket API states that UNIX sockets must be unlinked manually.
-  if family is AF_UNIX => atexit.register $ -> os.unlink addr
+  if family is AF_UNIX and not (addr.startswith '\0') => atexit.register $ -> os.unlink addr
 
   dumps = pickle.dumps  # Attribute cache, I guess?
   elist = list!         # Creating empty lists is probably expensive.

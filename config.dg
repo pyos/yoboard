@@ -13,31 +13,21 @@ SITE_NAME = 'Yobach'
 # Edit /static/img/main-image.png to replace the image.
 SITE_TITLE = 'YOBA SLUSHAET VAS'
 
-# Where to store the database. Do not serve this.
-STORAGE_DIR = path.dirname __file__
-
-# Location of `/static/` in the filesystem.
-STATIC_DIR = path.join (path.dirname __file__) 'static'
-
-# Where to save the uploaded files. Serve them on `/static/upload/`.
-UPLOAD_DIR = path.join STATIC_DIR 'upload'
-
-# Where the banners are. Should be served on /static/banner/.
-# Leave that directory empty if you don't want to show anything.
-BANNER_DIR = path.join STATIC_DIR 'banner'
-
 # A file to use for persistent storage.
 # The database will automatically dump stuff into this file
 # at regular intervals, as well as on shutdown.
-DATABASE = path.join STORAGE_DIR 'data-bundle'
+DATABASE = path.join (path.dirname __file__) 'database' 'contents'
+
+# Where to save the uploaded files. Serve them on `/static/upload/`.
+UPLOAD_DIR = path.join (path.dirname __file__) 'viewserver' 'static' 'upload'
 
 # This is the interval after which to dump data, as noted above. (In seconds.)
 # Also, making a backup of the database is probably a good idea.
 AUTOSYNC_INTERVAL = 15 * 60
 
 # Where to listen for database connections.
-CLIENT_ADDRESS = socket.AF_UNIX, path.join STORAGE_DIR 'data-socket'
-SERVER_ADDRESS = socket.AF_UNIX, path.join STORAGE_DIR 'data-socket'
+CLIENT_ADDRESS = socket.AF_UNIX, '\0yoboard-database'
+SERVER_ADDRESS = socket.AF_UNIX, '\0yoboard-database'
 
 # Maximum no. of threads on a single page and on a whole board.
 # Once a thread is pushed off a board, it is automatically removed.

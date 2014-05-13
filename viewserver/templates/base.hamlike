@@ -37,12 +37,6 @@
             -block options
 
     -block main
-      -set b = config.BANNER_DIR|randfile
-      -if b
-        -set n = b.partition('_')[0]
-        %a href="{{ url_for('.board', board=n) }}"
-          %img.board-banner alt="/{{ n }}/" src="{{ url_for('banner', filename=b) }}"
-
       %h1 -> =self.title()
       -block content
 
