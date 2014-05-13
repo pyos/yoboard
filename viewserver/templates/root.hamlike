@@ -19,18 +19,18 @@
             %table.board-index
               -for bid, bnam in cdr|dictsort(false, 'value')
                 %tr
-                  %td.admin -> %a.fa.fa-times.admin-board-del title="Remove"
+                  %td.admin -> %a.fa.fa-times.adm-rmboard title="Remove" data-id="{{ bid }}"
                   %td.text-muted -> /{{ bid }}/
                   %td.text-muted -> %a href="{{ url_for('.board', board=bid) }}" -> {{ bnam }}
               %tr.admin
-                %td -> %a.fa.fa-plus.admin-board-add title="Create"
+                %td -> %a.fa.fa-plus.adm-crboard title="Create" data-cat="{{ car }}"
 
     %div.row.admin
       %div.col-sm-4
         %h3.text-muted -> New category
         %table.board-index
           %tr
-            %td -> %a.fa.fa-plus.admin-board-add title="Create"
+            %td -> %a.fa.fa-plus.adm-crboard title="Create"
 
   %div.hidden
     %div id="admin-new-board-head" -> New board

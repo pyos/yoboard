@@ -101,16 +101,13 @@ body > .post-view-tree {
   margin: 15px;
 }
 
-.post-closed .post-reply-btn,
-.post-closed .admin-tree-close,
-.post-attached .admin-tree-attach,
-.post-expanded .post-expand-btn,
-.post:not(.post-attached) .post-attached-mark,
-.post:not(.post-attached) .admin-tree-detach,
-.post:not(.post-closed)   .post-closed-mark,
-.post:not(.post-closed)   .admin-tree-open,
-.post:not(.post-expanded) .post-collapse-btn,
-.post:not(.post-expandable) .post-expand-btn {
+.prop-close  .core-reply,
+.prop-close  .adm-close,
+.prop-attach .adm-attach,
+.post:not(.prop-attach) .adm-attached,
+.post:not(.prop-attach) .adm-detach,
+.post:not(.prop-close)  .adm-closed,
+.post:not(.prop-close)  .adm-open {
   display: none;
 }
 
@@ -118,28 +115,28 @@ body > .post-view-tree {
   content: '#';
 }
 
-.post-title:before,
-.post-title:after {
+.post summary:before,
+.post summary:after {
   content: '"';
 }
 
-.post-title {
+.post summary {
   font-weight: bold;
 }
 
-.post-sage {
+.sage {
   color: #aa0000;
   font-weight: bold;
 }
 
-.post-time:before {
+.post time:before {
   color: #aaaaaa;
   content: "@ ";
 }
 
-.post-content {
-  max-height: 200px;
-  overflow-y: hidden;
+.post-body {
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 .media-object {

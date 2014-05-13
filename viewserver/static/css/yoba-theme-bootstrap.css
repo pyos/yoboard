@@ -1,5 +1,4 @@
-footer,
-body > .post-view-tree {
+footer, body > .post-view-tree {
   border-top: 1px solid #ddd;
 }
 
@@ -7,11 +6,11 @@ body > .post-view-tree {
   color: #666;
 }
 
-.post-title {
+.post summary {
   color: #445588;
 }
 
-.post-time {
+.post time {
   color: #333333;
 }
 

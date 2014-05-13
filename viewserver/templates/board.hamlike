@@ -14,7 +14,7 @@
 
 -block content
   %div.post-form.tpl.hidden -> =post_form()
-  %div.post-form -> =post_form()
+  %div.post-form.toplevel -> =post_form()
 
   -for thread in this[1]
     %div.post-view-tree

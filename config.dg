@@ -59,8 +59,8 @@ IMAGES_ALWAYS_BUMP = True
 # Various limits on message sizes.
 # Note that there's no limit on the size of uploaded files;
 # use nginx as a proxy for that (it can limit the size of a request.)
-MAX_TITLE_LENGTH = 100
-MAX_TEXT_LENGTH  = 3000
-MAX_TEXT_LINES   = 300
+MAX_TITLE_LENGTH = 50
+MAX_TEXT_LENGTH  = 2000
+MAX_TEXT_LINES   = 20
 MAX_UPLOADS      = 5
 NOT_EMPTY        = True  # a post must have some text and/or files
