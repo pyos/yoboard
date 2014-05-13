@@ -82,12 +82,6 @@ blockquote {
   width: auto;
 }
 
-.board-banner {
-  float: right;
-  margin-left: 15px;
-  margin-bottom: 15px;
-}
-
 body > .post-view-tree {
   padding-top: 15px;
 }
