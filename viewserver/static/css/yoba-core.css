@@ -122,6 +122,7 @@ body > .post-view-tree {
 
 .post summary {
   font-weight: bold;
+  display: inline;
 }
 
 .sage {
