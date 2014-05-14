@@ -3,7 +3,7 @@
   =config.SITE_TITLE
 
 -block styles
-  %link rel="stylesheet" href="/static/css/yoba-theme-neutron.css" data-theme-override
+  %link type="text/css" rel="stylesheet" href="/static/css/Cyborg-theme.css" data-theme-override
 
 -block navbar
 -block main
@@ -21,7 +21,7 @@
                 %tr
                   %td.admin -> %a.fa.fa-times.adm-rmboard title="Remove" data-id="{{ bid }}"
                   %td.text-muted -> /{{ bid }}/
-                  %td.text-muted -> %a href="{{ url_for('.board', board=bid) }}" -> {{ bnam }}
+                  %td -> %a href="{{ url_for('.board', board=bid) }}" -> {{ bnam }}
               %tr.admin
                 %td -> %a.fa.fa-plus.adm-crboard title="Create" data-cat="{{ car }}"
 

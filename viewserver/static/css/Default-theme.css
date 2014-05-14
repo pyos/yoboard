@@ -1,0 +1,21 @@
+@import url(Default-bootstrap.css);
+@import url(Default-layout.css);
+@import url(pygments-github.css);
+
+footer, body > .post-view-tree {
+  border-top: 1px solid #ccc;
+}
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree > .post {
+  background: #f6f6f6;
+  border-color: #f0f0f0;
+}
+
+.post summary {
+  color: #004a99;
+}
+
+blockquote {
+  color: #227799;
+}

@@ -90,6 +90,11 @@ body > .post-view-tree {
 .post-view-tree > .post-view-tree {
   /* TODO: display nesting levels visually. */
   margin-left: 48px;
+  border: 1px solid #ccc;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  padding: 8px;
+  padding-bottom: 0;
 }
 
 .post-missing-notice {
@@ -120,19 +125,24 @@ body > .post-view-tree {
   content: '"';
 }
 
-.post summary {
-  font-weight: bold;
-  display: inline;
-}
-
 .sage {
   color: #aa0000;
   font-weight: bold;
 }
 
+.spoiler {
+  background: black;
+  color: white;
+}
+
+.post summary {
+  font-weight: bold;
+  display: inline;
+}
+
 .post time:before {
-  color: #aaaaaa;
-  content: "@ ";
+  content: ": ";
+  opacity: 0.5;
 }
 
 .post-body {

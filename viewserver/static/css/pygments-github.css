@@ -1,29 +1,3 @@
-footer, body > .post-view-tree {
-  border-top: 1px solid #ddd;
-}
-
-.post-missing-notice {
-  color: #666;
-}
-
-.post summary {
-  color: #445588;
-}
-
-.post time {
-  color: #333333;
-}
-
-blockquote {
-  color: #337700;
-}
-
-.spoiler {
-  background: black;
-  color: white;
-}
-
-/* Pygments stylesheet, courtesy of GitHub, Inc. */
 .highlight .c{color:#999988;font-style:italic}
 .highlight .err{color:#a61717;background-color:#e3d2d2}
 .highlight .k{font-weight:bold}

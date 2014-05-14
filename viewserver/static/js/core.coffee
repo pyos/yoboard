@@ -5,13 +5,13 @@ core =
     set: (t) -> $.cookie 'view_type', t, expires: 365, path: '/'
 
   theme:
-    choice: ['bootstrap', 'photon', 'neutron']
-    default: 'photon'
+    choice: ['Cosmo', 'Cyborg', 'Default', 'Flatly', 'Photon']
+    default: 'Photon'
     current: null
     element: null
     set: (name) ->
       core.theme.current = if core.theme.choice.indexOf(name) >= 0 then name else core.theme.default
-      core.theme.element.attr 'href', "/static/css/yoba-theme-#{core.theme.current}.css"
+      core.theme.element.attr 'href', "/static/css/#{core.theme.current}-theme.css"
       $.cookie 'theme', core.theme.current, expires: 365, path: '/'
 
   form:
@@ -59,7 +59,7 @@ core =
 
 
 if not $("[data-theme-override]").length
-  core.theme.element = $("<link type='text/css' rel='stylesheet' />").appendTo("head")
+  core.theme.element = $("<link type='text/css' rel='stylesheet' />").prependTo("head")
   core.theme.set $.cookie("theme")
 
 

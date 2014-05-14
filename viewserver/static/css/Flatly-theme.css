@@ -1,0 +1,18 @@
+@import url(Flatly-bootstrap.css);
+@import url(Default-layout.css);
+@import url(pygments-manni.css);
+
+footer, body > .post-view-tree {
+  border-top: 1px solid #ccc;
+}
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree > .post {
+  background: #f0f0f0;
+  border-color: #eee;
+  border-radius: 5px;
+}
+
+.post summary, blockquote {
+  color: #2c3e50;
+}
