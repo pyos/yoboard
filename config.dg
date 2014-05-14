@@ -15,8 +15,11 @@ SITE_TITLE = 'YOBA SLUSHAET VAS'
 
 # A file to use for persistent storage.
 # The database will automatically dump stuff into this file
-# at regular intervals, as well as on shutdown.
-DATABASE = path.join (path.dirname __file__) 'database' 'contents'
+# at regular intervals, as well as on shutdown. An AOF (append-only file)
+# contains the list of write commands executed since the last dump;
+# set to `None` to disable.
+DATABASE     = path.join (path.dirname __file__) 'database' 'contents'
+DATABASE_AOF = path.join (path.dirname __file__) 'database' 'contents.aof'
 
 # Where to save the uploaded files. Serve them on `/static/upload/`.
 UPLOAD_DIR = path.join (path.dirname __file__) 'viewserver' 'static' 'upload'

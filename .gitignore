@@ -1,4 +1,4 @@
 *.pyc
 *.pyo
-/database/contents
+/database/contents*
 /viewserver/static/upload

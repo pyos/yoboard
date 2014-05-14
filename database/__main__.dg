@@ -1,5 +1,6 @@
 import '/os'
 import '/gzip'
+import '/time'
 import '/uuid'
 import '/atexit'
 import '/pickle'
@@ -13,31 +14,77 @@ import 'boardcmds/commands'
 import '../config'
 
 
-data = except
-  err => with fd = gzip.open config.DATABASE 'rb' => pickle.load fd
-  err :: FileNotFoundError => dict
-    ids:      dict!  # :: {str: int}
-    boards:   dict!  # :: {str: Board}
-    boardmap: dict!  # :: {str: {str: str}}
-    trees:    dict!  # :: {str: {int: Either Thread Tree}}
-    users:    dict!  # :: {str: Either [str] bool}
+Main = subclass object where
+  __init__ = @datafile @aofile cmdfactory ~>
+    @dirty = False
+    @mtime = except
+      err => (os.stat @datafile).st_mtime
+      err :: FileNotFoundError => 0
+    @data  = except
+      err => with fd = gzip.open @datafile 'rb' => pickle.load fd
+      err :: FileNotFoundError => dict
+        ids:      dict!  # :: {str: int}
+        boards:   dict!  # :: {str: Board}
+        boardmap: dict!  # :: {str: {str: str}}
+        trees:    dict!  # :: {str: {int: Either Thread Tree}}
+        users:    dict!  # :: {str: Either [str] bool}
+    @wrob, @cmds = cmdfactory @data
+    @cmds !! '_abort'  = -> os.abort!
+    @cmds !! '_dump'   = -> @dump
+    @cmds !! '_exit'   = -> exit 0
+    @cmds !! '_help'   = -> sorted @cmds
+    @cmds !! '_status' = -> dict'
+      mtime: @mtime
+      dirty: @dirty
+    None
 
+  start = ~> if @aofile =>
+    except
+      err => fd = gzip.open @aofile 'rb'
+      err :: FileNotFoundError =>
+      err is None => with fd =>
+        u = pickle.Unpickler fd
+        while True => except
+          err =>
+            time, cmd, args = u.load!
+            time > @mtime =>
+              @dirty = True
+              (@cmds !! cmd) *: args
+          err :: EOFError  => break!
+          err :: Exception =>
 
-save = name data -> if os.fork! == 0 =>
-  # By forking, we
-  #   1. ensure that the database is still up for requests;
-  #   2. create a complete copy of the data without wasting
-  #      valuable processor time. This assumes copy-on-write semantics.
-  #
-  # NOTE: SIGCHLD must be handled properly to avoid trashing the process table.
-  #
-  with fd = gzip.open ('{}.{.hex}~'.format name uuid.uuid4!) 'wb' =>
-    # Use a temporary file to prevent partial writes.
-    fd.write $ pickle.dumps data
-    fd.flush!
-    os.fsync fd.fileno!
-  os.rename fd.name config.DATABASE
-  os._exit 0
+    # TODO open AOF for writing here
+
+  run = cmd args ~>
+    cmd in @wrob =>
+      @aofile =>
+        # TODO write to AOF here
+        None
+      @dirty = True
+    (@cmds !! cmd) *: args
+
+  dump = ~>
+    @aofile =>
+      # TODO clear AOF here
+      # FIXME what if a normal save fails?
+      None
+    @dirty and os.fork! == 0 =>
+      # By forking, we
+      #   1. ensure that the database is still up for requests;
+      #   2. create a complete copy of the data without wasting
+      #      valuable processor time. This assumes copy-on-write semantics.
+      #
+      # NOTE: SIGCHLD must be handled properly to avoid trashing the process table.
+      #
+      with fd = gzip.open ('{}.{.hex}~'.format @datafile uuid.uuid4!) 'wb' =>
+        # Use a temporary file to prevent partial writes.
+        fd.write $ pickle.dumps @data
+        fd.flush!
+        os.fsync fd.fileno!
+      os.rename fd.name @datafile
+      os._exit 0
+    @dirty = False
+    @mtime = time.time!
 
 
 repeat = interval fn -> (lock, stop.set) where
@@ -52,13 +99,14 @@ repeat = interval fn -> (lock, stop.set) where
 
 
 # A closure is simply faster that the equivalent in a global namespace.
-runserver = data (family, addr) cmds ->
+runserver = aof (family, addr) ->
+  aof.start
   # Can't just KeyboardInterrupt a database.
   # That may leave it in a corrupt state.
   run = True
   # Even though we handle both relevant signals, using `atexit`
   # allows us to save the data even if an unexpected exception occurs.
-  lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> save config.DATABASE data
+  lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> aof.dump
   signal.signal signal.SIGINT  $ _ _ -> (run = False)
   signal.signal signal.SIGTERM $ _ _ -> (run = False)
 
@@ -89,9 +137,9 @@ runserver = data (family, addr) cmds ->
           cmd, args = (read !! s)!
           # We hold that lock created in `repeat` to prevent `save`
           # from forking off with an inconsistent database.
-          s.sendall $ dumps $ with lock => (cmds !! cmd) *: args
+          s.sendall $ dumps $ with lock => aof.run cmd args
         e :: EOFError             => read !!~ s
         e :: ConnectionResetError => read !!~ s
         e :: Exception            => s.sendall $ dumps e
 
-runserver data config.SERVER_ADDRESS $ commands data
+runserver (Main config.DATABASE config.DATABASE_AOF commands) config.SERVER_ADDRESS

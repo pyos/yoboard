@@ -43,7 +43,10 @@ commands = data ->
     remove_uploads tree.root
     for subtree in tree.replies => post_cleanup board subtree.root.id
 
-  dict'
+  writes  = set' 'user_set' 'board_create' 'thread_create'
+  writes |= set' 'thread_set_closed' 'thread_set_attached' 'post_create'
+  writes |= set' 'board_remove' 'post_remove'
+  writes, dict'
     # :: -> ()
     'clear_cache', ->
       VC_BOARD.clear!
