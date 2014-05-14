@@ -2,7 +2,7 @@
 (function() {
   var core;
 
-  core = {
+  core = window.core = {
     view: {
       get: function() {
         return location.pathname.split('/')[3];
@@ -68,6 +68,72 @@
         });
         return display = $("<input type='text' disabled class='form-control'>").appendTo(group).on('click', activate);
       }
+    },
+    imageview: {
+      create: function() {
+        var view;
+        core.imageview.node = view = $("<div class=\"imageview\">\n  <nav class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n    <div class=\"btn-group\">\n      <button class=\"btn btn-success navbar-btn back\" type=\"button\">\n        <span class=\"fa fa-times\"></span>\n      </button>\n      <button class=\"btn btn-primary navbar-btn prev\" type=\"button\">\n        <span class=\"fa fa-chevron-left\"></span>\n      </button>\n      <button class=\"btn btn-primary navbar-btn next\" type=\"button\">\n        <span class=\"fa fa-chevron-right\"></span>\n      </button>\n      <span class=\"btn btn-transparent navbar-btn info\">\n      </span>\n    </div>\n  </nav>\n  <a class=\"view\"></a>\n</div>");
+        view.find('.back').on('click', function() {
+          return core.imageview.hide();
+        });
+        view.find('.prev').on('click', function() {
+          return core.imageview.prev();
+        });
+        view.find('.next').on('click', function() {
+          return core.imageview.next();
+        });
+        return view.appendTo(document.body);
+      },
+      show: function(node) {
+        var pid, post, text, title, url;
+        post = node.parents('.post');
+        url = node.find('a').attr('href');
+        pid = post.attr('id');
+        title = post.find('summary').text();
+        text = post.find('.media-body');
+        core.imageview.current = node;
+        if (!core.imageview.node) {
+          core.imageview.create();
+        }
+        core.imageview.node.find('.view').attr('href', url).css('background-image', "url(" + url + ")");
+        return core.imageview.node.find('.info').text("\#" + pid + (title ? ':' : '') + " " + title);
+      },
+      prev: function(node) {
+        var last, x, _i, _len, _ref;
+        last = null;
+        _ref = $('.media-object');
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          x = _ref[_i];
+          if (x === core.imageview.current[0]) {
+            if (last === null) {
+              return false;
+            } else {
+              return core.imageview.show($(last));
+            }
+          }
+          last = x;
+        }
+      },
+      next: function(node) {
+        var next, x, _i, _len, _ref;
+        next = false;
+        _ref = $('.media-object');
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          x = _ref[_i];
+          if (next) {
+            return core.imageview.show($(x));
+          }
+          if (x === core.imageview.current[0]) {
+            next = true;
+          }
+        }
+      },
+      hide: function() {
+        if (core.imageview.node) {
+          core.imageview.node.remove();
+          return core.imageview.node = null;
+        }
+      }
     }
   };
 
@@ -87,6 +153,13 @@
       core.theme.set($(this).text());
       $('.board-style-type').removeClass('active');
       return $(this).parent().addClass('active');
+    }).on('click', '.media-object > a', function(ev) {
+      if ((ev.which || ev.button) < 2) {
+        core.imageview.show($(this).parent());
+        return false;
+      } else {
+        return true;
+      }
     }).on('click', '.core-reply', function() {
       var form, id, post;
       post = $(this).parents('.post');

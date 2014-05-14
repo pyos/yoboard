@@ -1,4 +1,4 @@
-core =
+core = window.core =
   view:
     get: ()  -> location.pathname.split('/')[3]
     fav: ()  -> $.cookie 'view_type' || 'list'
@@ -57,6 +57,63 @@ core =
         .appendTo group
         .on 'click', activate
 
+  imageview:
+    create: () ->
+      core.imageview.node = view = $("""
+        <div class="imageview">
+          <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="btn-group">
+              <button class="btn btn-success navbar-btn back" type="button">
+                <span class="fa fa-times"></span>
+              </button>
+              <button class="btn btn-primary navbar-btn prev" type="button">
+                <span class="fa fa-chevron-left"></span>
+              </button>
+              <button class="btn btn-primary navbar-btn next" type="button">
+                <span class="fa fa-chevron-right"></span>
+              </button>
+              <span class="btn btn-transparent navbar-btn info">
+              </span>
+            </div>
+          </nav>
+          <a class="view"></a>
+        </div>
+      """)
+      view.find('.back').on 'click', -> core.imageview.hide()
+      view.find('.prev').on 'click', -> core.imageview.prev()
+      view.find('.next').on 'click', -> core.imageview.next()
+      view.appendTo(document.body)
+
+    show: (node) ->
+      post  = node.parents('.post')
+      url   = node.find('a').attr('href')
+      pid   = post.attr('id')
+      title = post.find('summary').text()
+      text  = post.find('.media-body')
+
+      core.imageview.current = node
+      core.imageview.create() if not core.imageview.node
+      core.imageview.node.find('.view').attr('href', url).css('background-image', "url(#{url})")
+      core.imageview.node.find('.info').text("\##{pid}#{if title then ':' else ''} #{title}")
+
+    prev: (node) ->
+      last = null
+      for x in $('.media-object')
+        if x is core.imageview.current[0]
+          return if last is null then false else core.imageview.show $(last)
+        last = x
+
+    next: (node) ->
+      next = false
+      for x in $('.media-object')
+        return core.imageview.show $(x) if next
+        next = true if x is core.imageview.current[0]
+
+    hide: () ->
+      if core.imageview.node
+         core.imageview.node.remove()
+         core.imageview.node = null
+
 
 if not $("[data-theme-override]").length
   core.theme.element = $("<link type='text/css' rel='stylesheet' />").prependTo("head")
@@ -73,7 +130,12 @@ $ ->
       core.theme.set $(this).text()
       $('.board-style-type').removeClass('active')
       $(this).parent().addClass('active')
-
+    .on 'click', '.media-object > a', (ev) ->
+      if (ev.which || ev.button) < 2
+        # left button
+        core.imageview.show $(this).parent()
+        false
+      else true
     .on 'click', '.core-reply', -> 
       post = $(this).parents('.post')
       id   = post.attr('id')
