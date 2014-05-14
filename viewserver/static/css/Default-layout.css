@@ -90,6 +90,10 @@ body > .post-view-tree {
 .post-view-tree > .post-view-tree {
   /* TODO: display nesting levels visually. */
   margin-left: 48px;
+}
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree > .post {
   border: 1px solid #ccc;
   margin-bottom: 8px;
   margin-top: 8px;
