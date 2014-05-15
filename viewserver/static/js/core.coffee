@@ -61,9 +61,9 @@ core = window.core =
     create: () ->
       core.imageview.node = view = $("""
         <div class="imageview">
-          <a class="prev"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-left fa-stack-1x"></i></span></a>
-          <a class="next"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-right fa-stack-1x"></i></span></a>
-          <a class="back"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-times fa-stack-1x"></i></span></a>
+          <a class="prev"><span class="fa fa-2x fa-chevron-left"></span></a>
+          <a class="next"><span class="fa fa-2x fa-chevron-right"></span></a>
+          <a class="back"><span class="fa fa-2x fa-times"></span></a>
           <a class="link"><span></span></a>
           <span class="wrap"><img class="view" /></span>
         </div>

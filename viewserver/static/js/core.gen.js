@@ -72,7 +72,7 @@
     imageview: {
       create: function() {
         var view;
-        core.imageview.node = view = $("<div class=\"imageview\">\n  <a class=\"prev\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-chevron-left fa-stack-1x\"></i></span></a>\n  <a class=\"next\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-chevron-right fa-stack-1x\"></i></span></a>\n  <a class=\"back\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-times fa-stack-1x\"></i></span></a>\n  <a class=\"link\"><span></span></a>\n  <span class=\"wrap\"><img class=\"view\" /></span>\n</div>");
+        core.imageview.node = view = $("<div class=\"imageview\">\n  <a class=\"prev\"><span class=\"fa fa-2x fa-chevron-left\"></span></a>\n  <a class=\"next\"><span class=\"fa fa-2x fa-chevron-right\"></span></a>\n  <a class=\"back\"><span class=\"fa fa-2x fa-times\"></span></a>\n  <a class=\"link\"><span></span></a>\n  <span class=\"wrap\"><img class=\"view\" /></span>\n</div>");
         view.find('.back').on('click', function() {
           return core.imageview.hide();
         });

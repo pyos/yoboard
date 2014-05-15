@@ -209,24 +209,22 @@ blockquote p {
 }
 
 .imageview .back { z-index: 1004; top: 0; }
-.imageview .link { z-index: 1002; bottom: 0; color: rgba(255, 255, 255, 0.5); }
-.imageview .link:hover { color: rgba(255, 255, 255, 0.7); }
+.imageview .link { z-index: 1002; bottom: 0; }
 .imageview .back, .imageview .link {
   height: 10%;
   width:  100%;
   left:   0;
   right:  0;
-  overflow: visible;
 }
 
 .imageview > a {
   text-align: center;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .imageview > a:hover {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .imageview > a > * {
@@ -240,8 +238,8 @@ blockquote p {
 
 .imageview .wrap, .imageview .view {
   display: block;
-  max-width:  100%;
-  max-height: 100%;
+  max-width:  90%;
+  max-height: 90%;
   margin: 0 auto;
 }
 
@@ -253,8 +251,4 @@ blockquote p {
   -ms-transform: translateY(-50%);
   -o-transform: translateY(-50%);
   transform: translateY(-50%);
-}
-
-.imageview .view {
-  padding: 10%;
 }
