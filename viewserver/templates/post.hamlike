@@ -18,10 +18,10 @@
       %a.fa.fa-comment.core-reply       title="Reply"
 
     %div.post-body.clearfix
-      -for file, thumb in p.files
-        %div.media-object.pull-left
-          %a href="/static/upload/{{ file }}"
-            %img alt="image" src="/static/upload/{{ thumb }}"
+      -for file in p.files
+        %div class="media-object pull-left {{ file[2:]|join(' ') }}"
+          %a href="/static/upload/{{ file[0] }}"
+            %img alt="image" src="/static/upload/{{ file[1] }}"
 
       %div.media-body
         -if list_mode and p.parent and p.parent != p.thread

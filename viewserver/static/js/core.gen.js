@@ -91,6 +91,8 @@
         if (!core.imageview.node) {
           core.imageview.create();
         }
+        core.imageview.node.find('.view').remove();
+        core.imageview.node.find('.wrap').append(node.hasClass('webm') ? '<video controls preload="metadata" class="view">' : '<img class="view">');
         core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3]);
         return core.imageview.node.find('.view').attr('src', url);
       },

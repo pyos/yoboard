@@ -77,6 +77,12 @@ core = window.core =
       url = node.find('a').attr('href')
       core.imageview.current = node
       core.imageview.create() if not core.imageview.node
+      core.imageview.node.find('.view').remove()
+      core.imageview.node.find('.wrap').append(
+        if node.hasClass('webm')
+          '<video controls preload="metadata" class="view">'
+        else
+          '<img class="view">')
       core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3])
       core.imageview.node.find('.view').attr('src',  url)
 
