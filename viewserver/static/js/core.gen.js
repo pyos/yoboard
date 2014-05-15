@@ -72,7 +72,7 @@
     imageview: {
       create: function() {
         var view;
-        core.imageview.node = view = $("<div class=\"imageview\">\n  <nav class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n    <div class=\"inline-flex\">\n      <button class=\"btn btn-success navbar-btn back\" type=\"button\">\n        <span class=\"fa fa-times\"></span>\n      </button>\n      <div class=\"btn-group\">\n        <button class=\"btn btn-primary navbar-btn prev\" type=\"button\">\n          <span class=\"fa fa-chevron-left\"></span>\n        </button>\n        <button class=\"btn btn-primary navbar-btn next\" type=\"button\">\n          <span class=\"fa fa-chevron-right\"></span>\n        </button>\n      </div>\n      <div class=\"info navbar-brand\">\n      </div>\n    </div>\n  </nav>\n  <a class=\"wrap\"><img class=\"view\" /></a>\n</div>");
+        core.imageview.node = view = $("<div class=\"imageview\">\n  <a class=\"prev\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-chevron-left fa-stack-1x\"></i></span></a>\n  <a class=\"next\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-chevron-right\"></i></span></a>\n  <a class=\"back\"><span class=\"fa-stack fa-2x\"><i class=\"fa fa-circle fa-stack-2x\"></i><i class=\"fa fa-times\"></i></span></a>\n  <a class=\"wrap\"><img class=\"view\" /></a>\n</div>");
         view.find('.back').on('click', function() {
           return core.imageview.hide();
         });
@@ -85,19 +85,14 @@
         return view.appendTo(document.body);
       },
       show: function(node) {
-        var pid, post, text, title, url;
-        post = node.parents('.post');
+        var url;
         url = node.find('a').attr('href');
-        pid = post.attr('id');
-        title = post.find('summary').text();
-        text = post.find('.media-body');
         core.imageview.current = node;
         if (!core.imageview.node) {
           core.imageview.create();
         }
         core.imageview.node.find('.wrap').attr('href', url);
-        core.imageview.node.find('.view').attr('src', url);
-        return core.imageview.node.find('.info').text("\#" + pid + (title ? ':' : '') + " " + title);
+        return core.imageview.node.find('.view').attr('src', url);
       },
       prev: function(node) {
         var last, x, _i, _len, _ref;

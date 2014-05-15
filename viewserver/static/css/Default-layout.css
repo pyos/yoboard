@@ -198,17 +198,40 @@ blockquote p {
   color: white;
 }
 
-.imageview nav {
-  padding-left:  15px;
-  padding-right: 15px;
+.imageview .prev { left:  0; height: 100%; }
+.imageview .next { right: 0; height: 100%; }
+.imageview .prev, .imageview .next, .imageview .back {
+  position: fixed;
+  top:      0;
+  z-index:  1002;
+  width:    10%;
+  display:  table;
 }
 
-.imageview nav .info {
-  max-width: 50vw;
-  overflow: hidden;
-  white-space: nowrap;
-  float: none;
-  display: inline-block;
+.imageview .back {
+  height: 10%;
+  width:  80%;
+  left:   10%;
+  right:  10%;
+}
+
+.imageview > a {
+  text-align: center;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.imageview > a:hover {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.imageview > a > .fa-stack {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.imageview > a > .fa-stack > .fa:first-child {
+  color: rgba(0, 0, 0, 0.4);
 }
 
 .imageview .wrap, .imageview .view {

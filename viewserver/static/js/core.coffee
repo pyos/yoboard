@@ -61,23 +61,9 @@ core = window.core =
     create: () ->
       core.imageview.node = view = $("""
         <div class="imageview">
-          <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="inline-flex">
-              <button class="btn btn-success navbar-btn back" type="button">
-                <span class="fa fa-times"></span>
-              </button>
-              <div class="btn-group">
-                <button class="btn btn-primary navbar-btn prev" type="button">
-                  <span class="fa fa-chevron-left"></span>
-                </button>
-                <button class="btn btn-primary navbar-btn next" type="button">
-                  <span class="fa fa-chevron-right"></span>
-                </button>
-              </div>
-              <div class="info navbar-brand">
-              </div>
-            </div>
-          </nav>
+          <a class="prev"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-left fa-stack-1x"></i></span></a>
+          <a class="next"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-right"></i></span></a>
+          <a class="back"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-times"></i></span></a>
           <a class="wrap"><img class="view" /></a>
         </div>
       """)
@@ -87,17 +73,11 @@ core = window.core =
       view.appendTo(document.body)
 
     show: (node) ->
-      post  = node.parents('.post')
-      url   = node.find('a').attr('href')
-      pid   = post.attr('id')
-      title = post.find('summary').text()
-      text  = post.find('.media-body')
-
+      url = node.find('a').attr('href')
       core.imageview.current = node
       core.imageview.create() if not core.imageview.node
       core.imageview.node.find('.wrap').attr('href', url)
       core.imageview.node.find('.view').attr('src',  url)
-      core.imageview.node.find('.info').text("\##{pid}#{if title then ':' else ''} #{title}")
 
     prev: (node) ->
       last = null
