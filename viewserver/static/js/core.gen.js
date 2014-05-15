@@ -72,7 +72,7 @@
     imageview: {
       create: function() {
         var view;
-        core.imageview.node = view = $("<div class=\"imageview\">\n  <nav class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n    <div class=\"btn-group\">\n      <button class=\"btn btn-success navbar-btn back\" type=\"button\">\n        <span class=\"fa fa-times\"></span>\n      </button>\n      <button class=\"btn btn-primary navbar-btn prev\" type=\"button\">\n        <span class=\"fa fa-chevron-left\"></span>\n      </button>\n      <button class=\"btn btn-primary navbar-btn next\" type=\"button\">\n        <span class=\"fa fa-chevron-right\"></span>\n      </button>\n      <span class=\"btn btn-transparent navbar-btn info\">\n      </span>\n    </div>\n  </nav>\n  <a class=\"view\"></a>\n</div>");
+        core.imageview.node = view = $("<div class=\"imageview\">\n  <nav class=\"navbar navbar-inverse navbar-fixed-top\" role=\"navigation\">\n    <div class=\"inline-flex\">\n      <button class=\"btn btn-success navbar-btn back\" type=\"button\">\n        <span class=\"fa fa-times\"></span>\n      </button>\n      <div class=\"btn-group\">\n        <button class=\"btn btn-primary navbar-btn prev\" type=\"button\">\n          <span class=\"fa fa-chevron-left\"></span>\n        </button>\n        <button class=\"btn btn-primary navbar-btn next\" type=\"button\">\n          <span class=\"fa fa-chevron-right\"></span>\n        </button>\n      </div>\n      <div class=\"info navbar-brand\">\n      </div>\n    </div>\n  </nav>\n  <a class=\"wrap\"><img class=\"view\" /></a>\n</div>");
         view.find('.back').on('click', function() {
           return core.imageview.hide();
         });
@@ -95,7 +95,8 @@
         if (!core.imageview.node) {
           core.imageview.create();
         }
-        core.imageview.node.find('.view').attr('href', url).css('background-image', "url(" + url + ")");
+        core.imageview.node.find('.wrap').attr('href', url);
+        core.imageview.node.find('.view').attr('src', url);
         return core.imageview.node.find('.info').text("\#" + pid + (title ? ':' : '') + " " + title);
       },
       prev: function(node) {

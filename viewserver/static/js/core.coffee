@@ -62,21 +62,23 @@ core = window.core =
       core.imageview.node = view = $("""
         <div class="imageview">
           <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="btn-group">
+            <div class="inline-flex">
               <button class="btn btn-success navbar-btn back" type="button">
                 <span class="fa fa-times"></span>
               </button>
-              <button class="btn btn-primary navbar-btn prev" type="button">
-                <span class="fa fa-chevron-left"></span>
-              </button>
-              <button class="btn btn-primary navbar-btn next" type="button">
-                <span class="fa fa-chevron-right"></span>
-              </button>
-              <span class="btn btn-transparent navbar-btn info">
-              </span>
+              <div class="btn-group">
+                <button class="btn btn-primary navbar-btn prev" type="button">
+                  <span class="fa fa-chevron-left"></span>
+                </button>
+                <button class="btn btn-primary navbar-btn next" type="button">
+                  <span class="fa fa-chevron-right"></span>
+                </button>
+              </div>
+              <div class="info navbar-brand">
+              </div>
             </div>
           </nav>
-          <a class="view"></a>
+          <a class="wrap"><img class="view" /></a>
         </div>
       """)
       view.find('.back').on 'click', -> core.imageview.hide()
@@ -93,7 +95,8 @@ core = window.core =
 
       core.imageview.current = node
       core.imageview.create() if not core.imageview.node
-      core.imageview.node.find('.view').attr('href', url).css('background-image', "url(#{url})")
+      core.imageview.node.find('.wrap').attr('href', url)
+      core.imageview.node.find('.view').attr('src',  url)
       core.imageview.node.find('.info').text("\##{pid}#{if title then ':' else ''} #{title}")
 
     prev: (node) ->
