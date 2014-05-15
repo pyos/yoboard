@@ -12,6 +12,10 @@ footer, body > .post-view-tree {
   border-color: #f0f0f0;
 }
 
+.media-object.anim, .media-object.video {
+  border: 2px dashed #428bca;
+}
+
 .post summary {
   color: #004a99;
 }

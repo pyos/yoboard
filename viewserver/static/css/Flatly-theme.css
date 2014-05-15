@@ -13,6 +13,10 @@ footer, body > .post-view-tree {
   border-radius: 5px;
 }
 
+.media-object.anim, .media-object.video {
+  border: 2px dashed #2c3e50;
+}
+
 .post summary, blockquote {
   color: #2c3e50;
 }
