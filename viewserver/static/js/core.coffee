@@ -79,7 +79,7 @@ core = window.core =
       core.imageview.create() if not core.imageview.node
       core.imageview.node.find('.view').remove()
       core.imageview.node.find('.wrap').append(
-        if node.hasClass('webm')
+        if node.hasClass('video')
           '<video controls preload="metadata" class="view">'
         else
           '<img class="view">')
