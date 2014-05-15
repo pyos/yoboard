@@ -10,9 +10,13 @@ import 'Thread'
 import '../config'
 
 
-remove_uploads = obj -> for (fn, thumb) in obj.files =>
-  fn    => os.unlink $ os.path.join config.UPLOAD_DIR fn
-  thumb => os.unlink $ os.path.join config.UPLOAD_DIR thumb
+remove_uploads = obj -> for (fn, thumb, *_) in obj.files =>
+  fn    => except
+    err => os.unlink $ os.path.join config.UPLOAD_DIR fn
+    err :: OSError =>  # does not exist or is not in a writable directory
+  thumb => except
+    err => os.unlink $ os.path.join config.UPLOAD_DIR thumb
+    err :: OSError =>  # fix that yourself
 
 
 commands = data ->
