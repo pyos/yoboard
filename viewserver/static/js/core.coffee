@@ -62,9 +62,10 @@ core = window.core =
       core.imageview.node = view = $("""
         <div class="imageview">
           <a class="prev"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-left fa-stack-1x"></i></span></a>
-          <a class="next"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-right"></i></span></a>
-          <a class="back"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-times"></i></span></a>
-          <a class="wrap"><img class="view" /></a>
+          <a class="next"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-chevron-right fa-stack-1x"></i></span></a>
+          <a class="back"><span class="fa-stack fa-2x"><i class="fa fa-circle fa-stack-2x"></i><i class="fa fa-times fa-stack-1x"></i></span></a>
+          <a class="link"><span></span></a>
+          <span class="wrap"><img class="view" /></span>
         </div>
       """)
       view.find('.back').on 'click', -> core.imageview.hide()
@@ -76,7 +77,7 @@ core = window.core =
       url = node.find('a').attr('href')
       core.imageview.current = node
       core.imageview.create() if not core.imageview.node
-      core.imageview.node.find('.wrap').attr('href', url)
+      core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3])
       core.imageview.node.find('.view').attr('src',  url)
 
     prev: (node) ->

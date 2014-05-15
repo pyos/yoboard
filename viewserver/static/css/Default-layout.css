@@ -198,21 +198,25 @@ blockquote p {
   color: white;
 }
 
-.imageview .prev { left:  0; height: 100%; }
-.imageview .next { right: 0; height: 100%; }
-.imageview .prev, .imageview .next, .imageview .back {
+.imageview .prev { top: 0; left:  0; height: 100%; }
+.imageview .next { top: 0; right: 0; height: 100%; }
+.imageview .prev, .imageview .next, .imageview .back, .imageview .link {
   position: fixed;
-  top:      0;
-  z-index:  1002;
+  z-index:  1003;
   width:    10%;
+  overflow: hidden;
   display:  table;
 }
 
-.imageview .back {
+.imageview .back { z-index: 1004; top: 0; }
+.imageview .link { z-index: 1002; bottom: 0; color: rgba(255, 255, 255, 0.5); }
+.imageview .link:hover { color: rgba(255, 255, 255, 0.7); }
+.imageview .back, .imageview .link {
   height: 10%;
-  width:  80%;
-  left:   10%;
-  right:  10%;
+  width:  100%;
+  left:   0;
+  right:  0;
+  overflow: visible;
 }
 
 .imageview > a {
@@ -225,7 +229,7 @@ blockquote p {
   color: rgba(255, 255, 255, 0.3);
 }
 
-.imageview > a > .fa-stack {
+.imageview > a > * {
   display: table-cell;
   vertical-align: middle;
 }
@@ -252,5 +256,5 @@ blockquote p {
 }
 
 .imageview .view {
-  padding: 70px 30px 30px 30px;
+  padding: 10%;
 }
