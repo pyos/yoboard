@@ -171,8 +171,8 @@ body > .post-view-tree
 
 // Image view mode
 
-@mixin fill-screen($z, $w, $h)
-  display:  block
+@mixin fill-screen($z, $w, $h, $d)
+  display:  $d
   position: fixed
   z-index:  $z
   width:    $w
@@ -186,7 +186,7 @@ body > .post-view-tree
   transform:         $value
 
 .imageview
-  @include fill-screen(1001, 100%, 100%)
+  @include fill-screen(1001, 100%, 100%, block)
   top:  0
   left: 0
   color:      white
@@ -199,22 +199,22 @@ body > .post-view-tree
     display: table
 
   .prev
-    @include fill-screen(1004, 10%, 100%)
+    @include fill-screen(1004, 10%, 100%, table)
     top:   0
     left:  0
 
   .next
-    @include fill-screen(1004, 10%, 100%)
+    @include fill-screen(1004, 10%, 100%, table)
     top:   0
     right: 0
 
   .back
-    @include fill-screen(1005, 100%, 10%)
+    @include fill-screen(1005, 100%, 10%, table)
     top:   0
     left:  0
 
   .link
-    @include fill-screen(1003, 100%, 10%)
+    @include fill-screen(1003, 100%, 10%, table)
     bottom: 0
     left:   0
 
@@ -231,7 +231,7 @@ body > .post-view-tree
       vertical-align: middle
 
   .wrap
-    @include fill-screen(1002, 80%, 80%)
+    @include fill-screen(1002, 80%, 80%, block)
     top:  50%
     left: 10%
     text-align: center
