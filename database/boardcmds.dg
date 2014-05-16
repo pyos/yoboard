@@ -72,8 +72,10 @@ commands = data ->
     'user_set', uid boards -> RP_USERS.__setitem__ uid boards
 
     # ::         -> {str: {str: str}}
+    # :: str int -> Post
     # :: str int -> Thread
     'boards',           -> RP_CATMAP
+    'post',   board num -> (RP_TREES !! board !! num).root
     'thread', board num ->
       th = RP_TREES !! board !! num
       th :: Tree => raise $ KeyError num
@@ -214,7 +216,7 @@ commands = data ->
 
       VC_BOARD.pop   board                  None
       VC_THREAD.pop (board, postobj.thread) None
-      parentobj.thread
+      postid
 
     # :: str -> ()
     'board_remove', name ->

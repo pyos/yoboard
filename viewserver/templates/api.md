@@ -54,7 +54,10 @@
   "skipped": int,
 }
 
-struct post = {
+>>> # Fetch a single post. Note that this is not a complete page.
+... get("/b/post/1/", headers={"Accept": "application/json"})
+
+{
   # A list of `(full-size image, thumbnail)` pairs.
   # Each value is a path relative to `/static/upload/`.
   "files": [(str, str)],
@@ -99,7 +102,7 @@ struct post = {
 ... })
 
 Either(
-  HTTP(302),  # A redirect to `/b/1/` where `1` is the thread this post was added to.
+  HTTP(302),  # A redirect to `/b/post/1/` where `1` is the id this post was assigned.
   HTTP(400),  # One of the conditions imposed on the data was not met.
   HTTP(403),  # The thread is closed or over capacity.
 )
