@@ -3,8 +3,8 @@
     %div.media-heading
       %a.post-id href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" -> =p.id
       -if p.title
-        %summary -> =p.title
-      %time -> =p.timestamp|strftime
+        %span.title -> =p.title
+      %span.time -> =p.timestamp|strftime
       -if p.sage
         %span.sage -> SAGE
       -if not p.parent

@@ -17,6 +17,6 @@ footer, body > .post-view-tree {
   border: 2px dashed #2c3e50;
 }
 
-.post summary, blockquote {
+.post .title, blockquote {
   color: #2c3e50;
 }

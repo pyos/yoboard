@@ -124,11 +124,6 @@ body > .post-view-tree {
   content: '#';
 }
 
-.post summary:before,
-.post summary:after {
-  content: '"';
-}
-
 .sage {
   color: #aa0000;
   font-weight: bold;
@@ -139,12 +134,17 @@ body > .post-view-tree {
   color: white;
 }
 
-.post summary {
+.post .title:before,
+.post .title:after {
+  content: '"';
+}
+
+.post .title {
   font-weight: bold;
   display: inline;
 }
 
-.post time:before {
+.post .time:before {
   content: ": ";
   opacity: 0.5;
 }

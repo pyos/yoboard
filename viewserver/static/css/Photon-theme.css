@@ -73,7 +73,7 @@ footer, body > .post-view-tree {
   border: 2px dashed #f60;
 }
 
-.post summary {
+.post .title {
   color: #004a99;
 }
 
