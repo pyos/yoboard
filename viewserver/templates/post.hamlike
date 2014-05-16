@@ -1,7 +1,7 @@
 -macro post(p, list_mode, closed, attached)
   %div class="post media{{ ' prop-attach' if attached else '' }}{{ ' prop-close' if closed else '' }}" id="{{ p.id }}" data-id="{{ board }}/{{ p.id }}"
     %div.media-heading
-      %a.post-id href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" -> =p.id
+      %a.id href="{{ url_for('.thread', board=board, thread=p.thread) }}#{{ p.id }}" -> =p.id
       -if p.title
         %span.title -> =p.title
       %span.time -> =p.timestamp|strftime
@@ -17,7 +17,7 @@
       %a.admin.fa.adm-rmtree.fa-trash-o title="Remove"
       %a.fa.fa-comment.core-reply       title="Reply"
 
-    %div.post-body.clearfix
+    %div.body.clearfix
       -for file in p.files
         %div class="media-object pull-left {{ file[2:]|join(' ') }}"
           %a href="/static/upload/{{ file[0] }}"

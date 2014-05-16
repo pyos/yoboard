@@ -1,0 +1,242 @@
+@import variables
+
+// Core
+
+body
+  margin: 15px
+
+a
+  // This makes `href="#"` redundant.
+  cursor:          pointer
+  text-decoration: underline
+
+a.glyphicon, a.fa, .navbar a
+  text-decoration: none
+
+footer
+  margin-top: 15px
+  padding:    15px
+  border-top: 1px solid $hr-color
+
+.navbar:not(.navbar-fixed-top)
+  margin: -15px -15px 15px -15px
+  border-radius: 0
+
+// Admin tools
+
+#admin-mode:after
+  content: "off"
+
+body.admin #admin-mode:after
+  content: "on"
+
+body:not(.admin) .admin
+  display: none
+
+// Root page
+
+#main-image
+  background: url(/static/img/main-image.png) center top no-repeat
+  height:       240px
+  margin-left:  -30px
+  margin-right: -30px
+
+.board-index
+  margin-left: 20px
+
+.board-index td
+  padding-left: 3px
+
+// Error page
+
+#error-body
+  background: url(/static/img/error-bg.png) no-repeat center
+  display:   table
+  height:    466px
+  min-width: 466px
+
+#error-body > *
+  // TODO design something better
+  display:        table-cell
+  vertical-align: middle
+
+// Forms
+
+.input-group
+  margin: 8px
+
+.form-control, .input-group-addon, .input-group-btn
+  // Otherwise it attempts to fill the whole page.
+  width: auto
+
+// Post trees
+
+body > .post-view-tree
+  padding-top: 15px
+  border-top:  1px solid $hr-color
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree > .post-view-tree
+  // TODO display nesting levels somehow?
+  margin-left: 48px
+
+
+.post-view-tree > .post:not(:first-child),
+.post-view-tree > .post-view-tree > .post
+  background: $post-reply-bg
+  border:     1px solid $post-reply-border
+  margin:     8px 8px 8px 48px
+  padding:    8px 8px 0 8px
+  @include post-reply()
+
+.post-missing-notice
+  // must align with `.post`
+  margin-left: 15px
+
+// Posts
+
+.post
+  display: table
+  margin:  15px
+
+  &.prop-close        .core-reply,
+  &.prop-close        .adm-close,
+  &.prop-attach       .adm-attach,
+  &:not(.prop-attach) .adm-attached,
+  &:not(.prop-attach) .adm-detach,
+  &:not(.prop-close)  .adm-closed,
+  &:not(.prop-close)  .adm-open
+    display: none
+
+  .id:before
+    content: '#'
+
+  .title
+    color:       $post-title-fg
+    background:  $post-title-bg
+    font-weight: bold
+    &:before,
+    &:after
+      content: '"'
+
+  .time
+    color:      $post-time-fg
+    background: $post-time-bg
+
+    &:before
+      content: ": "
+      opacity: 0.5
+
+  .media-object
+    margin-bottom: 10px
+    margin-right:  15px
+
+    &.anim, &.video
+      border: 2px dashed $post-video-border
+
+  .body
+    max-height: 250px
+    overflow-y: auto
+
+    p
+      white-space: pre-line
+
+  .sage
+    color:      $post-sage-fg
+    background: $post-sage-bg
+    font-weight: bold
+
+  .spoiler
+    // TODO have color:$post-spoiler-off by default, turn on
+    //   on hover, toggle on click.
+    background: $post-spoiler-off
+    color:      $post-spoiler-on
+
+  .post-anchor:before
+    content: ">>"
+
+  blockquote
+    color:      $post-quote-fg
+    background: $post-quote-bg
+    // Twice as small as bootstrap defaults.
+    border-left: 2px solid
+    padding:     5px 10px
+    margin:      0 0 10px 10px
+
+    &, p
+      // Bootstrap makes paragraphs in quotes bigger for some reason.
+      line-height: inherit
+      font-size:   inherit
+      font-weight: inherit
+
+// Image view mode
+
+@mixin fill-screen($z, $w, $h)
+  display:  block
+  position: fixed
+  z-index:  $z
+  width:    $w
+  height:   $h
+
+@mixin transform($value)
+  -webkit-transform: $value
+  -moz-transform:    $value
+  -ms-transform:     $value
+  -o-transform:      $value
+  transform:         $value
+
+.imageview
+  @include fill-screen(1001, 100%, 100%)
+  top:  0
+  left: 0
+  color:      white
+  background: rgba(0, 0, 0, 0.8)
+
+  .prev,
+  .next,
+  .back,
+  .link
+    display: table
+
+  .prev
+    @include fill-screen(1004, 10%, 100%)
+    top:   0
+    left:  0
+
+  .next
+    @include fill-screen(1004, 10%, 100%)
+    top:   0
+    right: 0
+
+  .back
+    @include fill-screen(1005, 100%, 10%)
+    top:   0
+    left:  0
+
+  .link
+    @include fill-screen(1003, 100%, 10%)
+    bottom: 0
+    left:   0
+
+  & > a
+    color:           rgba(255, 255, 255, 0.5)
+    text-align:      center
+    text-decoration: none
+
+    &:hover
+      color: rgba(255, 255, 255, 0.7)
+
+    & > *
+      display:        table-cell
+      vertical-align: middle
+
+  .wrap
+    @include fill-screen(1002, 80%, 80%)
+    top:  50%
+    left: 10%
+    text-align: center
+
+  .view
+    @include transform(translateY(-50%))
+    max-width:  100%
+    max-height: 100%

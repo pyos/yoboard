@@ -7,12 +7,12 @@ core = window.core =
   theme:
     choice: ['Cosmo', 'Cyborg', 'Default', 'Flatly', 'Photon']
     default: 'Photon'
-    current: null
-    element: null
-    set: (name) ->
+    current: $('meta[itemprop="style"]').attr('content') || $.cookie('theme')
+    element: $("<link type='text/css' rel='stylesheet' />").prependTo("head")
+    set: (name, update=true) ->
       core.theme.current = if core.theme.choice.indexOf(name) >= 0 then name else core.theme.default
-      core.theme.element.attr 'href', "/static/css/#{core.theme.current}-theme.css"
-      $.cookie 'theme', core.theme.current, expires: 365, path: '/'
+      core.theme.element.attr 'href', "/static/css/#{core.theme.current}.gen.css"
+      $.cookie 'theme', core.theme.current, expires: 365, path: '/' if update
 
   form:
     hide:   ()   -> $('.post-form:not(.tpl):not(.toplevel)').collapse('hide')
@@ -104,10 +104,7 @@ core = window.core =
          core.imageview.node.remove()
          core.imageview.node = null
 
-
-if not $("[data-theme-override]").length
-  core.theme.element = $("<link type='text/css' rel='stylesheet' />").prependTo("head")
-  core.theme.set $.cookie("theme")
+core.theme.set core.theme.current, false
 
 
 $ ->

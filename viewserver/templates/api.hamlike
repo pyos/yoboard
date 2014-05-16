@@ -2,8 +2,8 @@
 -block title
   JSON API
 
--block styles
-  %link type="text/css" rel="stylesheet" href="/static/css/Cyborg-theme.css" data-theme-override
+-block head
+  %meta itemprop="style" content="Cyborg"
 
 -block navbar
 -block main

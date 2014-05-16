@@ -1,4 +1,5 @@
 *.pyc
 *.pyo
+.sass-cache
 /database/contents*
 /viewserver/static/upload
