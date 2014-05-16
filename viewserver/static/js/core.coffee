@@ -20,7 +20,25 @@ core = window.core =
     create: (id) ->
       return $([]) if core.form.exists id
       form = $('.post-form.tpl').clone().attr('id', "post-form-#{id}").removeClass('tpl hidden')
-      form.find('[name="parent"]').attr('value', id)
+      form.find('[name="parent"]').attr 'value', id
+      form.find('[type="submit"]').on   'click', ->
+        $.ajax form.find('form').attr('action'),
+          data:   form.find('form').serialize()
+          method: 'POST'
+          statusCode:
+            200: (data) ->
+              if id == 0
+                location.href = "#{form.find('form').attr('action')}#{$(data).attr('id')}"
+                return
+              post = $("\##{id}")
+              tree = post.nextAll('.post-view-tree').last()
+              tree = $('<div class="post-view-tree">').insertAfter(post) if not tree.hasClass('post-view-tree')
+              tree.append(data)
+              core.form.hide()
+            400: (data) -> bootbox.alert $('<p>').append($(data.responseText).find('h3')).html()
+            403: (data) -> bootbox.alert $('<p>').append($(data.responseText).find('h3')).html()
+            404: (data) -> bootbox.alert $('<p>').append($('<h3 class="text-center">').text('This board or thread no longer exists.')).html()
+        return false
       form.each core.form.addfile
 
     addfile: () ->
