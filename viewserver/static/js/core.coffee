@@ -15,12 +15,13 @@ core = window.core =
       $.cookie 'theme', core.theme.current, expires: 365, path: '/' if update
 
   form:
-    hide:   ()   -> $('.post-form:not(.tpl):not(.toplevel)').collapse('hide')
-    exists: (id) -> $("##{id} .post-form").length
+    hide:   ()   -> $('.post-form:not(.tpl)').collapse('hide')
+    exists: (id) -> $("#post-form-#{id}").length
     create: (id) ->
-      form = $('.post-form.tpl').clone().removeClass('tpl hidden')
+      return $([]) if core.form.exists id
+      form = $('.post-form.tpl').clone().attr('id', "post-form-#{id}").removeClass('tpl hidden')
       form.find('[name="parent"]').attr('value', id)
-      form
+      form.each core.form.addfile
 
     addfile: () ->
       form     = $(this);
@@ -123,15 +124,13 @@ $ ->
         core.imageview.show $(this).parent()
         false
       else true
+    .on 'click', '.core-new-thread', ->
+      core.form.hide()
+      core.form.create(0).insertAfter('.post-form.tpl').collapse('show')
     .on 'click', '.core-reply', -> 
       post = $(this).parents('.post')
-      id   = post.attr('id')
-      if   not core.form.exists id
-        form = core.form.create id
-        form.appendTo(post).each(core.form.addfile).collapse('show')
       core.form.hide()
-
-    .find('.post-form:not(.tpl)').each(core.form.addfile)
+      core.form.create(post.attr 'id').appendTo(post).collapse('show')
 
   for t in core.theme.choice
     $("<li />").addClass("board-style-type")

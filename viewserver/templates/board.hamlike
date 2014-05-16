@@ -12,9 +12,11 @@
     -if this[2] > page + 1
       %li -> %a href="{{ url_for('.board', board=board, page=page + 1) }}" -> &raquo;
 
--block content
+-block main
+  %h1.text-center
+    =self.title()
+    %a.fa.fa-comment-o.core-new-thread
   %div.post-form.tpl.hidden -> =post_form()
-  %div.post-form.toplevel -> =post_form()
 
   -for thread in this[1]
     %div.post-view-tree

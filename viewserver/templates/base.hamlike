@@ -33,8 +33,6 @@
             -block options
 
     -block main
-      %h1 -> =self.title()
-      -block content
 
     %footer
       %small
