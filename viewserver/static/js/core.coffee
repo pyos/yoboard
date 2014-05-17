@@ -7,6 +7,16 @@ window.dialog =
     # Default `bootbox.alert` does not support jquery elements as contents.
     bootbox.alert $('<p>').append(message).html(), callback
 
+  loading: (node) ->
+    $('<span class="loading-cover">')
+      .css 'font-size', "#{Math.max(14, Math.min(node.height(), node.width(), 128) / 4)}px"
+      .append '<span class="fa fa-spin fa-circle-o-notch">'
+      .appendTo node.addClass 'loading'
+
+  unloading: (node) ->
+    node.removeClass 'loading'
+        .find('.loading-cover').remove()
+
 
 window.core =
   theme:
@@ -33,26 +43,27 @@ window.core =
       form = $('.post-form.tpl').clone().attr('id', "post-form-#{id}").removeClass('tpl hidden')
       form.find('[name="parent"]').attr 'value', id
       form.find('[type="submit"]').on   'click', ->
-        # TODO display some kind of a "Loading" indicator.
-        core.form.submit id, form.find('form').attr('action'), form.find('form').serialize()
+        core.form.submit id, form.find('form')
         return false
       form.each core.form.addfile
       form.appendTo core.form.reply(id, form, true)
       form.collapse 'show'
 
-    submit: (id, path, data) ->
-      $.ajax path,
-        data:   data
+    submit: (id, form, path, data) ->
+      dialog.loading form
+      $.ajax    form.attr('action'),
+        data:   form.serialize()
         method: 'POST'
+        success: -> dialog.unloading form
+        error:   -> dialog.unloading form
         statusCode:
           200: (data) ->
             if id is 0
               # Redirect to the thread page.
-              location.href = "#{path}#{$(data).attr('id')}"
-              return
-
-            core.form.reply id, data
-            core.form.hide()
+              location.href = "#{form.attr('action')}#{$(data).attr('id')}"
+            else
+              core.form.reply id, data
+              core.form.hide()
           400: (data) -> dialog.alert $(data.responseText).find('h3')
           403: (data) -> dialog.alert $(data.responseText).find('h3')
           404: (data) -> dialog.alert dialog.h3 'This board or thread no longer exists.'

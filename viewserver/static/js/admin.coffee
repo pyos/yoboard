@@ -1,23 +1,29 @@
-admin =
+window.admin =
   i18n:
     401: "401 — Yoba Wants To Know Your Name"
     403: "403 — Not On This Page, Buddy"
     404: "404 — The Page You're Looking At Is Outdated"
 
   enable: (uid) ->
+    dialog.loading $(document.body)
     $.cookie 'userid',   uid, path: '/'
     $.ajax   '/_ismod/',
       dataType:   'json'
+      success: -> dialog.unloading $(document.body)
+      error:   -> dialog.unloading $(document.body)
       statusCode:
         403: ()     -> $.removeCookie 'userid', path: '/'
         200: (data) ->
           if data is true or data.indexOf(location.pathname.split("/")[1]) >= 0
             $('body').addClass 'admin'
 
-  request: (id, path, opts) ->
+  request: (id, lock, path, opts) ->
+    dialog.loading lock
     $.ajax "/#{id}#{path}",
       data:   opts.data
       method: opts.method
+      success: -> dialog.unloading lock
+      error:   -> dialog.unloading lock
       statusCode:
         200: -> if opts.mandad? then opts.mandad() else location.reload()
         403: -> dialog.alert dialog.h3 admin.i18n[403]
@@ -40,33 +46,32 @@ admin =
             cat   = form.find('#admin-new-board-cat')  .val()
             admin.board.add id, title, cat if id and title and cat
 
-    del: (id)                  -> admin.request id, '/', method: 'DELETE'
-    add: (id, title, category) -> admin.request id, '/',
+    del: (id)                  -> admin.request id, $('body'), '/', method: 'DELETE'
+    add: (id, title, category) -> admin.request id, $('body'), '/',
       method: 'PUT'
       data:
         title: title
         cat:   category
 
   tree:
-    idof: (node) -> $(node).parents('.post').attr('data-id')
-    open:   (id) -> admin.tree.bool id, 'close',  false
-    close:  (id) -> admin.tree.bool id, 'close',  true
-    attach: (id) -> admin.tree.bool id, 'attach', true
-    detach: (id) -> admin.tree.bool id, 'attach', false
-    del:    (id) -> admin.request   id, '/', method: 'DELETE'
+    open:   (post) -> admin.tree.bool post, 'close',  false
+    close:  (post) -> admin.tree.bool post, 'close',  true
+    attach: (post) -> admin.tree.bool post, 'attach', true
+    detach: (post) -> admin.tree.bool post, 'attach', false
+    del:    (post) -> admin.request   post.attr('data-id'), $('body'), '/', method: 'DELETE'
 
-    bool: (id, prop, value) -> admin.request id, "/#{prop}", 
+    bool: (post, prop, value) -> admin.request post.attr('data-id'), post, "/#{prop}", 
       method: if value then 'PUT' else 'DELETE'
-      mandad: -> $('#' + id.split('/')[1]).toggleClass "prop-#{prop}"
+      mandad: -> post.toggleClass "prop-#{prop}"
 
 
 $ ->
   $(document)
-    .on 'click', '.adm-attach',  -> admin.tree.attach  admin.tree.idof this
-    .on 'click', '.adm-detach',  -> admin.tree.detach  admin.tree.idof this
-    .on 'click', '.adm-close',   -> admin.tree.close   admin.tree.idof this
-    .on 'click', '.adm-open',    -> admin.tree.open    admin.tree.idof this
-    .on 'click', '.adm-rmtree',  -> admin.tree.del     admin.tree.idof this
+    .on 'click', '.adm-attach',  -> admin.tree.attach  $(this).parents '.post'
+    .on 'click', '.adm-detach',  -> admin.tree.detach  $(this).parents '.post'
+    .on 'click', '.adm-close',   -> admin.tree.close   $(this).parents '.post'
+    .on 'click', '.adm-open',    -> admin.tree.open    $(this).parents '.post'
+    .on 'click', '.adm-rmtree',  -> admin.tree.del     $(this).parents '.post'
     .on 'click', '.adm-crboard', -> admin.board.prompt $(this).attr 'data-cat'
     .on 'click', '.adm-rmboard', -> admin.board.del    $(this).attr 'data-id'
     .on 'click', '#admin-mode',  ->
@@ -76,4 +81,4 @@ $ ->
       else
          bootbox.prompt admin.i18n[401], (val) -> admin.enable val if val isnt null
 
-  admin.enable $.cookie('userid') if $.cookie('userid') isnt null
+  admin.enable $.cookie('userid') if $.cookie('userid')
