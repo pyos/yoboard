@@ -122,13 +122,13 @@ commands = data ->
 
     # Create a new thread, return its ID.
     #
-    # :: str str str [(str, str)] str -> int
+    # :: str str bool str [(str, str)] str -> int
     #
-    'thread_create', board title text files ip ->
+    'thread_create', board title sage text files ip ->
       boardo = RP_BOARD !! board
       rootid = RP_COUNT !! board += 1
       rootts = int $ time.mktime time.gmtime!
-      root   = Post rootid title False text files rootid 0 rootts ip
+      root   = Post rootid title sage text files rootid 0 rootts ip
       thread = Thread root list! list! 0 False False
 
       boardo.threads.insert (VD_ATTACHED !! board) thread
