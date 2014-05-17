@@ -8,15 +8,11 @@
     #{{ this.root.id }}
 
 -block options
-  %li -> %a href="{{ url_for('.board', board=board) }}" -> Back to /{{ board }}/
-
--block view_options
-  %li.disabled -> %a -> Layout
   -for vt in ['list', 'tree']
     -set url = url_for('.thread_' + vt, board=board, thread=this.root.id)
-    %li class="{{ 'active' if vt == view else '' }}"
-      %a.thread-view-type data-type="{{ vt }}" href="{{ url }}"
-        =vt.capitalize()
+    -if view != vt
+      %li -> %a.thread-view-type data-type="{{ vt }}" href="{{ url }}" -> As a {{ vt }}
+  %li -> %a href="{{ url_for('.board', board=board) }}" -> Back to /{{ board }}/
 
 -macro tree(t, op, limit)
   %div.post-view-tree

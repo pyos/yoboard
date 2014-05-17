@@ -1,8 +1,8 @@
 admin =
   i18n:
-    401: "(401) Yoba Wants To Know Your Name"
-    403: "(403) Not On This Page, Buddy"
-    404: "(404) The Page You're Looking At Is Outdated"
+    401: "401 — Yoba Wants To Know Your Name"
+    403: "403 — Not On This Page, Buddy"
+    404: "404 — The Page You're Looking At Is Outdated"
 
   enable: (uid) ->
     $.cookie 'userid',   uid, path: '/'
@@ -20,8 +20,8 @@ admin =
       method: opts.method
       statusCode:
         200: -> if opts.mandad? then opts.mandad() else location.reload()
-        403: -> bootbox.alert admin.i18n[403]
-        404: -> bootbox.alert admin.i18n[404]
+        403: -> dialog.alert dialog.h3 admin.i18n[403]
+        404: -> dialog.alert dialog.h3 admin.i18n[404]
 
   board:
     prompt: (category) ->
