@@ -22,7 +22,7 @@ window.admin =
     $.ajax "/#{id}#{path}",
       data:   opts.data
       method: opts.method
-      success: -> dialog.unloading lock
+      success: -> dialog.unloading lock if opts.mandad?
       error:   -> dialog.unloading lock
       statusCode:
         200: -> if opts.mandad? then opts.mandad() else location.reload()

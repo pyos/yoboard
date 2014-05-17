@@ -44,11 +44,11 @@ window.core =
       form.ajaxForm
         beforeSubmit: (data, jq) -> dialog.loading jq
         success:      (data, a, b, jq) ->
-          dialog.unloading jq
           if id is 0
             # Redirect to the thread page.
             location.href = "#{jq.attr('action')}#{$(data).attr('id')}"
           else
+            dialog.unloading jq
             core.form.reply id, data
             core.form.hide()
             form.parents('.post-form').on 'hidden.bs.collapse', -> $(this).remove()
