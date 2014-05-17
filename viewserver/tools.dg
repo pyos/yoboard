@@ -15,12 +15,7 @@ import 'markup/parse'
 import '../database/Record'
 
 
-get_or_404 = f *: args -> except
-  e => f *: args
-  e :: OverflowError => abort 403 'This thread is closed.'
-  e :: KeyError      => abort 404
-
-
+jsreturn  = x -> jsonify $ jsprepare x
 jsprepare = x -> if
   x :: Record => dict (where for (k, v) in zip x.fields x => k !! 0 != '_' => yield (k, jsprepare v))
   x :: dict   => dict $ zip x.keys! $ map jsprepare x.values!
@@ -36,12 +31,10 @@ randname = alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345
     c //= s
 
 
-with_json_equivalent = onjson onhtml ->
-  update_wrapper wrapped: onjson $ **: args ->
-    html = request.accept_mimetypes !! 'text/html'
-    json = request.accept_mimetypes !! 'application/json'
-    if html >= json => onhtml **: args
-       otherwise    => jsonify $ jsprepare $ onjson **: args
+mimeroute = f -> update_wrapper wrapped: f $ *: a **: k ->
+  json = request.accept_mimetypes !! 'application/json'
+  html = request.accept_mimetypes !! 'text/html'
+  f isjson: (html < json) *: a **: k
 
 
 FILES = list'
@@ -72,8 +65,8 @@ make_post = board parent sage title text files ->
 
   htext  = parse text
   thread = if
-    parent == 0 => get_or_404 data.thread_create board        title      htext fnames request.remote_addr
-    otherwise   => get_or_404 data.post_create   board parent title sage htext fnames request.remote_addr
+    parent == 0 => data.thread_create board        title      htext fnames request.remote_addr
+    otherwise   => data.post_create   board parent title sage htext fnames request.remote_addr
 
   for (file, (fn, tn, flags)) in zip files fnames =>
     fp = path.join config.UPLOAD_DIR fn

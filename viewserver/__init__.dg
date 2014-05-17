@@ -3,8 +3,8 @@ import '/time'
 import '/random/choice'
 
 import '/flask/Flask'
+import '/flask/abort'
 import '/flask/render_template'
-import '/flask/send_from_directory'
 import '/jinja2/MemcachedBytecodeCache'
 import '/werkzeug/contrib/cache/SimpleCache'
 
@@ -44,5 +44,13 @@ Yoboard = subclass $ Flask where
   onexcept = e ~> render_template 'error.hamlike' err: e code: 500,    500
   onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
 
-data = Client  config.CLIENT_ADDRESS
+
+WebClient = subclass Client where
+  call = name args ~>
+    r = Client.call self name args
+    r :: OverflowError => abort 403 'Closed or over capacity.'
+    r :: KeyError      => abort 404 $ str r
+    r
+
+data = WebClient config.CLIENT_ADDRESS
 app  = Yoboard __name__

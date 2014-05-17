@@ -7,8 +7,8 @@ import '/flask/url_for'
 import 'data'
 import 'config'
 import 'tools/make_post'
-import 'tools/get_or_404'
-import 'tools/with_json_equivalent'
+import 'tools/mimeroute'
+import 'tools/jsreturn'
 
 
 CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
@@ -24,26 +24,26 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'IMAGES_ALWAYS_BUMP'
 
 
-root = with_json_equivalent
-  -> dict config: CONFIG boards: data.boards!
-  -> render_template 'root.hamlike' boards: data.boards!
+root = mimeroute $ isjson -> if
+  isjson    => jsreturn $ dict config: CONFIG boards: data.boards!
+  otherwise => render_template 'root.hamlike' boards: data.boards!
 
 
-board = with_json_equivalent
-  board page: 0 -> dict $ zip ('title', 'threads', 'pages') $ get_or_404 data.board board page
-  board page: 0 ->
+board = mimeroute $ isjson board page: 0 -> if
+  isjson    => jsreturn $ dict $ zip ('title', 'threads', 'pages') $ data.board board page
+  otherwise =>
     data.get_cached_board board page or
       result = render_template 'board.hamlike'
-        this:   (get_or_404 data.board board page)
+        this:   (data.board board page)
         page:    page
         board:   board
       data.set_cached_board board page result
       result
 
 
-thread = with_json_equivalent
-  board thread -> get_or_404 data.thread board thread
-  board thread ->
+thread = mimeroute $ isjson board thread -> if
+  isjson    => jsreturn $ data.thread board thread
+  otherwise =>
     view = request.cookies.get 'view_type'
     redirect $ url_for board: board thread: thread $ if
       view == 'tree' => '.thread_tree'
@@ -53,17 +53,17 @@ thread = with_json_equivalent
 thread_render = t view -> board thread ->
   data.get_cached_thread board thread t or
     result = render_template 'thread.hamlike'
-      this: (get_or_404 data.thread board thread)
+      this: (data.thread board thread)
       view:  view
       board: board
     data.set_cached_thread board thread t result
     result
 
 
-post = with_json_equivalent
-  board id -> get_or_404 data.post board id
-  board id -> render_template 'post.1.hamlike'
-    this:  (get_or_404 data.post board id)
+post = mimeroute $ isjson board id ->
+  isjson    => jsreturn $ data.post board id
+  otherwise => render_template 'post.1.hamlike'
+    this:  (data.post board id)
     board:  board
 
 
