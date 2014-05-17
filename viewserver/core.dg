@@ -6,12 +6,17 @@ import '/flask/url_for'
 
 import 'data'
 import 'config'
-import 'tools/make_post'
-import 'tools/mimeroute'
+import 'markup'
+import 'tools/jsflag'
 import 'tools/jsreturn'
+import 'tools/fileinfo'
+import 'tools/fdsave'
 
 
 CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
+  # These fields are sent to the client on JSON requests to `/`.
+  # The assumption is that some of these may be useful in external apps, e.g.
+  # to check posts before sending them.
   'SITE_NAME'
   'SITE_TITLE'
   'POSTS_UNTIL_AUTOSAGE'
@@ -24,12 +29,12 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'IMAGES_ALWAYS_BUMP'
 
 
-root = mimeroute $ isjson -> if
+root = jsflag $ isjson -> if
   isjson    => jsreturn $ dict config: CONFIG boards: data.boards!
   otherwise => render_template 'root.hamlike' boards: data.boards!
 
 
-board = mimeroute $ isjson board page: 0 -> if
+board = jsflag $ isjson board page: 0 -> if
   isjson    => jsreturn $ dict $ zip ('title', 'threads', 'pages') $ data.board board page
   otherwise =>
     data.get_cached_board board page or
@@ -41,7 +46,7 @@ board = mimeroute $ isjson board page: 0 -> if
       result
 
 
-thread = mimeroute $ isjson board thread -> if
+thread = jsflag $ isjson board thread -> if
   isjson    => jsreturn $ data.thread board thread
   otherwise =>
     view = request.cookies.get 'view_type'
@@ -60,7 +65,7 @@ thread_render = t view -> board thread ->
     result
 
 
-post = mimeroute $ isjson board id ->
+post = jsflag $ isjson board id ->
   isjson    => jsreturn $ data.post board id
   otherwise => render_template 'post.1.hamlike'
     this:  (data.post board id)
@@ -68,13 +73,29 @@ post = mimeroute $ isjson board id ->
 
 
 post_create = board ->
-  redirect $ url_for '.post' board: board id:
-    make_post board
-      int  $ request.form.get 'parent' 0
-      bool $ request.form.get 'sage'   False
-      request.form.get      'title' ''
-      request.form.get      'text'  ''
-      request.files.getlist 'file'
+  parent = int  $ request.form.get 'parent' 0
+  sage   = bool $ request.form.get 'sage'   False
+  title  =        request.form.get 'title' ''
+  text   =        request.form.get 'text'  ''
+  ip     =        request.remote_addr
+  files  = list $ filter (f -> f.filename) $ request.files.getlist 'file'
+  fnames = list $ map fileinfo files
+
+  config.NOT_EMPTY and not (text or files) => abort 400 'Either a message or a file is required.'
+  config.MAX_UPLOADS      < len files      => abort 400 'Too many files.'
+  config.MAX_TITLE_LENGTH < len title      => abort 400 'The title is too long.'
+  config.MAX_TEXT_LENGTH  < len text       => abort 400 'The text is too long.'
+  config.MAX_TEXT_LINES <= text.count '\n' => abort 400 'The text contains too many lines.'
+
+  htext  = markup.parse text
+  thread = if
+    parent == 0 => data.thread_create board        title sage htext fnames ip
+    otherwise   => data.post_create   board parent title sage htext fnames ip
+
+  for (file, info) in zip files fnames => fdsave file info
+  # Redirecting to `.thread` may be more useful if not for the fact
+  # that forms should be submitted though AJAX/external apps.
+  redirect $ url_for '.post' board: board id: thread
 
 
 mod = Blueprint 'core' __name__

@@ -1,5 +1,5 @@
 import '/os/path'
-import '/uuid/uuid4'
+import '/random/choice'
 import '/functools/update_wrapper'
 import '/subprocess/Popen'
 import '/subprocess/PIPE'
@@ -8,14 +8,31 @@ import '/flask/abort'
 import '/flask/jsonify'
 import '/flask/request'
 
-import 'data'
-import 'config'
-import 'markup/parse'
-
+import '../config'
 import '../database/Record'
 
+NAMELEN = 22
+BASE65  = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.'
+STATIC  = '.jpg', '.jpeg', '.png',
+ANIM    = '.gif',
+VIDEO   = '.webm',
+runcmd  = *: argv **: k -> Popen argv **: k
 
-jsreturn  = x -> jsonify $ jsprepare x
+
+#: Convert an object into its JSON representation. This should be used
+#: to respond to `application/json` requests; see `jsflag`.
+#:
+#: jsreturn :: a -> str
+#:
+jsreturn = x -> jsonify $ jsprepare x
+
+
+#: Convert an object into some form that is encodable by `json.dumps`.
+#: (This means converting `Record`s into `dict`s. Fields that start
+#: with an underscore are not preserved in the output.)
+#:
+#: jsprepare :: a -> (a - Record)
+#:
 jsprepare = x -> if
   x :: Record => dict (where for (k, v) in zip x.fields x => k !! 0 != '_' => yield (k, jsprepare v))
   x :: dict   => dict $ zip x.keys! $ map jsprepare x.values!
@@ -23,55 +40,48 @@ jsprepare = x -> if
   otherwise   => x
 
 
-randname = alphabet: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.' ->
-  c = uuid4!.int
-  s = len alphabet
-  while c =>
-    yield $ alphabet !! (c % s)
-    c //= s
-
-
-mimeroute = f -> update_wrapper wrapped: f $ *: a **: k ->
+#: Given a Flask route, make it accept a boolean argument 'isjson' that specifies
+#: whether the client has requested an `application/json` file.
+#:
+#: jsflag :: (** -> Response) -> ** -> Response
+#:
+jsflag = f -> update_wrapper wrapped: f $ *: a **: k ->
   json = request.accept_mimetypes !! 'application/json'
   html = request.accept_mimetypes !! 'text/html'
   f isjson: (html < json) *: a **: k
 
 
-FILES = list'
-  # (extensions), class, (full thumbnail sizespec -> create a thumbnail)
-  ('.jpg', '.jpeg', '.png'), '', fp tp sz -> Popen ('convert', fp,         '-resize', sz, tp)
-  ('.gif',),             'anim', fp tp sz -> Popen ('convert', fp + '[0]', '-resize', sz, tp)
-  ('.webm',),           'video', fp tp sz ->
-    ff = Popen ('ffmpeg', '-v', 'quiet', '-i', fp, '-vframes', '1', '-f', 'image2', '-') stdout: PIPE
-    im = Popen ('convert', '-', '-resize', sz, tp) stdin: ff.stdout
+#: Given a file upload, give it a name, a thumbnail, and a class.
+#: If no class could be given, abort the request. Note that neither the file
+#: nor its thumbnail are saved yet; better confirm with the database first.
+#:
+#: fileinfo :: FileIO -> (str, str, str)
+#:
+fileinfo = fd ->
+  ext   = path.splitext fd.filename !! 1
+  name  = ''.join (where for _ in range NAMELEN => yield $ choice BASE65)
+  name + ext, name + '.m.jpg', if
+    ext in STATIC => ''
+    ext in ANIM   => 'anim'
+    ext in VIDEO  => 'video'
+    otherwise     => abort 400 'Unsupported file type'
 
 
-make_post = board parent sage title text files ->
-  files  = list $ filter (f -> f.filename) files
-  fnames = list
-    where for f in files => yield $
-      name  = ''.join randname!
-      ext   = path.splitext f.filename !! 1
-      name + ext, name + '.m' + '.jpg', next
-        where
-          for (exts, class, _) in FILES => ext in exts => yield class
-          abort 400 'Unsupported file type.'
-
-  config.NOT_EMPTY and not (text or files) => abort 400 'Either a message or a file is required.'
-  config.MAX_UPLOADS      < len files      => abort 400 'Too many files.'
-  config.MAX_TITLE_LENGTH < len title      => abort 400 'The title is too long.'
-  config.MAX_TEXT_LENGTH  < len text       => abort 400 'The text is too long.'
-  config.MAX_TEXT_LINES <= text.count '\n' => abort 400 'The text contains too many lines.'
-
-  htext  = parse text
-  thread = if
-    parent == 0 => data.thread_create board        title      htext fnames request.remote_addr
-    otherwise   => data.post_create   board parent title sage htext fnames request.remote_addr
-
-  for (file, (fn, tn, flags)) in zip files fnames =>
-    fp = path.join config.UPLOAD_DIR fn
-    tp = path.join config.UPLOAD_DIR tn
-    file.save fp
-    for (_, cls, h) in FILES => cls == flags => h fp tp $ '{0}x{0}>'.format config.THUMBNAIL_SIZE
-
-  thread
+#: Store an uploaded file and create a thumbnail.
+#:
+#:   static images::   the whole image is compressed into available size.
+#:   animated images:: the first frame is treated as a static image.
+#:   videos::          same as for animated images, only `ffmpeg` is required.
+#:
+#: fdsave :: FileIO (str, str, str) -> a
+#:
+fdsave = fd (full, thumb, cls) ->
+  full  = path.join config.UPLOAD_DIR full
+  thumb = path.join config.UPLOAD_DIR thumb
+  size  = '{0}x{0}>'.format config.THUMBNAIL_SIZE
+  fd.save full
+  if cls == ''      => runcmd 'convert' (full + '[0]') '-resize' size thumb
+     cls == 'anim'  => runcmd 'convert' (full + '[0]') '-resize' size thumb
+     cls == 'video' =>
+       ff = runcmd stdout: PIPE      'ffmpeg' '-v' 'quiet' '-i' full '-vframes' '1' '-f' 'image2' '-'
+       im = runcmd stdin:  ff.stdout 'convert' '-' '-resize' size thumb
