@@ -69,9 +69,10 @@ body:not(.admin) .admin
   // Otherwise it attempts to fill the whole page.
   width: auto
 
-#post-form-0 > form
-  // Vertically centered.
+.post-form > form
   display: table
+
+#post-form-0 > form
   margin:  0 auto
 
 // Post trees
@@ -81,7 +82,7 @@ body > .post-view-tree
   border-top:  1px solid $hr-color
 
 .post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree > .post-view-tree
+.post-view-tree > .post-view-tree
   // TODO display nesting levels somehow?
   margin-left: 48px
 
@@ -89,9 +90,11 @@ body > .post-view-tree
 .post-view-tree > .post:not(:first-child),
 .post-view-tree > .post-view-tree > .post
   background: $post-reply-bg
-  border:     1px solid $post-reply-border
-  margin:     8px 8px 8px 48px
-  padding:    8px 8px 0 8px
+  border:        1px solid $post-reply-border
+  margin-top:    8px
+  margin-right:  8px
+  margin-bottom: 8px
+  padding:       8px 8px 0 8px
   @include post-reply()
 
 .post-missing-notice
