@@ -41,32 +41,30 @@ window.core =
 
       # FIXME this is a shitty way of templating.
       form = $('.post-form.tpl').clone().attr('id', "post-form-#{id}").removeClass('tpl hidden')
+      form.ajaxForm
+        beforeSubmit: (data, jq) -> dialog.loading jq
+        success:      (data, a, b, jq) ->
+          dialog.unloading jq
+          if id is 0
+            # Redirect to the thread page.
+            location.href = "#{jq.attr('action')}#{$(data).attr('id')}"
+          else
+            core.form.reply id, data
+            core.form.hide()
+            form.parents('.post-form').on 'hidden.bs.collapse', -> $(this).remove()
+
+        error: (data, a, b, jq) ->
+          dialog.unloading jq
+          dialog.alert(
+            if      data.status == 404 then 'This board or thread no longer exists.'
+            else if data.status == 500 then 'Internal server error.'
+            else $(data.responseText).find('h3') 
+          )
+
       form.find('[name="parent"]').attr 'value', id
-      form.find('[type="submit"]').on   'click', ->
-        core.form.submit id, form.find('form')
-        return false
       form.each core.form.addfile
       form.appendTo core.form.reply(id, form, true)
       form.collapse 'show'
-
-    submit: (id, form, path, data) ->
-      dialog.loading form
-      $.ajax    form.attr('action'),
-        data:   form.serialize()
-        method: 'POST'
-        success: -> dialog.unloading form
-        error:   -> dialog.unloading form
-        statusCode:
-          200: (data) ->
-            if id is 0
-              # Redirect to the thread page.
-              location.href = "#{form.attr('action')}#{$(data).attr('id')}"
-            else
-              core.form.reply id, data
-              core.form.hide()
-          400: (data) -> dialog.alert $(data.responseText).find('h3')
-          403: (data) -> dialog.alert $(data.responseText).find('h3')
-          404: (data) -> dialog.alert dialog.h3 'This board or thread no longer exists.'
 
     reply: (id, node, first) ->
       if id is 0
