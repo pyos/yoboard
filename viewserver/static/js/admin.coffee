@@ -16,6 +16,8 @@ window.admin =
         200: (data) ->
           if data is true or data.indexOf(core.board) >= 0
             $('body').addClass 'admin'
+          else
+            $('body').addClass 'admin-not-here'
 
   request: (id, lock, path, opts) ->
     dialog.loading lock
