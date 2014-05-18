@@ -1,3 +1,5 @@
+window.delay  = (t, f) -> window.setTimeout(f, t)
+window.abort  = (dtid) -> window.clearTimeout(dtid)
 window.dialog =
   h3: (message) ->
     # `bootbox.alert "something"` displays stuff in really tiny text.
@@ -17,6 +19,37 @@ window.dialog =
     node.removeClass 'loading'
         .find('.loading-cover').remove()
 
+  tooltip: (node, parent, padding=10) ->
+    viewport =
+      x: $(window).scrollLeft()
+      y: $(window).scrollTop()
+      w: $(window).width()
+      h: $(window).height()
+
+    _pabspos  = parent.offset()
+    parentpos =
+      x:  _pabspos.left - viewport.x
+      y:  _pabspos.top  - viewport.y
+      rx: _pabspos.left
+      ry: _pabspos.top
+      w:  parent.width()
+      h:  parent.height()
+
+    nodepos =
+      w: node.width()
+      h: node.height()
+
+    # 1. Vertical alignment.
+    #    `node` should be displayed at the top of `parent` iff
+    #    it will not fit into the viewport otherwise but will fit that way.
+    if parentpos.y - nodepos.h > padding and parentpos.y + nodepos.h + padding > viewport.h
+    then node.css 'top', parentpos.ry - nodepos.h - parentpos.h
+    else node.css 'top', parentpos.ry + parentpos.h
+    # 2. Horizontal alignment.
+    #    Same thing, different direction.
+    if parentpos.x - nodepos.w > padding and parentpos.x + nodepos.w + padding > viewport.w
+    then node.css 'left', parentpos.rx - nodepos.w
+    else node.css 'left', parentpos.rx
 
 window.core =
   board: $('meta[itemprop="board"]').attr('content')
@@ -146,6 +179,63 @@ window.core =
          core.imageview.node.remove()
          core.imageview.node = null
 
+  preview:
+    gcmap:   {}
+    gcdelay: 300
+
+    idof:   (node) -> "#{node.parents('.post').first().attr('id')}-#{node.attr('data-id')}"
+    exists: (node, id) -> $("\#post-preview-#{id}").length > 0
+    toggle: (node, id) ->
+      if   core.preview.exists node, id
+      then core.preview.hide   node, id
+      else core.preview.show   node, id
+      return false
+
+    show: (node, id) ->
+      return core.preview.unhide node, id if core.preview.gcmap[id]?
+      return null                         if core.preview.exists node, id
+
+      url    = node.attr('href')
+      parent = node.parents('.post.preview')
+      offset = node.position()
+      target = $("<div class='post preview' id='post-preview-#{id}'>")
+        .on 'mouseenter', -> $(this).trigger 'yoboard.preview.retain'
+        .on 'mouseleave', -> $(this).trigger 'yoboard.preview.remove'
+        .on 'yoboard.preview.retain', ->
+          core.preview.show node, id
+          parent.trigger 'yoboard.preview.retain'
+        .on 'yoboard.preview.remove', ->
+          core.preview.hide node, id
+          parent.trigger 'yoboard.preview.remove'
+        .appendTo document.body
+
+      dialog.tooltip target, node
+      dialog.loading target
+      $.ajax url,
+        method:  'GET'
+        success: (data) ->
+          target.append($(data).children())
+          dialog.unloading target
+          dialog.tooltip   target, node
+        error: (data) ->
+          target.append($(data).find('h3'))
+          dialog.unloading target
+          dialog.tooltip   target, node
+
+    hide: (node, id) ->
+      return null if     core.preview.gcmap[id]?
+      return null if not core.preview.exists node, id
+      core.preview.gcmap[id] = delay core.preview.gcdelay, ->
+        $("\#post-preview-#{id}").remove()
+        delete core.preview.gcmap[id]
+
+    unhide: (node, id) ->
+      return null if not core.preview.gcmap[id]?
+      return null if not core.preview.exists node, id
+      abort  core.preview.gcmap[id]
+      delete core.preview.gcmap[id]
+
+
 core.theme.set core.theme.current, false
 
 $ ->
@@ -155,6 +245,9 @@ $ ->
     .on 'click', '.media-object > a',     -> core.imageview.show $(this).parent()
     .on 'click', '.core-new-thread',      -> core.form.create 0
     .on 'click', '.core-reply',           -> core.form.create $(this).parents('.post').attr('id')
+    .on 'click',      '.post-anchor',     -> core.preview.toggle $(this), core.preview.idof $(this)
+    .on 'mouseenter', '.post-anchor',     -> core.preview.show   $(this), core.preview.idof $(this)
+    .on 'mouseleave', '.post-anchor',     -> core.preview.hide   $(this), core.preview.idof $(this)
 
   for t in core.theme.choice
     $("<li id='style-entry-#{t}' />").addClass("board-style-type")

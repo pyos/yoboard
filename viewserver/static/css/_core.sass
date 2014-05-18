@@ -148,6 +148,14 @@ body > .post-view-tree
   &:not(.prop-close)  .adm-open
     display: none
 
+  &.preview
+    position:   absolute
+    display:    inline-block
+    z-index:    11000
+    min-width:  50px
+    min-height: 50px
+    box-shadow: 0 6px 18px -9px #000
+
   .id:before
     content: '#'
 
@@ -219,7 +227,7 @@ body > .post-view-tree
   height:   $h
 
 .imageview
-  @include fill-screen(1001, 100%, 100%, block)
+  @include fill-screen(20001, 100%, 100%, block)
   top:  0
   left: 0
   color:      white
@@ -232,22 +240,22 @@ body > .post-view-tree
     display: table
 
   .prev
-    @include fill-screen(1004, 10%, 100%, table)
+    @include fill-screen(20004, 10%, 100%, table)
     top:   0
     left:  0
 
   .next
-    @include fill-screen(1004, 10%, 100%, table)
+    @include fill-screen(20004, 10%, 100%, table)
     top:   0
     right: 0
 
   .back
-    @include fill-screen(1005, 100%, 10%, table)
+    @include fill-screen(20005, 100%, 10%, table)
     top:   0
     left:  0
 
   .link
-    @include fill-screen(1003, 100%, 10%, table)
+    @include fill-screen(20003, 100%, 10%, table)
     bottom: 0
     left:   0
 
@@ -264,7 +272,7 @@ body > .post-view-tree
       vertical-align: middle
 
   .wrap
-    @include fill-screen(1002, 80%, 80%, block)
+    @include fill-screen(20002, 80%, 80%, block)
     @include center-child()
     top:  10%
     left: 10%
