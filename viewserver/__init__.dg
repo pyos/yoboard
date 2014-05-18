@@ -40,11 +40,18 @@ Yoboard = subclass $ Flask where
     @register_error_handler 403 @onerror
     @register_error_handler 404 @onerror
     @register_error_handler 500 @onexcept
+    @add_url_rule '/404/' '404' $ -> abort 404 'As requested'
+    @add_url_rule '/403/' '403' $ -> abort 403 'Some text here'
+    @add_url_rule '/400/' '400' $ -> abort 400 'Not really'
+    @add_url_rule '/500/' '500' $ -> except
+      err => raise $ WhyError 'yo dawg, we heard you like errors'
+      err :: WhyError => raise $ WhyError 'seriously, why?'
 
   onexcept = e ~> render_template 'error.hamlike' err: e code: 500,    500
   onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
 
 
+WhyError  = subclass Exception where
 WebClient = subclass Client where
   call = name args ~>
     r = Client.call self name args
