@@ -23,18 +23,20 @@
   -else
     {{ err.name }}~
 
+-block head
+  %meta itemprop="style" content="Cyborg"
+
 -block navbar
 -block main
-  %div.container id="error-body"
-    %div
+  %div.container.error-body data-code="{{ code }}"
+    %div.text-left
       %h1.text-center -> =self.title()
+      %hr
       -if code == 500
         %samp.highlight -> =traceback(err)
       -elif 'description' in err.__dict__
         %h3.text-center -> =err.description
-
-      %footer.text-center
-        -if code == 404
-          %a href="/" -> Index page
-          |
-        %a onclick="history.back(-1)" -> Go back
+      %hr
+      %div.text-center
+          <a href="/">Index page</a>
+        | <a onclick="history.back(-1)">Go back</a>

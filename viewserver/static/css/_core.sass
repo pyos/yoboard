@@ -81,16 +81,14 @@ body:not(.admin) .admin
 
 // Error page
 
-#error-body
+.error-body
   background: url(/static/img/error-bg.png) no-repeat center
-  display:   table
   height:    466px
   min-width: 466px
+  @include center-child()
 
-#error-body > *
-  // TODO design something better
-  display:        table-cell
-  vertical-align: middle
+  &[data-code="500"]
+    background-image: url(/static/img/error-bg-500.png)
 
 // Forms
 
