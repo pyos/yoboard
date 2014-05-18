@@ -117,9 +117,9 @@ body > .post-view-tree
   // TODO display nesting levels somehow?
   margin-left: 48px
 
-
 .post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree > .post
+.post-view-tree > .post-view-tree > .post,
+*:not(.post-view-tree) > .post
   background: $post-reply-bg
   border:        1px solid $post-reply-border
   margin-top:    8px
