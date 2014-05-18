@@ -20,6 +20,10 @@
 body
   margin: 15px
 
+@media (max-width: 768px)
+  h1, h2
+    font-size: 28px
+
 a
   // This makes `href="#"` redundant.
   cursor:          pointer
@@ -114,10 +118,10 @@ body > .post-view-tree
   max-width:   100%
   overflow-x:  auto
 
-.post-view-tree > .post:not(:first-child),
-.post-view-tree > .post-view-tree
-  // TODO display nesting levels somehow?
-  margin-left: 48px
+@media (min-width: 768px)
+  .post-view-tree > .post:not(:first-child),
+  .post-view-tree > .post-view-tree
+    margin-left: 48px
 
 .post-view-tree > .post:not(:first-child),
 .post-view-tree > .post-view-tree > .post,
@@ -140,6 +144,11 @@ body > .post-view-tree
 .post
   display: table
   margin:  15px
+
+  @media (max-width: 767px)
+    display: block
+    margin:  0
+    margin-right: 0 !important
 
   &.prop-close        .core-reply,
   &.prop-close        .adm-close,
