@@ -25,8 +25,12 @@
 
       %div.media-body
         -if list_mode and p.parent and p.parent != p.thread
-          %p -> %a.post-anchor data-id="{{ p.parent }}" -> =p.parent
+          %p -> =post_link(p.parent)
         =p.text|safe
+
+
+-macro post_link(id)
+  %a.post-anchor href="{{ url_for('.post', board=board, id=id) }}#{{ id }}" data-id="{{ id }}" -> =id
 
 
 -macro post_form()

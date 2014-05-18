@@ -40,15 +40,21 @@ jsprepare = x -> if
   otherwise   => x
 
 
-#: Given a Flask route, make it accept a boolean argument 'isjson' that specifies
-#: whether the client has requested an `application/json` file.
+#: Check whether the client wants a JSON response.
 #:
-#: jsflag :: (** -> Response) -> ** -> Response
+#: isjson :: -> bool
 #:
-jsflag = f -> update_wrapper wrapped: f $ *: a **: k ->
+isjson = ->
   json = request.accept_mimetypes !! 'application/json'
   html = request.accept_mimetypes !! 'text/html'
-  f isjson: (html < json) *: a **: k
+  html < json
+
+
+#: Check whether the client is a browser and the request was sent via XHR.
+#:
+#: isajax :: -> bool
+#:
+isajax = -> request.headers.get 'X-Requested-With' == 'XMLHttpRequest'
 
 
 #: Given a file upload, give it a name, a thumbnail, and a class.

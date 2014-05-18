@@ -7,7 +7,8 @@ import '/flask/url_for'
 import 'data'
 import 'config'
 import 'markup'
-import 'tools/jsflag'
+import 'tools/isajax'
+import 'tools/isjson'
 import 'tools/jsreturn'
 import 'tools/fileinfo'
 import 'tools/fdsave'
@@ -29,13 +30,13 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'IMAGES_ALWAYS_BUMP'
 
 
-root = jsflag $ isjson -> if
-  isjson    => jsreturn $ dict config: CONFIG boards: data.boards!
+root = -> if
+  isjson!   => jsreturn $ dict config: CONFIG boards: data.boards!
   otherwise => render_template 'root.hamlike' boards: data.boards!
 
 
-board = jsflag $ isjson board page: 0 -> if
-  isjson    => jsreturn $ dict $ zip ('title', 'threads', 'pages') $ data.board board page
+board = board page: 0 -> if
+  isjson!   => jsreturn $ dict $ zip ('title', 'threads', 'pages') $ data.board board page
   otherwise =>
     data.get_cached_board board page or
       result = render_template 'board.hamlike'
@@ -46,8 +47,8 @@ board = jsflag $ isjson board page: 0 -> if
       result
 
 
-thread = jsflag $ isjson board thread -> if
-  isjson    => jsreturn $ data.thread board thread
+thread = board thread -> if
+  isjson!   => jsreturn $ data.thread board thread
   otherwise =>
     view = request.cookies.get 'view_type'
     redirect $ url_for board: board thread: thread $ if
@@ -65,11 +66,12 @@ thread_render = t view -> board thread ->
     result
 
 
-post = jsflag $ isjson board id ->
-  isjson    => jsreturn $ data.post board id
-  otherwise => render_template 'post.1.hamlike'
+post = board id -> if
+  isjson!   => jsreturn $ data.post board id
+  isajax!   => render_template 'post.1.hamlike'
     this:  (data.post board id)
     board:  board
+  otherwise => redirect $ url_for '.thread' board: board thread: (data.post board id).thread
 
 
 post_create = board ->
