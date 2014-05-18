@@ -1,0 +1,107 @@
+%!doctype html
+%html lang="en-US"
+  %head
+    %meta charset="utf-8"
+    %meta name="viewport" content="width=device-width, initial-scale=1"
+    %title -> yoboard — an imageboard with maximum YOBA
+    %link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css"
+    %link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"
+    %script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"
+    %script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"
+    %style
+      body {
+        background: url(yoba.png) top right no-repeat;
+      }
+
+      footer {
+        margin: 20px;
+      }
+
+      .jumbotron {
+        background: rgba(255, 255, 255, 0.7);
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      @media (min-width: 768px) {
+        .jumbotron:first-child {
+          display: inline-block;
+        }
+      }
+
+      .jumbotron .media-object {
+        max-height: 250px;
+      }
+
+      .vcenter:before {
+        vertical-align: middle;
+        content:        '';
+        display:        inline-block;
+        height:         100%;
+        margin-right:   -0.25em;
+      }
+
+      .vcenter > * {
+        vertical-align: middle;
+        display:        inline-block;
+        margin-left:  20px;
+        margin-right: 20px;
+      }
+
+      .small > * {
+        font-size: 0.6em;
+        line-height: 1em;
+      }
+
+  %body
+    %div.container
+      %div.jumbotron
+        %h1 -> yo<span class="text-muted">ba-</span>board
+        %p
+          Who needs a
+          %a href="http://lenta.ru/articles/2014/04/10/blogi/" -> blogging license
+          when you've got style?
+        %p
+          %a.btn.btn-primary.btn-lg href="http://github.com/pyos/yoboard" -> View source on GitHub
+          %a.btn.btn-success.btn-lg href="http://yoboard-pyosbarbos.rhcloud.com/" -> Try it out on OpenShift
+
+      %div.jumbotron.vcenter.text-left
+        %div -> %img.media-object alt="Responsiveness!" src="demo-responsive.png"
+        %div
+          %h2 -> Responsive design
+          %p  -> Looks good on all devices.
+
+      %div.jumbotron.vcenter.text-right
+        %div
+          %h2 -> Tree layout
+          %p  -> Untangle the web<br />of threads and replies.
+        %div -> %img.media-object alt="Tree!" src="demo-tree.png"
+
+      %div.jumbotron.vcenter.text-left
+        %div -> %img.media-object alt="Themes!" src="demo-themes.png"
+        %div
+          %h2 -> Gorgeous themes
+          %p  -> Kindly provided by <a href="http://bootswatch.com/">Bootswatch</a>
+
+      %div.jumbotron.vcenter.text-right
+        %div
+          %h2 -> WebM support
+          %p  -> And the best file viewer you've seen<br />
+                 (on an imageboard)
+        %div -> %img.media-object alt="WebM!" src="demo-webm.png"
+
+      %div.jumbotron.vcenter.text-left
+        %div -> %img.media-object alt="JSON!" src="demo-json.png"
+        %div ->
+          %h2 -> JSON API
+          %p  -> Write apps with ease
+
+      %div.jumbotron.text-center
+        %h2 -> And other stuff.
+        %p
+          %a.btn.btn-lg.btn-primary href="https://github.com/pyos/yoboard#readme" -> How to install
+          %a.btn.btn-lg.btn-success href="http://yoboard-pyosbarbos.rhcloud.com/" -> See in action
+
+      %footer.text-muted
+        Another fine piece of software by <a href="https://github.com/pyos">@pyos</a>.
