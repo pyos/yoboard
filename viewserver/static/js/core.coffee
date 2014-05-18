@@ -19,6 +19,7 @@ window.dialog =
 
 
 window.core =
+  board: $('meta[itemprop="board"]').attr('content')
   theme:
     choice: ['Cosmo', 'Cyborg', 'Default', 'Flatly', 'Photon']
     default: 'Photon'

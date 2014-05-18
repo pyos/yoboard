@@ -1,6 +1,9 @@
 -extends "base.hamlike"
 -from "post.hamlike" import post, post_form with context
 
+-block head
+  %meta itemprop="board" content="{{ board }}"
+
 -block title
   -if this.root.title
     {{ this.root.title }}

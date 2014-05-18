@@ -14,7 +14,7 @@ window.admin =
       statusCode:
         403: ()     -> $.removeCookie 'userid', path: '/'
         200: (data) ->
-          if data is true or data.indexOf(location.pathname.split("/")[1]) >= 0
+          if data is true or data.indexOf(core.board) >= 0
             $('body').addClass 'admin'
 
   request: (id, lock, path, opts) ->
