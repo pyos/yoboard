@@ -1,2 +1,2 @@
 -from 'post.hamlike' import post with context
-=post(this, false, false, false)
+=post(this, true, false, false)
