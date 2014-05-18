@@ -7,10 +7,9 @@
 
 -block navbar
 -block main
-  %div.container.root-page
-    %h1.text-center -> =config.SITE_TITLE
-    %div id="main-image"
-
+  %div.root-heading -> %h1.text-center -> =config.SITE_TITLE
+  %div.root-image   -> %div.root-image-inner
+  %div.container.root-main
     -for row in boards|dictsort|batch(3)
       %div.row
         -for car, cdr in row
@@ -28,10 +27,7 @@
     %div.row.admin
       %div.col-sm-4
         %h3.text-muted -> New category
-        %table.board-index
-          %tr
-            %td -> %a.fa.fa-plus.adm-crboard title="Create"
-
+        %table.board-index -> %tr -> %td -> %a.fa.fa-plus.adm-crboard title="Create"
   %div.hidden
     %div id="admin-new-board-head" -> New board
     %div id="admin-new-board-form"

@@ -23,16 +23,13 @@
             %span.icon-bar
             %span.icon-bar
           %a.navbar-brand href="/" -> =config.SITE_NAME
-  
         %div.collapse.navbar-collapse id="settings"
           %ul.nav.navbar-nav
             %li.dropdown
               %a.dropdown-toggle data-toggle="dropdown" -> Style <b class="caret"></b>
               %ul.dropdown-menu id="style-selector"
             -block options
-
     -block main
-
     %footer
       %small
         + <a href="https://github.com/pyos/yoboard"><span class="fa fa-github"></span> yoboard</a>
