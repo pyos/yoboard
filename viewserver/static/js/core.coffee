@@ -169,20 +169,24 @@ window.core =
       view.appendTo(document.body)
 
     show: (node) ->
-      url = node.find('a').attr('href')
+      url  = node.find('a').attr('href')
+      ext  = node.find('a').attr('data-id')
+      name = (url || '').split('/')[3]
+
+      if node.hasClass('youtube')
+        url  = "//youtu.be/#{ext}"
+        name = ""
+        view = "<iframe width='100%' height='100%' src='//www.youtube.com/embed/#{ext}' frameborder='0' allowfullscreen></iframe>"
+      else if node.hasClass('video')
+        view = $('<video controls preload="metadata">').attr('src', url)
+      else
+        view = $('<img>').attr('src', url)
+
       core.imageview.current = node
       core.imageview.create() if not core.imageview.node
       core.imageview.node.find('.view').remove()
-      core.imageview.node.find('.wrap').append(
-        if node.hasClass('video')
-          '<video controls preload="metadata" class="view">'
-        else if node.hasClass('youtube')
-          _yt = node.find('a').attr('data-id')
-          "<iframe class='view' width='100%' height='100%' src='//www.youtube.com/embed/#{_yt}' frameborder='0' allowfullscreen></iframe>"
-        else
-          '<img class="view">')
-      core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3])
-      core.imageview.node.find('.view').attr('src',  url)
+      core.imageview.node.find('.wrap').append($(view).addClass('view'))
+      core.imageview.node.find('.link').attr('href', url).children().text(name)
       return false
 
     prev: (node) ->
