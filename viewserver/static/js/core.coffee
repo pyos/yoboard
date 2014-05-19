@@ -152,9 +152,11 @@ window.core =
     create: () ->
       core.imageview.node = view = $("""
         <div class="imageview">
-          <a class="prev"><span class="fa fa-2x fa-chevron-left"></span></a>
-          <a class="next"><span class="fa fa-2x fa-chevron-right"></span></a>
-          <a class="back"><span class="fa fa-2x fa-times"></span></a>
+          <a class="prev"><span class="fa fa-chevron-left"></span></a>
+          <a class="next"><span class="fa fa-chevron-right"></span></a>
+          <a class="back"><span class="fa fa-times"></span></a>
+          <a class="mini"><span class="fa fa-compress"></span></a>
+          <a class="maxi"><span class="fa fa-expand"></span></a>
           <a class="link"><span></span></a>
           <span class="wrap"><img class="view" /></span>
         </div>
@@ -162,6 +164,8 @@ window.core =
       view.find('.back').on 'click', -> core.imageview.hide()
       view.find('.prev').on 'click', -> core.imageview.prev()
       view.find('.next').on 'click', -> core.imageview.next()
+      view.find('.mini').on 'click', -> core.imageview.node.addClass    'minimized'
+      view.find('.maxi').on 'click', -> core.imageview.node.removeClass 'minimized'
       view.appendTo(document.body)
 
     show: (node) ->

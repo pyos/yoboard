@@ -238,47 +238,74 @@ body > .post-view-tree
 
 // Image view mode
 
-@mixin fill-screen($z, $w, $h, $d)
-  display:  $d
+@mixin fill-screen($z, $w, $h)
+  display:  block
   position: fixed
   z-index:  $z
   width:    $w
   height:   $h
 
+@mixin fill-parent($z, $w, $h)
+  @include fill-screen($z, $w, $h)
+  position: absolute
+
 .imageview
-  @include fill-screen(20001, 100%, 100%, block)
-  top:  0
-  left: 0
+  @include fill-screen(20001, 100%, 100%)
+  bottom: 0
+  right:  0
   color:      white
   background: rgba(0, 0, 0, 0.8)
 
-  .prev,
-  .next,
-  .back,
-  .link
-    display: table
+  &.minimized
+    width:  33%
+    height: 33%
+
+    .back, .maxi, .link
+      height: 2em
+
+    .prev, .next
+      width: 2em
+
+    .wrap
+      padding: 2em
+
+    .mini
+      display: none
+
+  &:not(.minimized)
+    .fa
+      font-size: 2em
+
+    .maxi
+      display: none
 
   .prev
-    @include fill-screen(20004, 10%, 100%, table)
+    @include fill-parent(20004, 10%, 100%)
     top:   0
     left:  0
 
   .next
-    @include fill-screen(20004, 10%, 100%, table)
+    @include fill-parent(20004, 10%, 100%)
     top:   0
     right: 0
 
   .back
-    @include fill-screen(20005, 100%, 10%, table)
+    @include fill-parent(20005, 50%, 10%)
+    top:   0
+    right: 0
+
+  .mini, .maxi
+    @include fill-parent(20005, 50%, 10%)
     top:   0
     left:  0
 
   .link
-    @include fill-screen(20003, 100%, 10%, table)
+    @include fill-parent(20003, 100%, 10%)
     bottom: 0
     left:   0
 
   & > a
+    @include center-child()
     color:           rgba(255, 255, 255, 0.5)
     text-align:      center
     text-decoration: none
@@ -286,15 +313,10 @@ body > .post-view-tree
     &:hover
       color: rgba(255, 255, 255, 0.7)
 
-    & > *
-      display:        table-cell
-      vertical-align: middle
-
   .wrap
-    @include fill-screen(20002, 80%, 80%, block)
+    @include fill-parent(20002, 100%, 100%)
     @include center-child()
-    top:  10%
-    left: 10%
+    padding: 10%
 
   .view
     max-width:      100%
