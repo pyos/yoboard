@@ -256,9 +256,12 @@ body > .post-view-tree
   color:      white
   background: rgba(0, 0, 0, 0.8)
 
-  &.minimized
-    width:  33%
-    height: 33%
+  .fa
+    font-size: 2em
+
+  @mixin -fixed-size-links()
+    .fa
+      font-size: 1em
 
     .back, .maxi, .link
       height: 2em
@@ -268,16 +271,6 @@ body > .post-view-tree
 
     .wrap
       padding: 2em
-
-    .mini
-      display: none
-
-  &:not(.minimized)
-    .fa
-      font-size: 2em
-
-    .maxi
-      display: none
 
   .prev
     @include fill-parent(20004, 10%, 100%)
@@ -303,6 +296,32 @@ body > .post-view-tree
     @include fill-parent(20003, 100%, 10%)
     bottom: 0
     left:   0
+
+  @media (min-width: 768px)
+    &.minimized
+      width:      33%
+      height:     33%
+      min-width:  420px
+      min-height: 340px
+      @include -fixed-size-links()
+
+      .mini
+        display: none
+
+    &:not(.minimized)
+      .maxi
+        display: none
+
+  @media (max-width: 767px)
+
+    .maxi, .mini
+      display: none
+
+    .back
+      width: 100%
+
+  @media (max-width: 480px)
+    @include -fixed-size-links()
 
   & > a
     @include center-child()
