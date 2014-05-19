@@ -78,11 +78,11 @@ window.core =
       form.ajaxForm
         beforeSubmit: (data, jq) -> dialog.loading jq
         success:      (data, a, b, jq) ->
+          dialog.unloading jq
           if id is 0
             # Redirect to the thread page.
             location.href = "#{jq.attr('action')}#{$(data).attr('id')}"
           else
-            dialog.unloading jq
             core.form.reply id, data
             core.form.hide()
             form.parents('.post-form').on 'hidden.bs.collapse', -> $(this).remove()
@@ -131,22 +131,23 @@ window.core =
           form.each core.form.addfile
           full = true
 
+      update = ->
+        fill()
+        # The path is mangled to prevent whatever, only the filename is important.
+        text.val file.val().split("\\").pop().split("/").pop()
+        text.attr 'disabled', 'true'
+
       reset = node.find('.upload-nope').remove()
       text  = node.find('.upload-link-select')
-      file  = node.find('.upload-file-select')
-      node
-        .on 'change', '.upload-file-select', ->
-          fill()
-          # The path is mangled to prevent whatever, only the filename is important.
-          text.val file.val().split("\\").pop().split("/").pop()
-          text.attr 'disabled', 'true'
-        .on 'click', '.upload-nope',        -> node.remove()
-        .on 'click', '.upload-file-button', -> file.click()
-        .on 'click', '.upload-link-button', ->
-          fill()
-          text.val('').removeAttr 'disabled'
-          # Stupid lousy NECESSARY AND COMPLETELY JUSTIFIED security restrictions.
-          file = file.replaceWith '<input type="file" name="file" class="upload-file-select hidden">'
+      file  = node.find('.upload-file-select').on 'change', update
+      node.on 'click', '.upload-nope',        -> node.remove()
+          .on 'click', '.upload-file-button', -> file.click()
+          .on 'click', '.upload-link-button', ->
+            fill()
+            text.val('').removeAttr 'disabled'
+            # Stupid lousy NECESSARY AND COMPLETELY JUSTIFIED security restrictions.
+            file = $('<input type="file" name="file" class="upload-file-select hidden">').replaceAll file
+            file.on 'change', update
 
   imageview:
     create: () ->
