@@ -23,7 +23,7 @@
           -if 'external' in file[2:]
             %a data-id="{{ file[0] }}"
               -if 'youtube' in file[2:]
-                %img alt="youtube" src="http://img.youtube.com/vi/{{ file[0] }}/1.jpg"
+                %img alt="youtube" src="//img.youtube.com/vi/{{ file[0] }}/1.jpg"
           -else
             %a href="/static/upload/{{ file[0] }}"
               %img alt="image" src="/static/upload/{{ file[1] }}"
