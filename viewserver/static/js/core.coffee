@@ -114,22 +114,39 @@ window.core =
       form = $(this)
       node = $("""
         <div class="input-group">
-          <div class="input-group-addon btn btn-default"><i class="fa fa-upload"></i></div>
-          <input type="file" name="file" class="hidden">
-          <input type="text" disabled    class="form-control">
-          <div class="input-group-addon btn btn-default"><i class="fa fa-times"></i></div>
+          <div class="input-group-btn">
+            <div class="btn btn-default upload-file-button"><i class="fa fa-upload"></i></div>
+            <div class="btn btn-default upload-link-button"><i class="fa fa-link"></i></div>
+          </div>
+          <input type="file" name="file" class="upload-file-select hidden">
+          <input name="link" disabled    class="upload-link-select form-control">
+          <div class="input-group-addon btn btn-default upload-nope"><i class="fa fa-times"></i></div>
         </div>
       """).insertBefore form.find '.input-group:last-child'
 
-      reset = node.children().eq(3).remove().on 'click', -> node.remove()
-      text  = node.children().eq(2).on 'click',  -> file.click()
-      trig  = node.children().eq(0).on 'click',  -> file.click()
-      file  = node.children().eq(1).on 'change', ->
-        if not text.val()
+      full  = false
+      fill  = ->
+        if not full
           reset.appendTo node
           form.each core.form.addfile
-        # The path is mangled to prevent whatever, only the filename is important.
-        text.val file.val().split("\\").pop().split("/").pop()
+          full = true
+
+      reset = node.find('.upload-nope').remove()
+      text  = node.find('.upload-link-select')
+      file  = node.find('.upload-file-select')
+      node
+        .on 'change', '.upload-file-select', ->
+          fill()
+          # The path is mangled to prevent whatever, only the filename is important.
+          text.val file.val().split("\\").pop().split("/").pop()
+          text.attr 'disabled', 'true'
+        .on 'click', '.upload-nope',        -> node.remove()
+        .on 'click', '.upload-file-button', -> file.click()
+        .on 'click', '.upload-link-button', ->
+          fill()
+          text.val('').removeAttr 'disabled'
+          # Stupid lousy NECESSARY AND COMPLETELY JUSTIFIED security restrictions.
+          file = file.replaceWith '<input type="file" name="file" class="upload-file-select hidden">'
 
   imageview:
     create: () ->
@@ -155,6 +172,9 @@ window.core =
       core.imageview.node.find('.wrap').append(
         if node.hasClass('video')
           '<video controls preload="metadata" class="view">'
+        else if node.hasClass('youtube')
+          _yt = node.find('a').attr('data-id')
+          "<iframe width='100%' height='100%' src='//www.youtube.com/embed/#{_yt}' frameborder='0' allowfullscreen></iframe>"
         else
           '<img class="view">')
       core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3])

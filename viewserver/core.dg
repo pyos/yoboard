@@ -1,4 +1,5 @@
 import '/flask/Blueprint'
+import '/flask/abort'
 import '/flask/redirect'
 import '/flask/request'
 import '/flask/render_template'
@@ -11,6 +12,7 @@ import 'tools/isajax'
 import 'tools/isjson'
 import 'tools/jsreturn'
 import 'tools/fileinfo'
+import 'tools/linkinfo'
 import 'tools/fdsave'
 
 
@@ -77,17 +79,18 @@ post = board id -> if
 post_create = board ->
   parent = int  $ request.form.get 'parent' 0
   sage   = bool $ request.form.get 'sage'   False
-  title  =        request.form.get 'title' ''
-  text   =        request.form.get 'text'  ''
+  title  =        request.form.get 'title'  ''
+  text   =        request.form.get 'text'   ''
   ip     =        request.remote_addr
   files  = list $ filter (f -> f.filename) $ request.files.getlist 'file'
   fnames = list $ map fileinfo files
+  fnames.extend $ map linkinfo $ filter (x -> x) $ request.form.getlist 'link'
 
-  config.NOT_EMPTY and not (text or files) => abort 400 'Either a message or a file is required.'
-  config.MAX_UPLOADS      < len files      => abort 400 'Too many files.'
-  config.MAX_TITLE_LENGTH < len title      => abort 400 'The title is too long.'
-  config.MAX_TEXT_LENGTH  < len text       => abort 400 'The text is too long.'
-  config.MAX_TEXT_LINES <= text.count '\n' => abort 400 'The text contains too many lines.'
+  config.NOT_EMPTY and not (text or fnames) => abort 400 'Either a message or a file is required.'
+  config.MAX_UPLOADS      < len fnames      => abort 400 'Too many files.'
+  config.MAX_TITLE_LENGTH < len title       => abort 400 'The title is too long.'
+  config.MAX_TEXT_LENGTH  < len text        => abort 400 'The text is too long.'
+  config.MAX_TEXT_LINES <= text.count '\n'  => abort 400 'The text contains too many lines.'
 
   htext  = markup.parse text
   thread = if

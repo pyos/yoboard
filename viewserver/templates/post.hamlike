@@ -20,8 +20,13 @@
     %div.body.clearfix
       -for file in p.files
         %div class="media-object pull-left {{ file[2:]|join(' ') }}"
-          %a href="/static/upload/{{ file[0] }}"
-            %img alt="image" src="/static/upload/{{ file[1] }}"
+          -if 'external' in file[2:]
+            %a data-id="{{ file[0] }}"
+              -if 'youtube' in file[2:]
+                %img alt="youtube" src="http://img.youtube.com/vi/{{ file[0] }}/1.jpg"
+          -else
+            %a href="/static/upload/{{ file[0] }}"
+              %img alt="image" src="/static/upload/{{ file[1] }}"
 
       %div.media-body
         -if list_mode and p.parent and p.parent != p.thread
