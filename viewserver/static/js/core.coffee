@@ -178,7 +178,7 @@ window.core =
           '<video controls preload="metadata" class="view">'
         else if node.hasClass('youtube')
           _yt = node.find('a').attr('data-id')
-          "<iframe width='100%' height='100%' src='//www.youtube.com/embed/#{_yt}' frameborder='0' allowfullscreen></iframe>"
+          "<iframe class='view' width='100%' height='100%' src='//www.youtube.com/embed/#{_yt}' frameborder='0' allowfullscreen></iframe>"
         else
           '<img class="view">')
       core.imageview.node.find('.link').attr('href', url).children().text(url.split('/')[3])
