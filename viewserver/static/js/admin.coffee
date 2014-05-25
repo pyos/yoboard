@@ -1,8 +1,8 @@
 window.admin =
   i18n:
-    401: "401 — Yoba Wants To Know Your Name"
-    403: "403 — Not On This Page, Buddy"
-    404: "404 — The Page You're Looking At Is Outdated"
+    401: "Yoba Wants To Know Your Name"
+    403: "Not On This Page, Buddy"
+    404: "The Page You're Looking At Is Outdated"
 
   enable: (uid) ->
     dialog.loading $(document.body)
@@ -24,12 +24,15 @@ window.admin =
     $.ajax "/#{id}#{path}",
       data:   opts.data
       method: opts.method
-      success: -> dialog.unloading lock if opts.mandad?
-      error:   -> dialog.unloading lock
-      statusCode:
-        200: -> if opts.mandad? then opts.mandad() else location.reload()
-        403: -> dialog.alert dialog.h3 admin.i18n[403]
-        404: -> dialog.alert dialog.h3 admin.i18n[404]
+      success: ->
+        dialog.unloading lock
+        if opts.mandad? then opts.mandad() else location.reload()
+      error: (data) ->
+        dialog.unloading lock
+        dialog.alert "Error \##{data.status}",
+          if admin.i18n[data.status]?
+          then admin.i18n[data.status]
+          else $(data.responseText).find('h3').html() or '???'
 
   board:
     prompt: (category) ->
@@ -37,16 +40,19 @@ window.admin =
       head = $('#admin-new-board-head').clone()
       form = $('#admin-new-board-form').clone()
       form.find('#admin-new-board-cat').val(category)
-      bootbox.dialog
-        title:   head,
-        message: form,
-        buttons: OK:
-          className: "btn-primary"
-          callback:  ->
-            id    = form.find('#admin-new-board-id')   .val()
-            title = form.find('#admin-new-board-title').val()
-            cat   = form.find('#admin-new-board-cat')  .val()
-            admin.board.add id, title, cat if id and title and cat
+      dialog.create
+        headingN: head,
+        messageN: form,
+        buttons:
+          OK:
+            cls:   'btn-success'
+            click: ->
+              id    = form.find('#admin-new-board-id')   .val()
+              title = form.find('#admin-new-board-title').val()
+              cat   = form.find('#admin-new-board-cat')  .val()
+              admin.board.add id, title, cat if id and title and cat
+          Cancel:
+            cls: 'btn-danger'
 
     del: (id)                  -> admin.request id, $('body'), '/', method: 'DELETE'
     add: (id, title, category) -> admin.request id, $('body'), '/',
@@ -81,6 +87,6 @@ $ ->
          $('body').removeClass 'admin'
          $.removeCookie 'userid', path: '/'
       else
-         bootbox.prompt admin.i18n[401], (val) -> admin.enable val if val isnt null
+         dialog.prompt admin.i18n[401], (val) -> admin.enable val if val isnt null
 
   admin.enable $.cookie('userid') if $.cookie('userid')

@@ -66,6 +66,13 @@ body.admin-not-here #admin-mode:after
 body:not(.admin) .admin
   display: none
 
+.dialog
+  input
+    margin: auto
+
+  button
+    margin: 5px
+
 // Root page
 
 .root-image
@@ -254,7 +261,7 @@ body > .post-view-tree
   position: absolute
   z-index:  $z
 
-.imageview
+.fullscreen
   @include fill-parent(20001)
   position:   fixed
   color:      white
@@ -264,6 +271,15 @@ body > .post-view-tree
   width:  100%
   height: 100%
 
+  .wrap
+    @include fill-parent(20002)
+    @include center-child()
+    top:    10%
+    left:   10%
+    right:  10%
+    bottom: 10%
+
+.imageview
   .fa
     font-size: 2em
 
@@ -351,14 +367,6 @@ body > .post-view-tree
 
     &:hover
       color: rgba(255, 255, 255, 0.7)
-
-  .wrap
-    @include fill-parent(20002)
-    @include center-child()
-    top:    10%
-    left:   10%
-    right:  10%
-    bottom: 10%
 
   .view
     max-width:      100%

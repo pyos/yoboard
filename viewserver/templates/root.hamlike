@@ -29,7 +29,7 @@
         %h3.text-muted -> New category
         %table.board-index -> %tr -> %td -> %a.fa.fa-plus.adm-crboard title="Create"
   %div.hidden
-    %div id="admin-new-board-head" -> New board
+    %div id="admin-new-board-head" -> %h2 -> New board
     %div id="admin-new-board-form"
       %div.input-group -> %input.form-control placeholder='ID' id='admin-new-board-id'
       %div.input-group -> %input.form-control placeholder='Title' id='admin-new-board-title'

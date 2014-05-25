@@ -1,13 +1,72 @@
 window.delay  = (t, f) -> window.setTimeout(f, t)
 window.abort  = (dtid) -> window.clearTimeout(dtid)
 window.dialog =
-  h3: (message) ->
-    # `bootbox.alert "something"` displays stuff in really tiny text.
-    $('<h3 class="text-center">').text(message)
+  create: (options) ->
+    mkcb = (cb) -> () ->
+      cb root
+      hide()
 
-  alert: (message, callback) ->
-    # Default `bootbox.alert` does not support jquery elements as contents.
-    bootbox.alert $('<p>').append(message).html(), callback
+    root = $ """
+      <div class="dialog fullscreen">
+        <div class="wrap">
+          <div class="inner">
+            <div class="dialog-body"></div>
+            <hr />
+            <div class="dialog-footer"></div>
+          </div>
+        </div>
+      </div>
+    """
+
+    if options.bodyN?
+      $(options.bodyN).addClass('dialog-body').replaceAll root.find('.dialog-body')
+    else
+      root.find('.dialog-body')
+        .append(options.headingN or $('<h2>').text(options.heading or ''))
+        .append(options.messageN or $('<h3>').text(options.message or ''))
+
+    if options.footerN?
+      $(options.footerN).addClass('dialog-footer').replaceAll root.find('.dialog-footer')
+    else
+      _n = root.find('.dialog-footer')
+      _b = options.buttons or OK: ->
+      for name of _b
+        if typeof _b[name] is 'function'
+          cls   = 'btn-primary'
+          click = _b[name]
+        else
+          cls   = _b[name].cls   or 'btn-primary'
+          click = _b[name].click or ->
+
+        $("<button type='button' class='btn'>")
+          .addClass(cls).on('click', mkcb click).appendTo(_n).text(name)
+
+    root.appendTo document.body
+    root.hide()
+    root.fadeIn(options.animdelay or 200)
+    hide = -> root.fadeOut(options.animdelay or 200, -> root.remove())
+
+  alert:  (heading, message) -> dialog.create heading: heading, message: message
+  prompt: (heading, onclick) ->
+    field = $("<input type='text' class='form-control' autocomplete='off'>")
+    form  = $("<form>").append(field)
+    form.on 'submit', ->
+      onclick field.val()
+      hide()
+      false
+
+    hide = dialog.create
+      heading: heading
+      messageN: form
+      buttons:
+        OK:
+          cls:   'btn-success'
+          click: -> onclick field.val()
+        Cancel:
+          cls:   'btn-danger'
+          click: -> onclick null
+
+    field.focus()
 
   loading: (node) ->
     $('<span class="loading-cover">')
@@ -89,12 +148,11 @@ window.core =
 
         error: (data, a, b, jq) ->
           dialog.unloading jq
-          dialog.alert dialog.h3(
+          dialog.alert "Error \##{data.status}",
             if      data.status == 404 then 'This board or thread no longer exists.'
             else if data.status == 413 then 'Total size of uploaded data exceeds the capabilities of this server.'
             else if data.status == 500 then 'Internal server error.'
-            else $(data.responseText).find('h3').text() or "Unknown error (#{data.status})"
-          )
+            else $(data.responseText).find('h3').html() or "???"
 
       form.find('[name="parent"]').attr 'value', id
       form.each core.form.addfile
@@ -156,7 +214,7 @@ window.core =
   imageview:
     create: () ->
       core.imageview.node = view = $("""
-        <div class="imageview">
+        <div class="imageview fullscreen">
           <a class="prev"><span class="fa fa-chevron-left"></span></a>
           <a class="next"><span class="fa fa-chevron-right"></span></a>
           <a class="back"><span class="fa fa-times"></span></a>
