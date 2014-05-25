@@ -77,31 +77,28 @@ fileinfo = fd ->
     otherwise     => abort 400 'Unsupported file type'
 
 
-linkdata = link ->
-  _, loc, path, query, fragment = urllib.parse.urlsplit link
-  data        = urllib.parse.parse_qs query
-  data.update $ urllib.parse.parse_qs fragment
-  path, data
-
-
 #: Given an external link, create a file description tuple.
 #: Note that external links always have "external" as one of their classes
 #: and do not have a thumbnail.
 #:
 #: linkinfo :: str -> (str, str, str)
 #:
-linkinfo = link -> if
-  link.startswith 'http://www.youtube.com/watch?' =>
-    _, data = linkdata link
-    # TODO handle `t` (time in `%mm%ss` or `%mm` format.)
-    if 'v' in data => data !! 'v' !! 0, '', 'external', 'youtube'
-       otherwise   => abort 400 'Invalid YouTube link: no video id'
-  (link.startswith 'http://www.youtube.com/v/' or
-   link.startswith 'http://youtu.be/') =>
-    path, data = linkdata link
-    path.split '/' !! -1, '', 'external', 'youtube'
-  # TODO Vocaroo and something else.
-  otherwise => abort 400 'Unsupported link'
+linkinfo = link ->
+  _, loc, path, query, fragment = urllib.parse.urlsplit link
+  data        = urllib.parse.parse_qs query
+  data.update $ urllib.parse.parse_qs fragment
+  if
+    loc in ('www.youtube.com', 'youtube.com') and path == '/watch' =>
+      # TODO handle `t` (time in `%mm%ss` or `%mm` format.)
+      if 'v' in data => data !! 'v' !! 0, '', 'external', 'youtube'
+         otherwise   => abort 400 'Invalid YouTube link: no video id'
+    loc in ('www.youtube.com', 'youtube.com') and path.startswith '/v/' =>
+      path.split '/' !! -1, '', 'external', 'youtube'
+    loc == 'youtu.be' =>
+      path.split '/' !! 1, '', 'external', 'youtube'
+    # TODO Vocaroo and something else.
+    otherwise => abort 400 'Unsupported link'
+
 
 #: Store an uploaded file and create a thumbnail.
 #:
