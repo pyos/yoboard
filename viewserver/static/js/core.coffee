@@ -89,10 +89,11 @@ window.core =
 
         error: (data, a, b, jq) ->
           dialog.unloading jq
-          dialog.alert(
+          dialog.alert dialog.h3(
             if      data.status == 404 then 'This board or thread no longer exists.'
+            else if data.status == 413 then 'Total size of uploaded data exceeds the capabilities of this server.'
             else if data.status == 500 then 'Internal server error.'
-            else $(data.responseText).find('h3') 
+            else $(data.responseText).find('h3').text() or "Unknown error (#{data.status})"
           )
 
       form.find('[name="parent"]').attr 'value', id
