@@ -150,6 +150,9 @@ window.core =
             file = $('<input type="file" name="file" class="upload-file-select hidden">').replaceAll file
             file.on 'change', update
 
+      node.find('.upload-file-button').tooltip html: true, title: form.find('.allowed-file-types').html()
+      node.find('.upload-link-button').tooltip html: true, title: form.find('.allowed-link-types').html()
+
   imageview:
     create: () ->
       core.imageview.node = view = $("""

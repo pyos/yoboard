@@ -8,6 +8,7 @@ import '/flask/render_template'
 import '/jinja2/MemcachedBytecodeCache'
 import '/werkzeug/contrib/cache/SimpleCache'
 
+import 'tools'
 import '../config'
 import '../database/Client'
 
@@ -33,6 +34,10 @@ Yoboard = subclass $ Flask where
           ys !! i = y.root
           ys.extend y.replies
         ys
+
+    @jinja_env.globals.update $ dict'
+      'FILETYPES', tools.ALLTYPES
+      'LINKTYPES', tools.ALLLINKS
 
     @register_blueprint $ import 'core/mod'
     @register_blueprint $ import 'admin/mod'

@@ -40,6 +40,8 @@
 
 -macro post_form()
   %form method="post" enctype="multipart/form-data" action="{{ url_for('.post_create', board=board) }}"
+    %div.hidden.allowed-file-types -> %ul -> {% for f in FILETYPES %} <li>{{f}}</li> {% endfor %}
+    %div.hidden.allowed-link-types -> %ul -> {% for f in LINKTYPES %} <li>{{f}}</li> {% endfor %}
     %input type="hidden" name="parent" value="0"
     %div.input-group
       %input.form-control type="text" name="title" placeholder="Title"

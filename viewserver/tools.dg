@@ -19,6 +19,9 @@ ANIM    = '.gif',
 VIDEO   = '.webm',
 runcmd  = *: argv **: k -> Popen argv **: k
 
+ALLTYPES = STATIC + ANIM + VIDEO
+ALLLINKS = 'YouTube',
+
 
 #: Convert an object into its JSON representation. This should be used
 #: to respond to `application/json` requests; see `jsflag`.
