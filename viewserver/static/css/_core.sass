@@ -67,6 +67,12 @@ body:not(.admin) .admin
   display: none
 
 .dialog
+  text-align: center
+  padding: 25px
+
+  & > *
+    display: inline-block
+
   input
     margin: auto
 
@@ -271,14 +277,6 @@ body > .post-view-tree
   width:  100%
   height: 100%
 
-  .wrap
-    @include fill-parent(20002)
-    @include center-child()
-    top:    10%
-    left:   10%
-    right:  10%
-    bottom: 10%
-
 .imageview
   .fa
     font-size: 2em
@@ -298,6 +296,14 @@ body > .post-view-tree
       left:   2em
       right:  2em
       bottom: 2em
+
+  .wrap
+    @include fill-parent(20002)
+    @include center-child()
+    top:    10%
+    left:   10%
+    right:  10%
+    bottom: 10%
 
   .prev
     @include fill-parent(20004)
