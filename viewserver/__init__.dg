@@ -16,9 +16,7 @@ WebClient = subclass Client where
 
 data = WebClient config.CLIENT_ADDRESS
 app  = dogeweb.app
-  r.either
-    import 'admin/mod'
-    import 'core/mod'
+  import 'core/mod'
   e ~>
     # TODO logging
     response = if

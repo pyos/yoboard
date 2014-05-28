@@ -7,17 +7,18 @@ window.admin =
   enable: (uid) ->
     dialog.loading $(document.body)
     $.cookie 'userid',   uid, path: '/'
-    $.ajax   '/_ismod/',
+    $.ajax   '/api/admin/',
       dataType:   'json'
-      success: -> dialog.unloading $(document.body)
-      error:   -> dialog.unloading $(document.body)
-      statusCode:
-        403: ()     -> $.removeCookie 'userid', path: '/'
-        200: (data) ->
-          if data is true or data.indexOf(core.board) >= 0
-            $('body').addClass 'admin'
-          else
-            $('body').addClass 'admin-not-here'
+      error:   (data) ->
+        dialog.unloading $(document.body)
+        $.removeCookie 'userid', path: '/'
+
+      success: (data) ->
+        dialog.unloading $(document.body)
+        if data is true or data.indexOf(core.board) >= 0
+          $('body').addClass 'admin'
+        else if data isnt false
+          $('body').addClass 'admin-not-here'
 
   request: (id, lock, path, opts) ->
     dialog.loading lock

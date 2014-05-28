@@ -1,5 +1,6 @@
 import '/dogeweb'
 import '/dogeweb/r'
+import '/dogeweb/jsonify'
 
 import 'data'
 import 'config'
@@ -25,6 +26,15 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'MAX_UPLOADS'
   'NOT_EMPTY'
   'IMAGES_ALWAYS_BUMP'
+
+
+admin = fn anyone: False -> r.router $ **: k ~>
+  @_uid = @cookies.get 'userid' None
+  @_usr = @_uid and data.user @_uid
+  board = k.get 'board' None
+  allow = anyone or @_usr is True or board in @_usr
+  if allow     => 200, jsonify @_usr where fn self **: k
+     otherwise => 403, jsonify False
 
 
 root = ~> if
@@ -102,11 +112,28 @@ post_create = board ~>
 mod = r.file
   '/', root
   '/api/', 'json', ~> render_template self 'api.hamlike'
+  '/api/admin/', admin anyone: True $ _ ->
+
   '/<str:board>/', r.method
-    'GET',  board
-    'POST', post_create
+    'GET',    board
+    'POST',   post_create
+    'PUT',    admin $ board ~> data.board_create board (@form !! 'title') (@form !! 'cat')
+    'DELETE', admin $ board ~> data.board_remove board
+
   '/<str:board>/page/<int:page>/', 'board_page', board
   '/<str:board>/post/<int:id>/', post
-  '/<str:board>/<int:thread>/', thread
+
+  '/<str:board>/<int:thread>/', r.method
+    'GET',    thread
+    'DELETE', admin $ board thread ~> data.post_remove board thread
+
+  '/<str:board>/<int:thread>/attach', r.method
+    'PUT',    admin $ board thread ~> data.thread_set_attached board thread True
+    'DELETE', admin $ board thread ~> data.thread_set_attached board thread False
+
+  '/<str:board>/<int:thread>/close', r.method
+    'PUT',    admin $ board thread ~> data.thread_set_closed board thread True
+    'DELETE', admin $ board thread ~> data.thread_set_closed board thread False
+
   '/<str:board>/<int:thread>/tree/', 'thread_tree', thread_render 0 'tree'
   '/<str:board>/<int:thread>/list/', 'thread_list', thread_render 1 'list'
