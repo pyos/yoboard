@@ -21,6 +21,10 @@ app  = dogeweb.app
     import 'core/mod'
   e ~>
     # TODO logging
-    dogeweb.response.Response e.code e.headers $ if
-      @isjson   => dogeweb.jsonify
-      otherwise => (tools.render_template self 'error.hamlike' err: e code: e.code).encode 'utf-8'
+    response = if
+      @isjson   => dogeweb.jsonify $ dict' error: e.name description: e.description
+      otherwise => yield from $ dogeweb.response.responsify $ 
+        tools.render_template self 'error.hamlike' err: e code: e.code
+    response.code = e.code
+    response.headers.replace e.headers
+    response
