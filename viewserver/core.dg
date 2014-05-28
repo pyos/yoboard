@@ -26,9 +26,6 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'NOT_EMPTY'
   'IMAGES_ALWAYS_BUMP'
 
-JSON = 'application/json'
-HTML = 'text/html'
-
 
 root = ~> if
   @isjson   => jsreturn $ dict config: CONFIG boards: data.boards!
