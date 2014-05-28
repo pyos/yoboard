@@ -1,61 +1,58 @@
-import '/json/dumps'
-import '/functools/update_wrapper'
-
-import '/flask/Blueprint'
-import '/flask/request'
-import '/flask/g'
+import '/dogeweb'
+import '/dogeweb/r'
+import '/dogeweb/jsonify'
 
 import 'data'
 import 'config'
 
 
-reqhost = fn ->
-  update_wrapper wrapped: fn $ **: k -> if
-    g.usr is True => fn **: k
-    otherwise     => ('', 403)
+reqdata = fn -> r.router $ **: k ~>
+  @_uid = @cookies.get 'userid' None
+  @_usr = @_uid and data.user @_uid
+  if not @_usr => 403, 'null'
+     otherwise => fn self **: k
 
 
-reqboard = fn ->
-  update_wrapper wrapped: fn $ board **: k -> if
-    g.usr is True  => fn board: board **: k
-    board in g.usr => fn board: board **: k
-    otherwise      => ('', 403)
+reqhost = fn -> reqdata $ **: k ~> if
+  @_usr is True => fn self **: k
+  otherwise     => 403, ''
 
 
-method_switch = put delete ->
-  update_wrapper wrapped: put $ **: k -> if
-    request.method == 'PUT'    => ('', 200) where put    **: k
-    request.method == 'DELETE' => ('', 200) where delete **: k
+reqboard = fn -> reqdata $ board **: k ~> if
+  @_usr is True  => fn self board: board **: k
+  board in @_usr => fn self board: board **: k
+  otherwise      => 403, ''
 
 
-board = reqhost $ method_switch
-  board -> data.board_create board (request.form !! 'title') (request.form !! 'cat')
-  board -> data.board_remove board
+method_switch = put delete -> r.method
+  'PUT',    **: k ~> (200, '' where put    self **: k)
+  'DELETE', **: k ~> (200, '' where delete self **: k)
 
 
-tree_attach = reqboard $ method_switch
-  board tree -> data.thread_set_attached board tree True
-  board tree -> data.thread_set_attached board tree False
+board = method_switch
+  reqhost $ board ~> data.board_create board (@form !! 'title') (@form !! 'cat')
+  reqhost $ board ~> data.board_remove board
 
 
-tree_close  = reqboard $ method_switch
-  board tree -> data.thread_set_closed board tree True
-  board tree -> data.thread_set_closed board tree False
+tree_attach = method_switch
+  reqboard $ board tree ~> data.thread_set_attached board tree True
+  reqboard $ board tree ~> data.thread_set_attached board tree False
 
 
-tree_remove = reqboard $ method_switch
-  board tree ->
-  board tree -> data.post_remove board tree
+tree_close = method_switch
+  reqboard $ board tree ~> data.thread_set_closed board tree True
+  reqboard $ board tree ~> data.thread_set_closed board tree False
 
 
-# TODO: /<board>/bans/ or something.
-mod = Blueprint 'admin' __name__
-mod.add_url_rule '/_ismod/'                   '_ismod' $ -> (dumps g.usr, 200)
-mod.add_url_rule '/<board>/'                  None board       methods: (list' 'PUT' 'DELETE')
-mod.add_url_rule '/<board>/<int:tree>/attach' None tree_attach methods: (list' 'PUT' 'DELETE')
-mod.add_url_rule '/<board>/<int:tree>/close'  None tree_close  methods: (list' 'PUT' 'DELETE')
-mod.add_url_rule '/<board>/<int:tree>/'       None tree_remove methods: (list' 'DELETE')
-mod.before_request $ ->
-  g.uid = request.cookies.get 'userid' None
-  g.usr = if g.uid => data.user g.uid
-  if not g.usr => ('null', 403)
+tree_remove = method_switch
+  reqboard $ board tree ~>
+  reqboard $ board tree ~> data.post_remove board tree
+
+
+mod = r.file
+  '/_ismod/', reqdata $ **: k ~> jsonify @_usr
+  # TODO: /<board>/bans/ or something.
+  '/<str:board>/', board
+  '/<str:board>/<int:tree>/attach', tree_attach
+  '/<str:board>/<int:tree>/close',  tree_close
+  '/<str:board>/<int:tree>/',       tree_remove

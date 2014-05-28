@@ -10,10 +10,10 @@
 -block options
   -if this[2] > 1
     -if page
-      %li -> %a href="{{ url_for('.board', board=board, page=page - 1) }}" -> &laquo;
+      %li -> %a href="{{ url_for('.board_page', board=board, page=page - 1) }}" -> &laquo;
     %li.disabled -> %a -> p. {{ page }}
     -if this[2] > page + 1
-      %li -> %a href="{{ url_for('.board', board=board, page=page + 1) }}" -> &raquo;
+      %li -> %a href="{{ url_for('.board_page', board=board, page=page + 1) }}" -> &raquo;
 
 -block main
   %h1.text-center

@@ -5,9 +5,8 @@ import '/functools/update_wrapper'
 import '/subprocess/Popen'
 import '/subprocess/PIPE'
 
-import '/flask/abort'
-import '/flask/jsonify'
-import '/flask/request'
+import '/dogeweb/abort'
+import '/dogeweb/jsonify'
 
 import '../config'
 import '../database/Record'
@@ -44,23 +43,6 @@ jsprepare = x -> if
   otherwise   => x
 
 
-#: Check whether the client wants a JSON response.
-#:
-#: isjson :: -> bool
-#:
-isjson = ->
-  json = request.accept_mimetypes !! 'application/json'
-  html = request.accept_mimetypes !! 'text/html'
-  html < json
-
-
-#: Check whether the client is a browser and the request was sent via XHR.
-#:
-#: isajax :: -> bool
-#:
-isajax = -> request.headers.get 'X-Requested-With' == 'XMLHttpRequest'
-
-
 #: Given a file upload, give it a name, a thumbnail, and a class.
 #: If no class could be given, abort the request. Note that neither the file
 #: nor its thumbnail are saved yet; better confirm with the database first.
@@ -68,7 +50,7 @@ isajax = -> request.headers.get 'X-Requested-With' == 'XMLHttpRequest'
 #: fileinfo :: FileIO -> (str, str, str)
 #:
 fileinfo = fd ->
-  ext   = path.splitext fd.filename !! 1
+  ext   = path.splitext fd.name !! 1
   name  = ''.join (where for _ in range NAMELEN => yield $ choice BASE65)
   name + ext, name + '.m.jpg', if
     ext in STATIC => ''
@@ -106,15 +88,53 @@ linkinfo = link ->
 #:   animated images:: the first frame is treated as a static image.
 #:   videos::          same as for animated images, only `ffmpeg` is required.
 #:
-#: fdsave :: FileIO (str, str, str) -> a
+#: fdsave :: FileIO (str, str, str) -> coroutine a
 #:
 fdsave = fd (full, thumb, cls) ->
   full  = path.join config.UPLOAD_DIR full
   thumb = path.join config.UPLOAD_DIR thumb
   size  = '{0}x{0}>'.format config.THUMBNAIL_SIZE
-  fd.save full
+  yield from $ fd.save full
   if cls == ''      => runcmd 'convert' (full + '[0]') '-resize' size thumb
      cls == 'anim'  => runcmd 'convert' (full + '[0]') '-resize' size thumb
      cls == 'video' =>
        ff = runcmd stdout: PIPE      'ffmpeg' '-v' 'quiet' '-i' full '-vframes' '1' '-f' 'image2' '-'
        im = runcmd stdin:  ff.stdout 'convert' '-' '-resize' size thumb
+
+
+import '/os'
+import '/time'
+import '/random/choice'
+
+import '/jinja2/Environment'
+import '/jinja2/PackageLoader'
+import '/jinja2/MemcachedBytecodeCache'
+import '/werkzeug/contrib/cache/SimpleCache'
+
+jinja_env = Environment loader: (PackageLoader __package__ 'templates')
+jinja_env.add_extension  $ import '/hamlike/HamlikeExtension'
+jinja_env.add_extension  $ import 'markup/MdExtension'
+jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
+jinja_env.autoescape     = True
+jinja_env.trim_blocks    = True
+jinja_env.lstrip_blocks  = True
+jinja_env.filters.update $ dict'
+  'randfile', fd -> choice (os.listdir fd or list' None)
+  'relpath',  fp -> os.path.relpath fp $ os.path.dirname config.__file__
+  'strftime', ts fmt: '%d.%m.%Y %H:%M:%S' -> time.strftime fmt $ time.localtime ts
+  'flattree', xs ->
+    ys = list' xs
+    for (i, y) in enumerate ys =>
+      ys !! i = y.root
+      ys.extend y.replies
+    ys
+
+jinja_env.globals.update $ dict'
+  'config',    config
+  'FILETYPES', ALLTYPES
+  'LINKTYPES', ALLLINKS
+
+
+render_template = _n **: args ~>
+  tpl = jinja_env.get_template _n
+  tpl.render url_for: @url_for **: args

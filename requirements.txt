@@ -1,4 +1,5 @@
 Flask
 pygments
 https://github.com/pyos/dg/zipball/master
+https://github.com/pyos/dogeweb/zipball/master
 https://github.com/pyos/jinja-hamlike/zipball/master

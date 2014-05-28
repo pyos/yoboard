@@ -1,62 +1,12 @@
-import '/os'
-import '/time'
-import '/random/choice'
-
-import '/flask/Flask'
-import '/flask/abort'
-import '/flask/render_template'
-import '/jinja2/MemcachedBytecodeCache'
-import '/werkzeug/contrib/cache/SimpleCache'
+import '/dogeweb'
+import '/dogeweb/r'
+import '/dogeweb/abort'
 
 import 'tools'
 import '../config'
 import '../database/Client'
 
 
-Yoboard = subclass $ Flask where
-  __init__ = *: a upload_dir: 'upload' **: k ~>
-    Flask.__init__ self *: a **: k
-
-    @config.from_object config
-    @jinja_env.add_extension  $ import '/hamlike/HamlikeExtension'
-    @jinja_env.add_extension  $ import 'markup/MdExtension'
-    @jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
-    @jinja_env.autoescape     = True
-    @jinja_env.trim_blocks    = True
-    @jinja_env.lstrip_blocks  = True
-    @jinja_env.filters.update $ dict'
-      'randfile', fd -> choice (os.listdir fd or list' None)
-      'relpath',  fp -> os.path.relpath fp $ os.path.dirname config.__file__
-      'strftime', ts fmt: '%d.%m.%Y %H:%M:%S' -> time.strftime fmt $ time.localtime ts
-      'flattree', xs ->
-        ys = list' xs
-        for (i, y) in enumerate ys =>
-          ys !! i = y.root
-          ys.extend y.replies
-        ys
-
-    @jinja_env.globals.update $ dict'
-      'FILETYPES', tools.ALLTYPES
-      'LINKTYPES', tools.ALLLINKS
-
-    @register_blueprint $ import 'core/mod'
-    @register_blueprint $ import 'admin/mod'
-    @register_error_handler 400 @onerror
-    @register_error_handler 403 @onerror
-    @register_error_handler 404 @onerror
-    @register_error_handler 500 @onexcept
-    @add_url_rule '/404/' '404' $ -> abort 404 'As requested'
-    @add_url_rule '/403/' '403' $ -> abort 403 'Some text here'
-    @add_url_rule '/400/' '400' $ -> abort 400 'Not really'
-    @add_url_rule '/500/' '500' $ -> except
-      err => raise $ WhyError 'yo dawg, we heard you like errors'
-      err :: WhyError => raise $ WhyError 'seriously, why?'
-
-  onexcept = e ~> render_template 'error.hamlike' err: e code: 500,    500
-  onerror  = e ~> render_template 'error.hamlike' err: e code: e.code, e.code
-
-
-WhyError  = subclass Exception where
 WebClient = subclass Client where
   call = name args ~>
     r = Client.call self name args
@@ -65,4 +15,12 @@ WebClient = subclass Client where
     r
 
 data = WebClient config.CLIENT_ADDRESS
-app  = Yoboard __name__
+app  = dogeweb.app
+  r.either
+    import 'admin/mod'
+    import 'core/mod'
+  e ~>
+    # TODO logging
+    dogeweb.response.Response e.code e.headers $ if
+      @isjson   => dogeweb.jsonify
+      otherwise => (tools.render_template self 'error.hamlike' err: e code: e.code).encode 'utf-8'
