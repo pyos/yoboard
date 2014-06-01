@@ -39,7 +39,6 @@ commands = data ->
   VC_BOARD  = defaultdict dict  # :: {str: {int: str}}
   VC_THREAD = defaultdict dict  # :: {(str, int): {int: str}}
 
-  post_cleanup = None
   post_cleanup = board num ->
     tree   = (RP_TREES !! board).pop num
     thread = (RP_TREES !! board).get tree.root.thread None
