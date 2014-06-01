@@ -86,8 +86,7 @@ post_create = board ~>
   sage   = bool $ @form.get 'sage'   False
   title  =        @form.get 'title'  ''
   text   =        @form.get 'text'   ''
- #ip     =        request.remote_addr
-  ip     = '0.0.0.0'
+  ip     =        @address
   files  = list $ filter (f -> getattr f 'name' '') $ @files.getall 'file'
   fnames = list $ map fileinfo files
   fnames.extend $ map linkinfo $ filter (x -> x) $ @form.getall 'link'
