@@ -30,6 +30,7 @@
             -block options
     -block main
     %footer
+      -block footer_addon
       %small
         + <a href="https://github.com/pyos/yoboard"><span class="fa fa-github"></span> yoboard</a>
         | <a href="{{ url_for('json') }}">JSON API</a>

@@ -34,8 +34,15 @@ a.glyphicon, a.fa, .navbar a
 
 footer
   margin-top: 15px
-  padding:    15px
   border-top: 1px solid $hr-color
+
+  & > *
+    padding: 15px
+    display: block
+
+    @media (min-width: 768px)
+      vertical-align: middle
+      display: inline-block
 
 .navbar:not(.navbar-fixed-top)
   margin: -15px -15px 15px -15px
@@ -51,6 +58,21 @@ footer
     &:not(:last-child):after
       content: " / "
       opacity: 0.5
+
+.pagination-custom
+  margin: 0
+  background: $post-reply-bg
+  border: 1px solid $post-reply-border
+  border-top: none
+
+  & > li
+    display: inline
+
+    & > *
+      padding: 3px 6px
+
+    &:not(:last-child):after
+      content: "|"
 
 // Admin tools
 
