@@ -28,7 +28,7 @@ CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
   'IMAGES_ALWAYS_BUMP'
 
 
-admin = fn anyone: False -> r.router $ **: k ~>
+admin = r.router $ fn anyone: False -> **: k ~>
   @_uid = @cookies.get 'userid' None
   @_usr = @_uid and data.user @_uid
   board = k.get 'board' None
