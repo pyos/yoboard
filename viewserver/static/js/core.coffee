@@ -144,7 +144,6 @@ window.core =
           else
             core.form.reply id, data
             core.form.hide()
-            form.parents('.post-form').on 'hidden.bs.collapse', -> $(this).remove()
 
         error: (data, a, b, jq) ->
           dialog.unloading jq
@@ -339,6 +338,7 @@ $ ->
     .on 'click',      '.post-anchor',     -> core.preview.toggle $(this), core.preview.idof $(this)
     .on 'mouseenter', '.post-anchor',     -> core.preview.show   $(this), core.preview.idof $(this)
     .on 'mouseleave', '.post-anchor',     -> core.preview.hide   $(this), core.preview.idof $(this)
+    .on 'hidden.bs.collapse', '.post-form', -> $(this).remove()
 
   for t in core.theme.choice
     $("<li id='style-entry-#{t}' />").addClass("board-style-type")
