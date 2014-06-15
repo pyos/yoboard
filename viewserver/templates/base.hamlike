@@ -33,5 +33,5 @@
       -block footer_addon
       %small
         + <a href="https://github.com/pyos/yoboard"><span class="fa fa-github"></span> yoboard</a>
-        | <a href="{{ url_for('json') }}">JSON API</a>
+        | <a href="{{ url_for('.json') }}">JSON API</a>
         | <a id="admin-mode">Admin mode: </a>
