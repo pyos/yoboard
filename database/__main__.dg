@@ -15,7 +15,7 @@ import '../config'
 
 
 Main = subclass object where
-  __init__ = @datafile @aofile cmdfactory ~>
+  __init__ = @datafile @aofile (@sofamily, @soaddr) @autosave cmdfactory ~>
     @dirty = False
     @mtime = except
       err => (os.stat @datafile).st_mtime
@@ -38,8 +38,8 @@ Main = subclass object where
       dirty: @dirty
     None
 
-  start = ~> if @aofile =>
-    except
+  start = ~>
+    @aofile => except
       err => fd = gzip.open @aofile 'rb'
       err :: FileNotFoundError =>
       err is None => with fd =>
@@ -52,8 +52,39 @@ Main = subclass object where
               (@cmds !! cmd) *: args
           err :: EOFError  => break!
           err :: Exception =>
-
     # TODO open AOF for writing here
+
+    server = socket @sofamily
+    server.bind @soaddr
+    server.listen 128
+
+    dumps   = pickle.dumps  # Attribute cache, I guess?
+    read    = dict' (server, None)
+    lock, _ = repeat @autosave $ -> @dump
+
+    except
+      _ => while True => except
+        err => sk = select read () () !! 0
+        # Obviously, signals don't wait for syscalls to finish.
+        # This exception is what we get on SIGINT/SIGTERM.
+        err :: InterruptedError => break!
+        err is None => for s in sk => if
+          s is server =>
+            sock, _ = server.accept!
+            # All pickles end with a STOP (`.`) opcode.
+            # Normally, it would be hard to find with all the strings and stuff.
+            # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
+            read !! sock = (pickle.Unpickler $ sock.makefile 'rb' 8192).load
+          otherwise => except
+            e =>
+              cmd, args = (read !! s)!
+              # We hold that lock created in `repeat` to prevent `save`
+              # from forking off with an inconsistent database.
+              s.sendall $ dumps $ with lock => @run cmd args
+            e :: EOFError             => read !!~ s
+            e :: ConnectionResetError => read !!~ s
+            e :: Exception            => s.sendall $ dumps e
+      finally => @dump
 
   run = cmd args ~>
     cmd in @wrob =>
@@ -98,48 +129,7 @@ repeat = interval fn -> (lock, stop.set) where
   thread.start!
 
 
-# A closure is simply faster that the equivalent in a global namespace.
-runserver = aof (family, addr) ->
-  aof.start
-  # Can't just KeyboardInterrupt a database.
-  # That may leave it in a corrupt state.
-  run = True
-  # Even though we handle both relevant signals, using `atexit`
-  # allows us to save the data even if an unexpected exception occurs.
-  lock, _ = repeat config.AUTOSYNC_INTERVAL $ atexit.register $ -> aof.dump
-  signal.signal signal.SIGINT  $ _ _ -> (run = False)
-  signal.signal signal.SIGTERM $ _ _ -> (run = False)
-
-  server = socket family
-  server.bind addr
-  server.listen 128
-  # POSIX socket API states that UNIX sockets must be unlinked manually.
-  if family is AF_UNIX and not (addr.startswith '\0') => atexit.register $ -> os.unlink addr
-
-  dumps = pickle.dumps  # Attribute cache, I guess?
-  elist = list!         # Creating empty lists is probably expensive.
-  read  = dict' (server, None)
-
-  while run => except
-    err => sk = select read elist elist !! 0
-    # Obviously, signals don't wait for syscalls to finish.
-    # This exception is what we get on SIGINT/SIGTERM.
-    err :: InterruptedError => run = False
-    err is None => for s in sk => if
-      s is server =>
-        sock, _ = server.accept!
-        # All pickles end with a STOP (`.`) opcode.
-        # Normally, it would be hard to find with all the strings and stuff.
-        # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
-        read !! sock = (pickle.Unpickler $ sock.makefile 'rb' 8192).load
-      otherwise => except
-        e =>
-          cmd, args = (read !! s)!
-          # We hold that lock created in `repeat` to prevent `save`
-          # from forking off with an inconsistent database.
-          s.sendall $ dumps $ with lock => aof.run cmd args
-        e :: EOFError             => read !!~ s
-        e :: ConnectionResetError => read !!~ s
-        e :: Exception            => s.sendall $ dumps e
-
-runserver (Main config.DATABASE config.DATABASE_AOF commands) config.SERVER_ADDRESS
+signal.signal signal.SIGINT  $ _ _ -> raise KeyboardInterrupt
+signal.signal signal.SIGTERM $ _ _ -> raise SystemExit
+srv = Main config.DATABASE config.DATABASE_AOF config.SERVER_ADDRESS config.AUTOSYNC_INTERVAL commands
+srv.start
