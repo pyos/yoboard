@@ -18,7 +18,8 @@ python -m yoboard.database &
 # Create an admin user.
 python -m yoboard.database.cli <<< 'd.user_set "YOUR_ADMIN_PASSWORD" True'
 # Start the HTTP server.
-python -m yoboard.viewserver  # or `some_wsgi_server yoboard.viewserver:app`
+python -m yoboard.viewserver  #=> http://127.0.0.1:8000/
+# or `gunicorn -k dogeweb.gunicorn.Worker yoboard.viewserver:app`
 ```
 
 #### Accessing the database directly
