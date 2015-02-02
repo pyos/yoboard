@@ -67,6 +67,8 @@ Main = subclass object where
         err => sk = select read () () !! 0
         # Obviously, signals don't wait for syscalls to finish.
         # This exception is what we get on SIGINT/SIGTERM.
+        # NOTE: we only handle this to avoid writing long tracebacks to stderr.
+        #       Appropriate signal handlers should still raise an exception.
         err :: InterruptedError => break!
         err is None => for s in sk => if
           s is server =>
