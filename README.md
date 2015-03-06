@@ -7,6 +7,13 @@ yoboard = yoba & imageboard where
      "http://lurkmore.so/images/8/8d/1238521509967.png"
 ```
 
+### Requirements
+
+  * Python 3.4+ w/ pip
+  * Everything in `requirements.txt`
+  * imagemagick (to allow image uploads; set `FILES_*` to empty lists to disable)
+  * ffmpeg (to allow video uploads; set `FILES_VIDEO` to an empty list to disable)
+
 ### Usage
 
 ```sh

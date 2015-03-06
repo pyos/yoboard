@@ -67,3 +67,9 @@ MAX_TEXT_LENGTH  = 2000
 MAX_TEXT_LINES   = 20
 MAX_UPLOADS      = 5
 NOT_EMPTY        = True  # a post must have some text and/or files
+
+# Allowed file extensions. Note that `FILES_STATIC` and `FILES_ANIM` should be
+# supported by imagemagick, while ffmpeg is used to handle `FILES_VIDEO`.
+FILES_STATIC  = ['.jpg', '.jpeg', '.png']
+FILES_ANIM    = ['.gif']
+FILES_VIDEO   = ['.webm']

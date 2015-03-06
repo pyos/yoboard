@@ -1,29 +1,155 @@
 import '/dogeweb'
 import '/dogeweb/r'
-import '/dogeweb/abort'
+import '/dogeweb/property'
 
-import 'tools'
+import 'markup'
 import 'static'
+import 'templates'
+import 'tools/jsreturn'
+import 'tools/fileinfo'
+import 'tools/linkinfo'
+import 'tools/fdsave'
+
 import '../config'
 import '../database/Client'
 
 
-WebClient = subclass Client where
+data = (subclass Client) config.CLIENT_ADDRESS where
   call = name args ~>
     r = Client.call self name args
-    r :: OverflowError => abort 403 'Closed or over capacity.'
-    r :: KeyError      => abort 404 $ str r
+    r :: OverflowError => dogeweb.abort 403 'Closed or over capacity.'
+    r :: KeyError      => dogeweb.abort 404 $ str r
     r
 
-data = WebClient config.CLIENT_ADDRESS
-app  = dogeweb.app static_dir: (head static.__path__)
-  import 'core/mod'
-  e ~>
-    # TODO logging
-    response = if
-      @isjson   => dogeweb.jsonify $ dict' error: e.name description: e.description
-      otherwise => yield from $ dogeweb.response.responsify $ 
-        tools.render_template self 'error.hamlike' err: e code: e.code
-    response.code = e.code
-    response.headers.replace e.headers
-    response
+
+CONFIG = dict $ map (k -> (k, getattr config k)) $ set'
+  # These fields are sent to the client on JSON requests to `/`.
+  # The assumption is that some of these may be useful in external apps, e.g.
+  # to check posts before sending them.
+  'SITE_NAME'
+  'SITE_TITLE'
+  'POSTS_UNTIL_AUTOSAGE'
+  'POSTS_PER_THREAD'
+  'MAX_TITLE_LENGTH'
+  'MAX_TEXT_LENGTH'
+  'MAX_TEXT_LINES'
+  'MAX_UPLOADS'
+  'NOT_EMPTY'
+  'IMAGES_ALWAYS_BUMP'
+
+
+admin = fn anyone: False -> r.wraps fn $ **: k ~>
+  @_uid = @cookies.get 'userid' None
+  @_usr = @_uid and data.user @_uid
+  board = k.get 'board' None
+  allow = anyone or @_usr is True or board in @_usr
+  if allow     => 200, @jsonify @_usr where fn self **: k
+     otherwise => 403, @jsonify False
+
+
+root = ~> if
+  @isjson   => jsreturn $ dict config: CONFIG boards: data.boards!
+  otherwise => @render 'root.hamlike' boards: data.boards!
+
+
+board = board page: 0 ~> if
+  @isjson   => jsreturn $ dict $ zip ('title', 'threads', 'pages') $ data.board board page
+  otherwise =>
+    data.get_cached_board board page or
+      result = @render 'board.hamlike'
+        this:   (data.board board page)
+        page:    page
+        board:   board
+      data.set_cached_board board page result
+      result
+
+
+thread = board thread ~> if
+  @isjson   => jsreturn $ data.thread board thread
+  otherwise =>
+    view = @cookies.get 'view_type'
+    @redirect $ @url_for board: board thread: thread $ if
+      view == 'tree' => '.thread_tree'
+      otherwise      => '.thread_list'
+
+
+thread_render = t view -> board thread ~>
+  data.get_cached_thread board thread t or
+    result = @render 'thread.hamlike'
+      this: (data.thread board thread)
+      view:  view
+      board: board
+    data.set_cached_thread board thread t result
+    result
+
+
+post = board id ~> if
+  @isjson => jsreturn $ data.post board id
+  @isxhr  => @render 'post.1.hamlike'
+    this:  (data.post board id)
+    board:  board
+  otherwise => @redirect $ @url_for '.thread' board: board thread: (data.post board id).thread
+
+
+post_create = board ~>
+  parent = int  $ @form.get 'parent' 0
+  sage   = bool $ @form.get 'sage'   False
+  title  =        @form.get 'title'  ''
+  text   =        @form.get 'text'   ''
+  ip     =        @address
+  files  = list $ filter (f -> getattr f 'name' '') $ @files.getall 'file'
+  fnames = list $ map fileinfo files
+  fnames.extend $ map linkinfo $ filter (x -> x) $ @form.getall 'link'
+
+  config.NOT_EMPTY and not (text or fnames) => @abort 400 'Either a message or a file is required.'
+  config.MAX_UPLOADS      < len fnames      => @abort 400 'Too many files.'
+  config.MAX_TITLE_LENGTH < len title       => @abort 400 'The title is too long.'
+  config.MAX_TEXT_LENGTH  < len text        => @abort 400 'The text is too long.'
+  config.MAX_TEXT_LINES <= text.count '\n'  => @abort 400 'The text contains too many lines.'
+
+  htext  = markup.parse text
+  thread = if
+    parent == 0 => data.thread_create board        title sage htext fnames ip
+    otherwise   => data.post_create   board parent title sage htext fnames ip
+
+  for (file, info) in zip files fnames => yield from $ fdsave file info
+  # Redirecting to `.thread` may be more useful if not for the fact
+  # that forms should be submitted though AJAX/external apps.
+  @redirect $ @url_for '.post' board: board id: thread
+
+
+app = dogeweb.app static_dir: (head static.__path__)
+  templates.extend $ r.path
+    '/',     'root', r.get root
+    '/api/', 'json', r.get $ ~> @render 'api.hamlike'
+    '/api/admin/',   r.get $ admin anyone: True $ _ ->
+
+    '/<str:board>/', 'board', r.method
+      'GET',    board
+      'POST',   post_create
+      'PUT',    admin $ board ~> data.board_create board (@form !! 'title') (@form !! 'cat')
+      'DELETE', admin $ board ~> data.board_remove board
+
+    '/<str:board>/page/<int:page>/', 'board_page', r.get board
+    '/<str:board>/post/<int:id>/',   'post',       r.get post
+
+    '/<str:board>/<int:thread>/', 'thread', r.method
+      'GET',    thread
+      'DELETE', admin $ board thread ~> data.post_remove board thread
+
+    '/<str:board>/<int:thread>/attach', r.method
+      'PUT',    admin $ board thread ~> data.thread_set_attached board thread True
+      'DELETE', admin $ board thread ~> data.thread_set_attached board thread False
+
+    '/<str:board>/<int:thread>/close', r.method
+      'PUT',    admin $ board thread ~> data.thread_set_closed board thread True
+      'DELETE', admin $ board thread ~> data.thread_set_closed board thread False
+
+    '/<str:board>/<int:thread>/tree/', 'thread_tree', r.get $ thread_render 0 'tree'
+    '/<str:board>/<int:thread>/list/', 'thread_list', r.get $ thread_render 1 'list'
+
+  templates.extend $ err ~>
+    err.code == 500 => @log.error 'unhandled exception' exc_info: True
+    err.code, err.headers, if
+      @isjson   => @jsonify $ dict error: err.name description: err.description
+      otherwise => @render 'error.hamlike' err: err code: err.code

@@ -1,0 +1,61 @@
+import '/jinja2'
+import '/dogeweb'
+
+env = jinja2.Environment!
+env.add_extension $ import '/hamlike/HamlikeExtension'
+env.add_extension $ import '../markup/MdExtension'
+env.loader        = jinja2.FileSystemLoader $ head __path__
+env.autoescape    = True
+env.trim_blocks   = True
+env.lstrip_blocks = True
+
+
+import '/os'
+import '/time'
+import '/random'
+
+import '../tools'
+import '../../config'
+
+
+env.globals.update $ dict'
+  'config',    config
+  'FILETYPES', tools.ACCEPTED_FILES
+  'LINKTYPES', tools.ACCEPTED_LINKS
+
+
+env.filters.update $ dict'
+  #: Return the name of a random file from a directory or None if it's empty.
+  #:
+  #: randfile :: str -> Maybe str
+  #:
+  'randfile', fd -> random.choice $ os.listdir fd or [None]
+
+  #: Make a path relative to the directory of the viewserver.
+  #:
+  #: relpath :: str -> str
+  #:
+  'relpath', fp -> os.path.relpath fp $ os.path.dirname config.__file__
+
+  #: Format a UNIX timestamp. Obviously.
+  #:
+  #: strftime :: int (Maybe str) -> str
+  #:
+  'strftime', ts fmt: '%d.%m.%Y %H:%M:%S' -> time.strftime fmt $ time.localtime ts
+
+  #: Given a `Tree` or a `Thread`, return a list of all nodes in that tree.
+  #:
+  #: flattree :: Tree -> [Post]
+  #:
+  'flattree', xs ->
+    ys = [xs]
+    for (i, y) in enumerate ys =>
+      ys !! i = y.root
+      ys.extend y.replies
+    ys
+
+
+render = __name **: args -> env.get_template __name |>.render **: args
+extend = handler -> dogeweb.r.wraps handler $ *: a **: k ~>
+  @render = bind render request: self url_for: @url_for
+  handler self *: a **: k
