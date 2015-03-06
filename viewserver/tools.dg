@@ -108,13 +108,10 @@ import '/random/choice'
 
 import '/jinja2/Environment'
 import '/jinja2/PackageLoader'
-import '/jinja2/MemcachedBytecodeCache'
-import '/werkzeug/contrib/cache/SimpleCache'
 
 jinja_env = Environment loader: (PackageLoader __package__ 'templates')
 jinja_env.add_extension  $ import '/hamlike/HamlikeExtension'
 jinja_env.add_extension  $ import 'markup/MdExtension'
-jinja_env.bytecode_cache = MemcachedBytecodeCache SimpleCache!
 jinja_env.autoescape     = True
 jinja_env.trim_blocks    = True
 jinja_env.lstrip_blocks  = True
