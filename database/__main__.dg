@@ -63,29 +63,22 @@ Main = subclass object where
     lock, _ = repeat @autosave $ -> @dump
 
     except
-      _ => while True => except
-        err => sk = select read () () !! 0
-        # Obviously, signals don't wait for syscalls to finish.
-        # This exception is what we get on SIGINT/SIGTERM.
-        # NOTE: we only handle this to avoid writing long tracebacks to stderr.
-        #       Appropriate signal handlers should still raise an exception.
-        err :: InterruptedError => break!
-        err is None => for s in sk => if
-          s is server =>
-            sock, _ = server.accept!
-            # All pickles end with a STOP (`.`) opcode.
-            # Normally, it would be hard to find with all the strings and stuff.
-            # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
-            read !! sock = (pickle.Unpickler $ sock.makefile 'rb' 8192).load
-          otherwise => except
-            e =>
-              cmd, args = (read !! s)!
-              # We hold that lock created in `repeat` to prevent `save`
-              # from forking off with an inconsistent database.
-              s.sendall $ dumps $ with lock => @run cmd args
-            e :: EOFError             => read !!~ s
-            e :: ConnectionResetError => read !!~ s
-            e :: Exception            => s.sendall $ dumps e
+      _ => while True => for s in select read () () !! 0 => if
+        s is server =>
+          sock, _ = server.accept!
+          # All pickles end with a STOP (`.`) opcode.
+          # Normally, it would be hard to find with all the strings and stuff.
+          # `Unpickler` can find it, but it needs *a lot* of calls to `read`.
+          read !! sock = (pickle.Unpickler $ sock.makefile 'rb' 8192).load
+        otherwise => except
+          e =>
+            cmd, args = (read !! s)!
+            # We hold that lock created in `repeat` to prevent `save`
+            # from forking off with an inconsistent database.
+            s.sendall $ dumps $ with lock => @run cmd args
+          e :: EOFError             => read !!~ s
+          e :: ConnectionResetError => read !!~ s
+          e :: Exception            => s.sendall $ dumps e
       finally => @dump
 
   run = cmd args ~>
