@@ -1,6 +1,6 @@
-import '/builtins'
-builtins.Client = import 'Client'
-builtins.config = import '../config'
-builtins.d = Client config.CLIENT_ADDRESS
-builtins.d.reconnect
+import '/dg/BUILTINS'
+BUILTINS !! 'Client' = import 'Client'
+BUILTINS !! 'config' = import '../config'
+BUILTINS !! 'd' = d = Client config.CLIENT_ADDRESS
+d.reconnect
 import '/dg/__main__'
