@@ -3,6 +3,7 @@ import '/dogeweb/r'
 import '/dogeweb/abort'
 
 import 'tools'
+import 'static'
 import '../config'
 import '../database/Client'
 
@@ -15,7 +16,7 @@ WebClient = subclass Client where
     r
 
 data = WebClient config.CLIENT_ADDRESS
-app  = dogeweb.app
+app  = dogeweb.app static_dir: (head static.__path__)
   import 'core/mod'
   e ~>
     # TODO logging
