@@ -2,10 +2,6 @@ import '/os'
 import '/os/path'
 import '/socket'
 
-# Flask configuration should go here.
-# See http://flask.pocoo.org/docs/config/ for details.
-JSON_AS_ASCII = False
-
 # This is displayed in the navbar on all pages except for the index.
 SITE_NAME = 'Yobach'
 
