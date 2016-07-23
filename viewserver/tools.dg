@@ -91,7 +91,7 @@ fdsave = fd (full, thumb, cls) ->
   full  = path.join config.UPLOAD_DIR full
   thumb = path.join config.UPLOAD_DIR thumb
   size  = '{0}x{0}>'.format config.THUMBNAIL_SIZE
-  yield from $ fd.save full
+  await fd.save full
   if cls == ''      => runcmd 'convert' (full + '[0]') '-resize' size thumb
      cls == 'anim'  => runcmd 'convert' (full + '[0]') '-resize' size thumb
      cls == 'video' =>

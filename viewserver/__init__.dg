@@ -112,7 +112,7 @@ post_create = board ~>
     parent == 0 => data.thread_create board        title sage htext fnames ip
     otherwise   => data.post_create   board parent title sage htext fnames ip
 
-  for (file, info) in zip files fnames => yield from $ fdsave file info
+  for (file, info) in zip files fnames => await fdsave file info
   # Redirecting to `.thread` may be more useful if not for the fact
   # that forms should be submitted though AJAX/external apps.
   @redirect $ @url_for '.post' board: board id: thread
